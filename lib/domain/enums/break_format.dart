@@ -1,8 +1,8 @@
-/// Determines which player breaks each rack.
+/// Determines which side breaks each rack.
 enum BreakFormat {
-  /// The winner of the previous rack breaks the next one.
+  /// The side that won the previous rack breaks the next one.
   winnerBreak,
 
-  /// Players alternate breaking each rack.
+  /// Sides alternate breaking each rack.
   alternateBreak,
 }
