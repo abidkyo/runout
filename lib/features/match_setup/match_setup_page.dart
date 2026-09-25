@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/features/match_setup/player_slot.dart';
 
 /// Setup page. Lets the user pick players and match settings.
 class MatchSetupPage extends StatelessWidget {
@@ -29,16 +30,35 @@ class MatchSetupPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
-        children: List.generate(
-          mode.sideCount,
-          (i) => Expanded(
+        children: [
+          for (var i = 0; i < mode.sideCount; i++)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: _buildSideColumn(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSideColumn() {
+    return Column(
+      children: [
+        for (var i = 0; i < mode.playersPerSide; i++)
+          Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _SideCardPlaceholder(index: i),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: PlayerSlot(
+                player: null,
+                // Country is hidden in doubles to save space for two names.
+                showCountry: mode != MatchMode.doubles,
+                onTap: () {},
+              ),
             ),
           ),
-        ),
-      ),
+      ],
     );
   }
 
@@ -48,26 +68,6 @@ class MatchSetupPage extends StatelessWidget {
       child: SizedBox(
         height: 80,
         child: Center(child: Text('Settings bar')),
-      ),
-    );
-  }
-}
-
-/// Temporary placeholder for a side card.
-class _SideCardPlaceholder extends StatelessWidget {
-  const new({required this.index});
-
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Center(
-        child: Text(
-          'Side ${index + 1}',
-          style: theme.textTheme.titleLarge,
-        ),
       ),
     );
   }

@@ -28,4 +28,19 @@ enum MatchMode {
         return 0;
     }
   }
+
+  /// Number of players per side in this mode.
+  ///
+  /// Returns 0 for [MatchMode.tournament].
+  int get playersPerSide {
+    switch (this) {
+      case MatchMode.singles:
+      case MatchMode.threePlayer:
+        return 1;
+      case MatchMode.doubles:
+        return 2;
+      case MatchMode.tournament:
+        return 0;
+    }
+  }
 }
