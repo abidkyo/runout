@@ -70,16 +70,31 @@ class MatchSetupNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Whether every slot has a player assigned.
-  bool get allPlayersPicked =>
-      _players.every((side) => side.every((p) => p != null));
+  /// Returns null if the player selection is valid, or an error message.
+  String? validatePlayers() {
+    final all = _players.expand((s) => s).toList();
+    final picked = all.whereType<Player>().toList();
+
+    if (picked.length < all.length) {
+      return 'Players incomplete, please fill all player slots.';
+    }
+
+    final ids = picked.map((p) => p.id).toSet();
+    if (ids.length != picked.length) {
+      return 'Duplicate players detected, please pick different players.';
+    }
+
+    return null;
+  }
 
   /// Builds a [Match] from the current setup.
   ///
-  /// Only valid when [allPlayersPicked] is true.
+  /// Throws a [StateError] if [validatePlayers] returns a non-null error,
+  /// which happens when some slots are empty or duplicate players are used.
   Match buildMatch() {
-    if (!allPlayersPicked) {
-      throw StateError('Cannot build a match with empty slots.');
+    final error = validatePlayers();
+    if (error != null) {
+      throw StateError(error);
     }
 
     final config = MatchConfig(

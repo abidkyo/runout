@@ -39,11 +39,6 @@ void main() {
       expect(n.players[1].length, 1);
       expect(n.players[2].length, 1);
     });
-
-    test('allPlayersPicked is false initially', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
-      expect(n.allPlayersPicked, isFalse);
-    });
   });
 
   group('setters', () {
@@ -147,17 +142,6 @@ void main() {
       expect(n.players.expand((s) => s).every((p) => p == null), isTrue);
       expect(notified, isFalse);
     });
-
-    test('allPlayersPicked becomes true when all slots are filled', () {
-      final n = MatchSetupNotifier(mode: MatchMode.doubles)
-        ..setPlayer(0, 0, makePlayer('p1'))
-        ..setPlayer(0, 1, makePlayer('p2'))
-        ..setPlayer(1, 0, makePlayer('p3'));
-      expect(n.allPlayersPicked, isFalse);
-
-      n.setPlayer(1, 1, makePlayer('p4'));
-      expect(n.allPlayersPicked, isTrue);
-    });
   });
 
   group('clearPlayer', () {
@@ -171,17 +155,6 @@ void main() {
 
       expect(n.players[0][0], isNull);
       expect(notified, isTrue);
-    });
-
-    test('allPlayersPicked becomes false after clearing', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'))
-        ..setPlayer(1, 0, makePlayer('p2'));
-      expect(n.allPlayersPicked, isTrue);
-
-      n.clearPlayer(0, 0);
-
-      expect(n.allPlayersPicked, isFalse);
     });
 
     test('ignores out-of-range indexes without notifying', () {
@@ -221,7 +194,128 @@ void main() {
     });
   });
 
+  group('validatePlayers', () {
+    test('returns null when all slots are filled with distinct players', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      expect(n.validatePlayers(), isNull);
+    });
+
+    test('valid doubles setup returns null', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p2'))
+        ..setPlayer(1, 0, makePlayer('p3'))
+        ..setPlayer(1, 1, makePlayer('p4'));
+
+      expect(n.validatePlayers(), isNull);
+    });
+
+    test('returns incomplete message when a slot is empty', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'));
+
+      expect(
+        n.validatePlayers(),
+        'Players incomplete, please fill all player slots.',
+      );
+    });
+
+    test('returns duplicate message when the same player appears twice', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p1'));
+
+      expect(
+        n.validatePlayers(),
+        'Duplicate players detected, please pick different players.',
+      );
+    });
+
+    test('detects duplicates in doubles mode', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p2'))
+        ..setPlayer(1, 0, makePlayer('p1'))
+        ..setPlayer(1, 1, makePlayer('p3'));
+
+      expect(
+        n.validatePlayers(),
+        'Duplicate players detected, please pick different players.',
+      );
+    });
+
+    test('detects duplicates in threePlayer mode', () {
+      final n = MatchSetupNotifier(mode: MatchMode.threePlayer)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..setPlayer(2, 0, makePlayer('p1'));
+
+      expect(
+        n.validatePlayers(),
+        'Duplicate players detected, please pick different players.',
+      );
+    });
+
+    test('incomplete takes priority over duplicate', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p1')) // duplicate within side 0
+        ..setPlayer(1, 0, makePlayer('p2'));
+      // side 1 slot 1 left empty
+
+      expect(
+        n.validatePlayers(),
+        'Players incomplete, please fill all player slots.',
+      );
+    });
+  });
+
   group('buildMatch', () {
+    test('throws StateError when validation fails', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'));
+
+      expect(n.buildMatch, throwsStateError);
+    });
+
+    test('throws StateError on duplicate players', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p1'));
+
+      expect(n.buildMatch, throwsStateError);
+    });
+
+    test(
+      'produces a Match with status created and no breaker, times, or winner',
+      () {
+        final n = MatchSetupNotifier(mode: MatchMode.singles)
+          ..setPlayer(0, 0, makePlayer('p1'))
+          ..setPlayer(1, 0, makePlayer('p2'));
+
+        final m = n.buildMatch();
+
+        expect(m.status, MatchStatus.created);
+        expect(m.startedAt, isNull);
+        expect(m.currentBreakerIndex, isNull);
+        expect(m.winnerIndex, isNull);
+      },
+    );
+
+    test('produces a Match with a unique id in each call', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final a = n.buildMatch();
+      final b = n.buildMatch();
+
+      expect(a.id == b.id, isFalse);
+    });
+
     test('produces a Match with the right config', () {
       final n = MatchSetupNotifier(mode: MatchMode.singles)
         ..gameType = GameType.nineBall
@@ -238,7 +332,18 @@ void main() {
       expect(m.config.raceTo, 7);
     });
 
-    test('produces the correct number of sides and players', () {
+    test('produces two sides for singles', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.sides.length, 2);
+      expect(m.sides.every((s) => s.players.length == 1), isTrue);
+    });
+
+    test('produces two sides of two players in slot order', () {
       final n = MatchSetupNotifier(mode: MatchMode.doubles)
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(0, 1, makePlayer('p2'))
@@ -248,10 +353,9 @@ void main() {
       final m = n.buildMatch();
 
       expect(m.sides.length, 2);
-      expect(m.sides[0].players.length, 2);
-      expect(m.sides[1].players.length, 2);
-      expect(m.sides[0].players[0].id, 'p1');
-      expect(m.sides[1].players[1].id, 'p4');
+      expect(m.sides.every((s) => s.players.length == 2), isTrue);
+      expect(m.sides[0].players.map((p) => p.id), ['p1', 'p2']);
+      expect(m.sides[1].players.map((p) => p.id), ['p3', 'p4']);
     });
 
     test('produces three sides for threePlayer mode', () {
@@ -266,23 +370,22 @@ void main() {
       expect(m.sides.every((s) => s.players.length == 1), isTrue);
     });
 
-    test('doubles side preserves slot order', () {
-      final n = MatchSetupNotifier(mode: MatchMode.doubles)
-        ..setPlayer(0, 0, makePlayer('a'))
-        ..setPlayer(0, 1, makePlayer('b'))
-        ..setPlayer(1, 0, makePlayer('c'))
-        ..setPlayer(1, 1, makePlayer('d'));
-
-      final m = n.buildMatch();
-
-      expect(m.sides[0].players.map((p) => p.id), ['a', 'b']);
-      expect(m.sides[1].players.map((p) => p.id), ['c', 'd']);
-    });
-
-    test('scores start at zero', () {
+    test('scores start at zero for singles', () {
       final n = MatchSetupNotifier(mode: MatchMode.singles)
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.scores, [0, 0]);
+    });
+
+    test('scores start at zero for doubles', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p2'))
+        ..setPlayer(1, 0, makePlayer('p3'))
+        ..setPlayer(1, 1, makePlayer('p4'));
 
       final m = n.buildMatch();
 
@@ -298,38 +401,6 @@ void main() {
       final m = n.buildMatch();
 
       expect(m.scores, [0, 0, 0]);
-    });
-
-    test('status starts as created', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'))
-        ..setPlayer(1, 0, makePlayer('p2'));
-
-      final m = n.buildMatch();
-
-      expect(m.status, MatchStatus.created);
-      expect(m.startedAt, isNull);
-      expect(m.currentBreakerIndex, isNull);
-      expect(m.winnerIndex, isNull);
-    });
-
-    test('each call produces a unique id', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'))
-        ..setPlayer(1, 0, makePlayer('p2'));
-
-      final a = n.buildMatch();
-      final b = n.buildMatch();
-
-      expect(a.id == b.id, isFalse);
-    });
-
-    test('throws StateError when a slot is empty', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
-      // side 1 slot 0 still empty
-
-      expect(n.buildMatch, throwsStateError);
     });
   });
 }

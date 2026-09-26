@@ -54,7 +54,19 @@ class _MatchSetupView extends StatelessWidget {
   }
 
   void _start(BuildContext context) {
-    final match = context.read<MatchSetupNotifier>().buildMatch();
+    final notifier = context.read<MatchSetupNotifier>();
+    final error = notifier.validatePlayers();
+
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(error), showCloseIcon: true),
+        );
+      return;
+    }
+
+    final match = notifier.buildMatch();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => MatchPage(match: match),

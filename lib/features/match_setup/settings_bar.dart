@@ -55,7 +55,7 @@ class SettingsBar extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               FilledButton.icon(
-                onPressed: notifier.allPlayersPicked ? onStart : null,
+                onPressed: onStart,
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Start Match'),
               ),
