@@ -3,6 +3,7 @@ import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
 
 import '../../helpers/factories.dart';
@@ -217,6 +218,118 @@ void main() {
 
       expect(n.players[0][0]?.id, 'p1');
       expect(notified, isFalse);
+    });
+  });
+
+  group('buildMatch', () {
+    test('produces a Match with the right config', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..gameType = GameType.nineBall
+        ..breakFormat = BreakFormat.alternateBreak
+        ..raceTo = 7
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.config.matchMode, MatchMode.singles);
+      expect(m.config.gameType, GameType.nineBall);
+      expect(m.config.breakFormat, BreakFormat.alternateBreak);
+      expect(m.config.raceTo, 7);
+    });
+
+    test('produces the correct number of sides and players', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p2'))
+        ..setPlayer(1, 0, makePlayer('p3'))
+        ..setPlayer(1, 1, makePlayer('p4'));
+
+      final m = n.buildMatch();
+
+      expect(m.sides.length, 2);
+      expect(m.sides[0].players.length, 2);
+      expect(m.sides[1].players.length, 2);
+      expect(m.sides[0].players[0].id, 'p1');
+      expect(m.sides[1].players[1].id, 'p4');
+    });
+
+    test('produces three sides for threePlayer mode', () {
+      final n = MatchSetupNotifier(mode: MatchMode.threePlayer)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..setPlayer(2, 0, makePlayer('p3'));
+
+      final m = n.buildMatch();
+
+      expect(m.sides.length, 3);
+      expect(m.sides.every((s) => s.players.length == 1), isTrue);
+    });
+
+    test('doubles side preserves slot order', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 0, makePlayer('a'))
+        ..setPlayer(0, 1, makePlayer('b'))
+        ..setPlayer(1, 0, makePlayer('c'))
+        ..setPlayer(1, 1, makePlayer('d'));
+
+      final m = n.buildMatch();
+
+      expect(m.sides[0].players.map((p) => p.id), ['a', 'b']);
+      expect(m.sides[1].players.map((p) => p.id), ['c', 'd']);
+    });
+
+    test('scores start at zero', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.scores, [0, 0]);
+    });
+
+    test('scores start at zero for three players', () {
+      final n = MatchSetupNotifier(mode: MatchMode.threePlayer)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..setPlayer(2, 0, makePlayer('p3'));
+
+      final m = n.buildMatch();
+
+      expect(m.scores, [0, 0, 0]);
+    });
+
+    test('status starts as created', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.status, MatchStatus.created);
+      expect(m.startedAt, isNull);
+      expect(m.currentBreakerIndex, isNull);
+      expect(m.winnerIndex, isNull);
+    });
+
+    test('each call produces a unique id', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final a = n.buildMatch();
+      final b = n.buildMatch();
+
+      expect(a.id == b.id, isFalse);
+    });
+
+    test('throws StateError when a slot is empty', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..setPlayer(0, 0, makePlayer('p1'));
+      // side 1 slot 0 still empty
+
+      expect(n.buildMatch, throwsStateError);
     });
   });
 }

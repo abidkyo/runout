@@ -3,7 +3,11 @@ import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/match.dart';
+import 'package:runout/domain/models/match_config.dart';
+import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/domain/models/player.dart';
+import 'package:uuid/uuid.dart';
 
 /// Holds the in-progress configuration for a match setup.
 class MatchSetupNotifier extends ChangeNotifier {
@@ -69,4 +73,32 @@ class MatchSetupNotifier extends ChangeNotifier {
   /// Whether every slot has a player assigned.
   bool get allPlayersPicked =>
       _players.every((side) => side.every((p) => p != null));
+
+  /// Builds a [Match] from the current setup.
+  ///
+  /// Only valid when [allPlayersPicked] is true.
+  Match buildMatch() {
+    if (!allPlayersPicked) {
+      throw StateError('Cannot build a match with empty slots.');
+    }
+
+    final config = MatchConfig(
+      matchMode: _mode,
+      gameType: _gameType,
+      raceTo: _raceTo,
+      breakFormat: _breakFormat,
+    );
+
+    final sides = _players
+        .map((side) => MatchSide(players: side.whereType<Player>().toList()))
+        .toList();
+
+    return Match(
+      id: const Uuid().v7(),
+      config: config,
+      sides: sides,
+      scores: List<int>.filled(sides.length, 0),
+      status: MatchStatus.created,
+    );
+  }
 }

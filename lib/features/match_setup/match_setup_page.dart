@@ -54,8 +54,11 @@ class _MatchSetupView extends StatelessWidget {
   }
 
   void _start(BuildContext context) {
+    final match = context.read<MatchSetupNotifier>().buildMatch();
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const MatchPage()),
+      MaterialPageRoute<void>(
+        builder: (_) => MatchPage(match: match),
+      ),
     );
   }
 
