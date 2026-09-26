@@ -1,16 +1,32 @@
 import 'package:flutter/foundation.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
+import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/player.dart';
 
 /// Holds the in-progress configuration for a match setup.
 class MatchSetupNotifier extends ChangeNotifier {
+  new({required MatchMode mode})
+    : _mode = mode,
+      _players = List.generate(
+        mode.sideCount,
+        (_) => List<Player?>.filled(mode.playersPerSide, null),
+      );
+
+  final MatchMode _mode;
+
   GameType _gameType = GameType.eightBall;
   BreakFormat _breakFormat = BreakFormat.winnerBreak;
   int _raceTo = 5;
+  final List<List<Player?>> _players;
 
+  MatchMode get mode => _mode;
   GameType get gameType => _gameType;
   BreakFormat get breakFormat => _breakFormat;
   int get raceTo => _raceTo;
+
+  /// Players per side. Outer list = sides, inner list = slots.
+  List<List<Player?>> get players => _players;
 
   set gameType(GameType value) {
     if (_gameType == value) return;
@@ -30,4 +46,26 @@ class MatchSetupNotifier extends ChangeNotifier {
     _raceTo = clamped;
     notifyListeners();
   }
+
+  /// Assigns [player] to the given side and slot.
+  void setPlayer(int sideIndex, int slotIndex, Player player) {
+    if (sideIndex < 0 || sideIndex >= _players.length) return;
+    if (slotIndex < 0 || slotIndex >= _players[sideIndex].length) return;
+
+    _players[sideIndex][slotIndex] = player;
+    notifyListeners();
+  }
+
+  /// Clears the player in the given side and slot.
+  void clearPlayer(int sideIndex, int slotIndex) {
+    if (sideIndex < 0 || sideIndex >= _players.length) return;
+    if (slotIndex < 0 || slotIndex >= _players[sideIndex].length) return;
+
+    _players[sideIndex][slotIndex] = null;
+    notifyListeners();
+  }
+
+  /// Whether every slot has a player assigned.
+  bool get allPlayersPicked =>
+      _players.every((side) => side.every((p) => p != null));
 }

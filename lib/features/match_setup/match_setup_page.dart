@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/player.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
+import 'package:runout/features/match_setup/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/player_slot.dart';
 import 'package:runout/features/match_setup/settings_bar.dart';
 
@@ -10,13 +13,17 @@ import 'package:runout/features/match_setup/settings_bar.dart';
 class MatchSetupPage extends StatelessWidget {
   const new({required this.mode, super.key});
 
-  /// The match mode chosen on the home page.
   final MatchMode mode;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MatchSetupNotifier(),
+    return MultiProvider(
+      providers: [
+        Provider<PlayerRepository>(create: (_) => PlayerRepository()),
+        ChangeNotifierProvider(
+          create: (_) => MatchSetupNotifier(mode: mode),
+        ),
+      ],
       child: _MatchSetupView(mode: mode),
     );
   }
@@ -26,6 +33,25 @@ class _MatchSetupView extends StatelessWidget {
   const new({required this.mode});
 
   final MatchMode mode;
+
+  Future<void> _pickPlayer(
+    BuildContext context,
+    int sideIndex,
+    int slotIndex,
+  ) async {
+    final repo = context.read<PlayerRepository>();
+    final picked = await showDialog<Player>(
+      context: context,
+      builder: (_) => PlayerPickerDialog(players: repo.getAll()),
+    );
+    if (picked == null) return;
+    if (!context.mounted) return;
+    context.read<MatchSetupNotifier>().setPlayer(
+      sideIndex,
+      slotIndex,
+      picked,
+    );
+  }
 
   void _start(BuildContext context) {
     Navigator.of(context).push(
@@ -43,7 +69,12 @@ class _MatchSetupView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: _SideCards(mode: mode)),
+            Expanded(
+              child: _SideCards(
+                mode: mode,
+                onSlotTap: (side, slot) => _pickPlayer(context, side, slot),
+              ),
+            ),
             SettingsBar(
               onStart: () => _start(context),
               onCancel: () => Navigator.of(context).pop(),
@@ -56,9 +87,13 @@ class _MatchSetupView extends StatelessWidget {
 }
 
 class _SideCards extends StatelessWidget {
-  const new({required this.mode});
+  const new({
+    required this.mode,
+    required this.onSlotTap,
+  });
 
   final MatchMode mode;
+  final void Function(int sideIndex, int slotIndex) onSlotTap;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +105,11 @@ class _SideCards extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: _SideColumn(mode: mode),
+                child: _SideColumn(
+                  mode: mode,
+                  sideIndex: i,
+                  onSlotTap: onSlotTap,
+                ),
               ),
             ),
         ],
@@ -80,12 +119,20 @@ class _SideCards extends StatelessWidget {
 }
 
 class _SideColumn extends StatelessWidget {
-  const new({required this.mode});
+  const new({
+    required this.mode,
+    required this.sideIndex,
+    required this.onSlotTap,
+  });
 
   final MatchMode mode;
+  final int sideIndex;
+  final void Function(int sideIndex, int slotIndex) onSlotTap;
 
   @override
   Widget build(BuildContext context) {
+    final players = context.watch<MatchSetupNotifier>().players[sideIndex];
+
     return Column(
       children: [
         for (var i = 0; i < mode.playersPerSide; i++)
@@ -93,10 +140,10 @@ class _SideColumn extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: PlayerSlot(
-                player: null,
+                player: players[i],
                 // Country is hidden in doubles to save space for two names.
                 showCountry: mode != MatchMode.doubles,
-                onTap: () {},
+                onTap: () => onSlotTap(sideIndex, i),
               ),
             ),
           ),
