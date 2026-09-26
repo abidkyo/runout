@@ -7,8 +7,8 @@ class NumberStepper extends StatefulWidget {
   const new({
     required this.value,
     required this.onChanged,
-    this.min = 1,
-    this.max = 999,
+    required this.min,
+    required this.max,
     super.key,
   });
 

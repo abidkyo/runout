@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
@@ -38,6 +39,8 @@ class SettingsBar extends StatelessWidget {
               const SizedBox(width: 8),
               NumberStepper(
                 value: notifier.raceTo,
+                min: MatchLimits.minRaceTo,
+                max: MatchLimits.maxRaceTo,
                 onChanged: (v) => notifier.raceTo = v,
               ),
             ],

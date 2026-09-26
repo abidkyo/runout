@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
@@ -41,7 +42,7 @@ class MatchSetupNotifier extends ChangeNotifier {
   }
 
   set raceTo(int value) {
-    final clamped = value.clamp(1, 999);
+    final clamped = value.clamp(MatchLimits.minRaceTo, MatchLimits.maxRaceTo);
     if (_raceTo == clamped) return;
     _raceTo = clamped;
     notifyListeners();
