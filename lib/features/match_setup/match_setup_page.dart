@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/features/match/match_page.dart';
+import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/player_slot.dart';
+import 'package:runout/features/match_setup/settings_bar.dart';
 
 /// Setup page. Lets the user pick players and match settings.
 class MatchSetupPage extends StatelessWidget {
@@ -11,22 +15,53 @@ class MatchSetupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => MatchSetupNotifier(),
+      child: _MatchSetupView(mode: mode),
+    );
+  }
+}
+
+class _MatchSetupView extends StatelessWidget {
+  const new({required this.mode});
+
+  final MatchMode mode;
+
+  void _start(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const MatchPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(mode.name),
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: _buildSideCards()),
-            _buildSettingsBar(),
+            Expanded(child: _SideCards(mode: mode)),
+            SettingsBar(
+              onStart: () => _start(context),
+              onCancel: () => Navigator.of(context).pop(),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildSideCards() {
+class _SideCards extends StatelessWidget {
+  const new({required this.mode});
+
+  final MatchMode mode;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -35,15 +70,22 @@ class MatchSetupPage extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: _buildSideColumn(),
+                child: _SideColumn(mode: mode),
               ),
             ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSideColumn() {
+class _SideColumn extends StatelessWidget {
+  const new({required this.mode});
+
+  final MatchMode mode;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         for (var i = 0; i < mode.playersPerSide; i++)
@@ -59,16 +101,6 @@ class MatchSetupPage extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _buildSettingsBar() {
-    return const Padding(
-      padding: EdgeInsets.all(16),
-      child: SizedBox(
-        height: 80,
-        child: Center(child: Text('Settings bar')),
-      ),
     );
   }
 }
