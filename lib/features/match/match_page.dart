@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/widgets/side_columns.dart';
 
 /// The match scoring page.
 class MatchPage extends StatelessWidget {
@@ -23,6 +25,9 @@ class _MatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mode = context.watch<MatchNotifier>().match.config.matchMode;
+    final showCountry = mode != MatchMode.doubles;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match'),
@@ -31,7 +36,7 @@ class _MatchView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: _ScoreArea()),
+            Expanded(child: _ScoreArea(showCountry: showCountry)),
             _ControlsBar(),
           ],
         ),
@@ -41,9 +46,34 @@ class _MatchView extends StatelessWidget {
 }
 
 class _ScoreArea extends StatelessWidget {
+  const new({required this.showCountry});
+
+  final bool showCountry;
+
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Score area'));
+    final notifier = context.watch<MatchNotifier>();
+    final match = notifier.match;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          for (var i = 0; i < match.sides.length; i++)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: SideColumn(
+                  side: match.sides[i],
+                  score: match.scores[i],
+                  showCountry: showCountry,
+                  onScoreTap: () {}, // wired in next step
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

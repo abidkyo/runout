@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
+
+/// A large, tappable score display that fills its available space.
+class ScoreButton extends StatelessWidget {
+  const new({
+    required this.score,
+    required this.onTap,
+    super.key,
+  });
+
+  /// The score to display.
+  final int score;
+
+  /// Called when the score area is tapped.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: AutoSizeText(
+              '$score',
+              style: theme.textTheme.displayLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              minFontSize: 24,
+              maxFontSize: 200,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
