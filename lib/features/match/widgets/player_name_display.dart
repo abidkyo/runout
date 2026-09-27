@@ -3,23 +3,25 @@ import 'package:runout/domain/models/match_side.dart';
 
 /// Displays the players of a side, with country shown above the name.
 ///
-/// When [isWinner] is true, a trophy icon is shown next to the first name.
+/// Leading indicators:
+/// - [isWinner] shows a trophy icon.
+/// - [isBreaker] shows a ball icon.
 class PlayerNameDisplay extends StatelessWidget {
   const new({
     required this.side,
     required this.showCountry,
     this.isWinner = false,
+    this.isBreaker = false,
     super.key,
   });
 
   final MatchSide side;
   final bool showCountry;
   final bool isWinner;
+  final bool isBreaker;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     final names = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -34,20 +36,36 @@ class PlayerNameDisplay extends StatelessWidget {
       ],
     );
 
-    if (!isWinner) return names;
+    if (!isWinner && !isBreaker) return names;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.emoji_events,
-          size: 20,
-          color: theme.colorScheme.primary,
-        ),
+        if (isWinner) const _LeadingIcon(icon: Icons.emoji_events),
+        if (isBreaker) const _LeadingIcon(icon: Icons.sports_baseball),
         const SizedBox(width: 8),
         Flexible(child: names),
       ],
+    );
+  }
+}
+
+/// A small leading icon shown beside the player names.
+class _LeadingIcon extends StatelessWidget {
+  const new({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Icon(
+        icon,
+        size: 20,
+        color: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 }

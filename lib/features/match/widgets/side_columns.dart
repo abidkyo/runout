@@ -13,6 +13,7 @@ class SideColumn extends StatelessWidget {
     required this.child,
     this.isWinner = false,
     this.isDimmed = false,
+    this.isBreaker = false,
     super.key,
   });
 
@@ -21,6 +22,7 @@ class SideColumn extends StatelessWidget {
   final Widget child;
   final bool isWinner;
   final bool isDimmed;
+  final bool isBreaker;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,7 @@ class SideColumn extends StatelessWidget {
           side: side,
           showCountry: showCountry,
           isWinner: isWinner,
+          isBreaker: isBreaker,
         ),
         const SizedBox(height: 8),
         Expanded(child: child),
