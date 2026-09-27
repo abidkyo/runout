@@ -3,20 +3,24 @@ import 'package:runout/domain/models/match_side.dart';
 
 /// Displays the players of a side, with country shown above the name.
 ///
-/// In doubles mode, [showCountry] is false to save space for two names.
+/// When [isWinner] is true, a trophy icon is shown next to the first name.
 class PlayerNameDisplay extends StatelessWidget {
   const new({
     required this.side,
     required this.showCountry,
+    this.isWinner = false,
     super.key,
   });
 
   final MatchSide side;
   final bool showCountry;
+  final bool isWinner;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final theme = Theme.of(context);
+
+    final names = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final player in side.players)
@@ -27,6 +31,22 @@ class PlayerNameDisplay extends StatelessWidget {
               country: showCountry ? player.countryCode : null,
             ),
           ),
+      ],
+    );
+
+    if (!isWinner) return names;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.emoji_events,
+          size: 20,
+          color: theme.colorScheme.primary,
+        ),
+        const SizedBox(width: 8),
+        Flexible(child: names),
       ],
     );
   }

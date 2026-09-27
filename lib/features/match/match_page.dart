@@ -61,6 +61,7 @@ class _ScoreArea extends StatelessWidget {
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
     final isCreated = match.status == MatchStatus.created;
+    final isFinished = match.status == MatchStatus.finished;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -73,6 +74,8 @@ class _ScoreArea extends StatelessWidget {
                 child: SideColumn(
                   side: match.sides[i],
                   showCountry: showCountry,
+                  isWinner: isFinished && match.winnerIndex == i,
+                  isDimmed: isFinished && match.winnerIndex != i,
                   child: isCreated
                       ? BreakButton(
                           onTap: () => notifier.selectBreaker(i),
