@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
+import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
 
 /// The match scoring page.
@@ -58,6 +60,7 @@ class _ScoreArea extends StatelessWidget {
   Widget build(BuildContext context) {
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
+    final isCreated = match.status == MatchStatus.created;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -69,9 +72,15 @@ class _ScoreArea extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: SideColumn(
                   side: match.sides[i],
-                  score: match.scores[i],
                   showCountry: showCountry,
-                  onScoreTap: () {}, // wired in next step
+                  child: isCreated
+                      ? BreakButton(
+                          onTap: () => notifier.selectBreaker(i),
+                        )
+                      : ScoreButton(
+                          score: match.scores[i],
+                          onTap: () => notifier.incrementScore(i),
+                        ),
                 ),
               ),
             ),
