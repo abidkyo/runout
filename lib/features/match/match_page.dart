@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
 
 /// The match scoring page.
@@ -25,13 +26,16 @@ class _MatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mode = context.watch<MatchNotifier>().match.config.matchMode;
-    final showCountry = mode != MatchMode.doubles;
+    final config = context.watch<MatchNotifier>().match.config;
+    final showCountry = config.matchMode != MatchMode.doubles;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match'),
-        automaticallyImplyLeading: false,
+        title: Text(
+          '${config.gameType.displayName} — Race to ${config.raceTo}',
+        ),
+        centerTitle: true,
+        actions: const [MatchTimer()],
       ),
       body: SafeArea(
         child: Column(
