@@ -4,7 +4,7 @@ import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
-import 'package:runout/features/match_setup/number_stepper.dart';
+import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 
 /// Bottom bar of the setup page: game type, break format, race-to, start.
 class SettingsBar extends StatelessWidget {
