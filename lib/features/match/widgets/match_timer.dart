@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:runout/domain/models/match.dart';
 
@@ -47,7 +48,7 @@ class _MatchTimerState extends State<MatchTimer> {
   Duration get _elapsed {
     final start = widget.match.startedAt;
     if (start == null) return Duration.zero;
-    final end = widget.match.endedAt ?? DateTime.now();
+    final end = widget.match.endedAt ?? clock.now();
     return end.difference(start);
   }
 

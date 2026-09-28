@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/models/match.dart';
@@ -40,7 +41,7 @@ class MatchNotifier extends ChangeNotifier {
     _pushHistory();
     _match = _match.copyWith(
       status: MatchStatus.playing,
-      startedAt: DateTime.now(),
+      startedAt: clock.now(),
       currentBreakerIndex: sideIndex,
     );
     notifyListeners();
@@ -71,7 +72,7 @@ class MatchNotifier extends ChangeNotifier {
       _match = _match.copyWith(
         scores: updatedScores,
         status: MatchStatus.finished,
-        endedAt: DateTime.now(),
+        endedAt: clock.now(),
         winnerIndex: sideIndex,
         currentBreakerIndex: nextBreaker,
       );
