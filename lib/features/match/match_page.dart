@@ -4,6 +4,7 @@ import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
+import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
@@ -26,6 +27,14 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
+  void _restart(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void _exit(BuildContext context) {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   @override
   Widget build(BuildContext context) {
     final config = context.watch<MatchNotifier>().match.config;
@@ -37,13 +46,17 @@ class _MatchView extends StatelessWidget {
           '${config.gameType.displayName} — Race to ${config.raceTo}',
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false,
         actions: const [MatchTimer()],
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(child: _ScoreArea(showCountry: showCountry)),
-            _ControlsBar(),
+            ControlsBar(
+              onRestart: () => _restart(context),
+              onExit: () => _exit(context),
+            ),
           ],
         ),
       ),
@@ -90,19 +103,6 @@ class _ScoreArea extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _ControlsBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16),
-      child: SizedBox(
-        height: 80,
-        child: Center(child: Text('Controls bar')),
       ),
     );
   }
