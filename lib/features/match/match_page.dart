@@ -37,7 +37,8 @@ class _MatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = context.watch<MatchNotifier>().match.config;
+    final match = context.watch<MatchNotifier>().match;
+    final config = match.config;
     final showCountry = config.matchMode != MatchMode.doubles;
 
     return Scaffold(
@@ -47,7 +48,7 @@ class _MatchView extends StatelessWidget {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        actions: const [MatchTimer()],
+        actions: [MatchTimer(match: match)],
       ),
       body: SafeArea(
         child: Column(
