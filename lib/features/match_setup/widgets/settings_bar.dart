@@ -41,6 +41,7 @@ class SettingsBar extends StatelessWidget {
                 value: notifier.raceTo,
                 min: MatchLimits.minRaceTo,
                 max: MatchLimits.maxRaceTo,
+                leadingLabel: 'Race to',
                 onChanged: (v) => notifier.raceTo = v,
               ),
             ],

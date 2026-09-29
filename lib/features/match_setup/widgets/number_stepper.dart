@@ -9,6 +9,8 @@ class NumberStepper extends StatefulWidget {
     required this.onChanged,
     required this.min,
     required this.max,
+    this.leadingLabel,
+    this.trailingLabel,
     super.key,
   });
 
@@ -16,6 +18,8 @@ class NumberStepper extends StatefulWidget {
   final ValueChanged<int> onChanged;
   final int min;
   final int max;
+  final String? leadingLabel;
+  final String? trailingLabel;
 
   @override
   State<NumberStepper> createState() => _NumberStepperState();
@@ -77,11 +81,13 @@ class _NumberStepperState extends State<NumberStepper> {
           onLongPressEnd: _cancelTimer,
         ),
         SizedBox(
-          width: 64,
+          width: 160,
           child: Text(
-            '${widget.value}',
+            '${widget.leadingLabel ?? ''}'
+            ' ${widget.value} '
+            '${widget.trailingLabel ?? ''}',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         _StepButton(
