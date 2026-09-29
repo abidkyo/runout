@@ -5,9 +5,10 @@ import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/player.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
+import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/widgets/player_slot.dart';
-import 'package:runout/features/match_setup/widgets/settings_bar.dart';
+import 'package:runout/features/match_setup/widgets/setup_actions.dart';
 
 /// Setup page. Lets the user pick players and match settings.
 class MatchSetupPage extends StatelessWidget {
@@ -85,12 +86,13 @@ class _MatchSetupView extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: _SideCards(
+              child: _SideRow(
                 mode: mode,
                 onSlotTap: (side, slot) => _pickPlayer(context, side, slot),
               ),
             ),
-            SettingsBar(
+            const MatchConfigPanel(),
+            SetupActions(
               onStart: () => _start(context),
               onCancel: () => Navigator.of(context).pop(),
             ),
@@ -101,7 +103,7 @@ class _MatchSetupView extends StatelessWidget {
   }
 }
 
-class _SideCards extends StatelessWidget {
+class _SideRow extends StatelessWidget {
   const new({
     required this.mode,
     required this.onSlotTap,
@@ -112,23 +114,20 @@ class _SideCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          for (var i = 0; i < mode.sideCount; i++)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: _SideColumn(
-                  mode: mode,
-                  sideIndex: i,
-                  onSlotTap: onSlotTap,
-                ),
+    return Row(
+      children: [
+        for (var i = 0; i < mode.sideCount; i++)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: _SideColumn(
+                mode: mode,
+                sideIndex: i,
+                onSlotTap: onSlotTap,
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

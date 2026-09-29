@@ -7,12 +7,8 @@ import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 
 /// Bottom bar of the setup page: game type, break format, race-to, start.
-class SettingsBar extends StatelessWidget {
-  const new({required this.onStart, required this.onCancel, super.key});
-
-  /// Called when the user taps Start/Cancel.
-  final VoidCallback onStart;
-  final VoidCallback onCancel;
+class MatchConfigPanel extends StatelessWidget {
+  const new({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,45 +16,34 @@ class SettingsBar extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GameTypeSelector(
                 value: notifier.gameType,
                 onChanged: (v) => notifier.gameType = v,
               ),
-              const SizedBox(width: 24),
+              const SizedBox(height: 16),
               _BreakFormatSelector(
                 value: notifier.breakFormat,
                 onChanged: (v) => notifier.breakFormat = v,
               ),
-              const SizedBox(width: 24),
-              _RaceToLabel(),
-              const SizedBox(width: 8),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               NumberStepper(
                 value: notifier.raceTo,
                 min: MatchLimits.minRaceTo,
                 max: MatchLimits.maxRaceTo,
                 leadingLabel: 'Race to',
                 onChanged: (v) => notifier.raceTo = v,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              OutlinedButton(
-                onPressed: onCancel,
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 12),
-              FilledButton.icon(
-                onPressed: onStart,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Start Match'),
               ),
             ],
           ),
@@ -78,6 +63,9 @@ class _GameTypeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return SegmentedButton<GameType>(
       showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      ),
       segments: const [
         ButtonSegment(value: GameType.eightBall, label: Text('8-Ball')),
         ButtonSegment(value: GameType.nineBall, label: Text('9-Ball')),
@@ -99,6 +87,9 @@ class _BreakFormatSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return SegmentedButton<BreakFormat>(
       showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      ),
       segments: const [
         ButtonSegment(
           value: BreakFormat.winnerBreak,
@@ -111,16 +102,6 @@ class _BreakFormatSelector extends StatelessWidget {
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
-    );
-  }
-}
-
-class _RaceToLabel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      'Race to',
-      style: Theme.of(context).textTheme.titleMedium,
     );
   }
 }

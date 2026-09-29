@@ -73,6 +73,7 @@ class _NumberStepperState extends State<NumberStepper> {
           onLongPressStart: () => _startRepeat(-10),
           onLongPressEnd: _cancelTimer,
         ),
+        const SizedBox(width: 12),
         _StepButton(
           label: '−',
           enabled: canDecrease,
@@ -80,6 +81,7 @@ class _NumberStepperState extends State<NumberStepper> {
           onLongPressStart: () => _startRepeat(-1),
           onLongPressEnd: _cancelTimer,
         ),
+        const SizedBox(width: 12),
         SizedBox(
           width: 160,
           child: Text(
@@ -90,6 +92,7 @@ class _NumberStepperState extends State<NumberStepper> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
+        const SizedBox(width: 12),
         _StepButton(
           label: '+',
           enabled: canIncrease,
@@ -97,6 +100,7 @@ class _NumberStepperState extends State<NumberStepper> {
           onLongPressStart: () => _startRepeat(1),
           onLongPressEnd: _cancelTimer,
         ),
+        const SizedBox(width: 12),
         _StepButton(
           label: '++',
           enabled: canIncrease,
@@ -132,18 +136,22 @@ class _StepButton extends StatelessWidget {
         ? theme.colorScheme.primary
         : theme.colorScheme.onSurface.withValues(alpha: 0.38);
 
-    return SizedBox(
+    return Container(
       width: 48,
       height: 48,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
       child: InkWell(
         onTap: enabled ? onTap : null,
         onLongPress: enabled ? onLongPressStart : null,
         onLongPressUp: enabled ? onLongPressEnd : null,
-        borderRadius: BorderRadius.circular(8),
+        customBorder: const CircleBorder(),
         child: Center(
           child: Text(
             label,
-            style: theme.textTheme.titleLarge?.copyWith(color: color),
+            style: theme.textTheme.titleMedium?.copyWith(color: color),
           ),
         ),
       ),

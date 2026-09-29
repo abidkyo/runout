@@ -62,13 +62,13 @@ class _PlayerDisplay extends StatelessWidget {
         if (showCountry)
           Text(
             player.countryCode,
-            style: theme.textTheme.labelSmall?.copyWith(
+            style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         Text(
           player.fullName,
-          style: theme.textTheme.titleMedium,
+          style: theme.textTheme.titleLarge,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
