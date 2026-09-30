@@ -69,8 +69,8 @@ class _MatchTimerState extends State<MatchTimer> {
       child: Center(
         child: Text(
           _formatted,
-          style: const TextStyle(
-            fontFeatures: [FontFeature.tabularFigures()],
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
       ),

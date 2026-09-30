@@ -27,12 +27,9 @@ class ScoreButton extends StatelessWidget {
           child: Center(
             child: AutoSizeText(
               '$score',
-              style: theme.textTheme.displayLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 20),
               maxLines: 1,
-              minFontSize: 24,
-              maxFontSize: 200,
+              minFontSize: 12 * 5,
               textAlign: TextAlign.center,
             ),
           ),

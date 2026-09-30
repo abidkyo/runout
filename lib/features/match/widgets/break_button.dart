@@ -18,8 +18,9 @@ class BreakButton extends StatelessWidget {
             'Who breaks?',
             style: theme.textTheme.headlineMedium?.copyWith(
               color: theme.colorScheme.primary,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),

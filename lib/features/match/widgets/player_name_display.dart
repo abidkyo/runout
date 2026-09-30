@@ -86,15 +86,19 @@ class _PlayerLine extends StatelessWidget {
         if (affiliation != null)
           Text(
             affiliation!,
-            style: theme.textTheme.labelSmall?.copyWith(
+            style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 12 * 1.75,
             ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         Text(
           name,
-          style: theme.textTheme.titleMedium,
+          style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 2.5),
           textAlign: TextAlign.center,
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       ],
