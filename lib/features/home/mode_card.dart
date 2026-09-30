@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runout/core/theme/app_theme.dart';
 
 /// A large tappable card representing a match mode on the home page.
 class ModeCard extends StatelessWidget {
@@ -37,7 +38,7 @@ class ModeCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 label,
-                style: theme.textTheme.titleLarge,
+                style: theme.textTheme.titleMediumLarge,
                 textAlign: TextAlign.center,
               ),
             ],
