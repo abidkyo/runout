@@ -39,7 +39,7 @@ class _MatchView extends StatelessWidget {
   Widget build(BuildContext context) {
     final match = context.watch<MatchNotifier>().match;
     final config = match.config;
-    final showCountry = config.matchMode != MatchMode.doubles;
+    final showAffiliation = config.matchMode != MatchMode.doubles;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +53,7 @@ class _MatchView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: _ScoreArea(showCountry: showCountry)),
+            Expanded(child: _ScoreArea(showAffiliation: showAffiliation)),
             ControlsBar(
               onRestart: () => _restart(context),
               onExit: () => _exit(context),
@@ -66,9 +66,9 @@ class _MatchView extends StatelessWidget {
 }
 
 class _ScoreArea extends StatelessWidget {
-  const new({required this.showCountry});
+  const new({required this.showAffiliation});
 
-  final bool showCountry;
+  final bool showAffiliation;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class _ScoreArea extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: SideColumn(
                   side: match.sides[i],
-                  showCountry: showCountry,
+                  showAffiliation: showAffiliation,
                   isWinner: isFinished && match.winnerIndex == i,
                   isDimmed: isFinished && match.winnerIndex != i,
                   isBreaker: isPlaying && match.currentBreakerIndex == i,

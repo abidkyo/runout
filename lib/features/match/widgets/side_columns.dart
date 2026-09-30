@@ -9,7 +9,7 @@ import 'package:runout/features/match/widgets/player_name_display.dart';
 class SideColumn extends StatelessWidget {
   const new({
     required this.side,
-    required this.showCountry,
+    required this.showAffiliation,
     required this.child,
     this.isWinner = false,
     this.isDimmed = false,
@@ -18,7 +18,7 @@ class SideColumn extends StatelessWidget {
   });
 
   final MatchSide side;
-  final bool showCountry;
+  final bool showAffiliation;
   final Widget child;
   final bool isWinner;
   final bool isDimmed;
@@ -32,7 +32,7 @@ class SideColumn extends StatelessWidget {
       children: [
         PlayerNameDisplay(
           side: side,
-          showCountry: showCountry,
+          showAffiliation: showAffiliation,
           isWinner: isWinner,
           isBreaker: isBreaker,
         ),

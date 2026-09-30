@@ -30,8 +30,13 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
 
   /// Unique country codes in the player list, sorted.
   List<String> get _countries {
-    final set = widget.players.map((p) => p.countryCode).toSet().toList()
-      ..sort();
+    final set =
+        widget.players
+            .map((p) => p.countryCode)
+            .whereType<String>()
+            .toSet()
+            .toList()
+          ..sort();
     return set;
   }
 
@@ -161,7 +166,7 @@ class _PlayerRow extends StatelessWidget {
       leading: SizedBox(
         width: 32,
         child: Text(
-          player.countryCode,
+          player.countryCode ?? '',
           style: Theme.of(context).textTheme.labelMedium,
         ),
       ),

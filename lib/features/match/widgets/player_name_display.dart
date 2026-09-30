@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:runout/domain/models/match_side.dart';
 
-/// Displays the players of a side, with country shown above the name.
+/// Displays the players of a side, with affiliation shown above the name.
 ///
 /// Leading indicators:
 /// - [isWinner] shows a trophy icon.
@@ -9,14 +9,14 @@ import 'package:runout/domain/models/match_side.dart';
 class PlayerNameDisplay extends StatelessWidget {
   const new({
     required this.side,
-    required this.showCountry,
+    required this.showAffiliation,
     this.isWinner = false,
     this.isBreaker = false,
     super.key,
   });
 
   final MatchSide side;
-  final bool showCountry;
+  final bool showAffiliation;
   final bool isWinner;
   final bool isBreaker;
 
@@ -30,7 +30,7 @@ class PlayerNameDisplay extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: _PlayerLine(
               name: player.fullName,
-              country: showCountry ? player.countryCode : null,
+              affiliation: showAffiliation ? player.affiliation : null,
             ),
           ),
       ],
@@ -70,12 +70,12 @@ class _LeadingIcon extends StatelessWidget {
   }
 }
 
-/// A single player line: optional country above the name.
+/// A single player line: optional affiliation above the name.
 class _PlayerLine extends StatelessWidget {
-  const new({required this.name, this.country});
+  const new({required this.name, this.affiliation});
 
   final String name;
-  final String? country;
+  final String? affiliation;
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +83,9 @@ class _PlayerLine extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (country != null)
+        if (affiliation != null)
           Text(
-            country!,
+            affiliation!,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

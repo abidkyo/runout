@@ -7,7 +7,7 @@ import 'package:runout/domain/models/player.dart';
 class PlayerSlot extends StatelessWidget {
   const new({
     required this.player,
-    required this.showCountry,
+    required this.showAffiliation,
     required this.onTap,
     super.key,
   });
@@ -15,8 +15,8 @@ class PlayerSlot extends StatelessWidget {
   /// The assigned player, or null if this slot is empty.
   final Player? player;
 
-  /// Whether to show the player's country above the name.
-  final bool showCountry;
+  /// Whether to show the player's affiliation above the name.
+  final bool showAffiliation;
 
   /// Called when the slot is tapped to pick a player.
   final VoidCallback onTap;
@@ -34,7 +34,7 @@ class PlayerSlot extends StatelessWidget {
                 ? const _EmptySlot()
                 : _PlayerDisplay(
                     player: player!,
-                    showCountry: showCountry,
+                    showAffiliation: showAffiliation,
                   ),
           ),
         ),
@@ -43,15 +43,15 @@ class PlayerSlot extends StatelessWidget {
   }
 }
 
-/// Displays a chosen player, with an optional country line.
+/// Displays a chosen player, with an optional affiliation line.
 class _PlayerDisplay extends StatelessWidget {
   const new({
     required this.player,
-    required this.showCountry,
+    required this.showAffiliation,
   });
 
   final Player player;
-  final bool showCountry;
+  final bool showAffiliation;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +59,9 @@ class _PlayerDisplay extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (showCountry)
+        if (showAffiliation)
           Text(
-            player.countryCode,
+            player.affiliation ?? '',
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
