@@ -9,19 +9,17 @@ class BreakButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Center(
-          child: Text(
-            'Who breaks?',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
+    return InkWell(
+      customBorder: const StadiumBorder(),
+      onTap: onTap,
+      child: Center(
+        child: Text(
+          'Who breaks?',
+          style: theme.textTheme.headlineMedium?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w500,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

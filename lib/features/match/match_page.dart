@@ -79,7 +79,7 @@ class _ScoreArea extends StatelessWidget {
     final isFinished = match.status == MatchStatus.finished;
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           for (var i = 0; i < match.sides.length; i++)
