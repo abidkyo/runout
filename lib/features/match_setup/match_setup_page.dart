@@ -155,8 +155,6 @@ class _SideColumn extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: PlayerSlot(
                 player: players[i],
-                // Affiliation is hidden in doubles to save space for two names.
-                showAffiliation: mode != MatchMode.doubles,
                 onTap: () => onSlotTap(sideIndex, i),
               ),
             ),

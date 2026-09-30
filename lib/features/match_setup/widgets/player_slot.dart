@@ -6,18 +6,10 @@ import 'package:runout/domain/models/player.dart';
 ///
 /// Shows either a chosen player or an empty "pick player" state.
 class PlayerSlot extends StatelessWidget {
-  const new({
-    required this.player,
-    required this.showAffiliation,
-    required this.onTap,
-    super.key,
-  });
+  const new({required this.player, required this.onTap, super.key});
 
   /// The assigned player, or null if this slot is empty.
   final Player? player;
-
-  /// Whether to show the player's affiliation above the name.
-  final bool showAffiliation;
 
   /// Called when the slot is tapped to pick a player.
   final VoidCallback onTap;
@@ -33,10 +25,7 @@ class PlayerSlot extends StatelessWidget {
           child: Center(
             child: player == null
                 ? const _EmptySlot()
-                : _PlayerDisplay(
-                    player: player!,
-                    showAffiliation: showAffiliation,
-                  ),
+                : _PlayerDisplay(player: player!),
           ),
         ),
       ),
@@ -44,15 +33,11 @@ class PlayerSlot extends StatelessWidget {
   }
 }
 
-/// Displays a chosen player, with an optional affiliation line.
+/// Displays a chosen player, with an affiliation line.
 class _PlayerDisplay extends StatelessWidget {
-  const new({
-    required this.player,
-    required this.showAffiliation,
-  });
+  const new({required this.player});
 
   final Player player;
-  final bool showAffiliation;
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +45,12 @@ class _PlayerDisplay extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (showAffiliation)
-          Text(
-            player.affiliation ?? '',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+        Text(
+          player.affiliation ?? '',
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
+        ),
         Text(
           player.fullName,
           style: theme.textTheme.titleMediumLarge,
