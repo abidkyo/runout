@@ -22,11 +22,3 @@ class AppTheme {
     appBarTheme: const AppBarTheme(centerTitle: true),
   );
 }
-
-/// App-specific text styles derived from the Material text theme.
-extension AppTextTheme on TextTheme {
-  /// `titleMedium` shape at `titleLarge` size.
-  TextStyle get titleMediumLarge => titleMedium!.copyWith(
-    fontSize: titleLarge?.fontSize,
-  );
-}

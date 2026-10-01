@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:runout/core/theme/app_theme.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/models/player.dart';
 
 /// A single fillable player slot on the setup page.
@@ -53,7 +53,7 @@ class _PlayerDisplay extends StatelessWidget {
         ),
         Text(
           player.fullName,
-          style: theme.textTheme.titleMediumLarge,
+          style: theme.textTheme.titleLargeSolid,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
