@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
@@ -39,7 +38,6 @@ class _MatchView extends StatelessWidget {
   Widget build(BuildContext context) {
     final match = context.watch<MatchNotifier>().match;
     final config = match.config;
-    final showAffiliation = config.matchMode != MatchMode.doubles;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +51,7 @@ class _MatchView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: _ScoreArea(showAffiliation: showAffiliation)),
+            const Expanded(child: _ScoreArea()),
             ControlsBar(
               onRestart: () => _restart(context),
               onExit: () => _exit(context),
@@ -66,9 +64,7 @@ class _MatchView extends StatelessWidget {
 }
 
 class _ScoreArea extends StatelessWidget {
-  const new({required this.showAffiliation});
-
-  final bool showAffiliation;
+  const new();
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +84,6 @@ class _ScoreArea extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: SideColumn(
                   side: match.sides[i],
-                  showAffiliation: showAffiliation,
                   isWinner: isFinished && match.winnerIndex == i,
                   isDimmed: isFinished && match.winnerIndex != i,
                   isBreaker: isPlaying && match.currentBreakerIndex == i,

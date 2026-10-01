@@ -3,20 +3,20 @@ import 'package:runout/domain/models/match_side.dart';
 
 /// Displays the players of a side, with affiliation shown above the name.
 ///
+/// Affiliation is only shown for the first player in the side.
+///
 /// Leading indicators:
 /// - [isWinner] shows a trophy icon.
 /// - [isBreaker] shows a ball icon.
 class PlayerNameDisplay extends StatelessWidget {
   const new({
     required this.side,
-    required this.showAffiliation,
     this.isWinner = false,
     this.isBreaker = false,
     super.key,
   });
 
   final MatchSide side;
-  final bool showAffiliation;
   final bool isWinner;
   final bool isBreaker;
 
@@ -25,13 +25,10 @@ class PlayerNameDisplay extends StatelessWidget {
     final names = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final player in side.players)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: _PlayerLine(
-              name: player.fullName,
-              affiliation: showAffiliation ? player.affiliation : null,
-            ),
+        for (var i = 0; i < side.players.length; i++)
+          _PlayerLine(
+            name: side.players[i].fullName,
+            affiliation: i == 0 ? side.players[i].affiliation : null,
           ),
       ],
     );
