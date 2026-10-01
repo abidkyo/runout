@@ -13,7 +13,4 @@ class MatchSide {
 
   /// Players belonging to this side. Length is 1 or 2.
   final List<Player> players;
-
-  /// Display name for the side. Single name, or "A / B" for a team.
-  String get displayName => players.map((p) => p.fullName).join(' / ');
 }
