@@ -5,8 +5,10 @@ import 'package:runout/features/match/widgets/player_name_display.dart';
 /// One side's column on the match page, presented as a single card:
 /// names on top, [child] filling below.
 ///
-/// When [isWinner] is true, the card is outlined in the primary color.
-/// When [isDimmed] is true, the whole card is dimmed.
+/// - [isBreaker] draws a primary-colored border.
+/// - [isWinner] draws a primary-colored border and fills the card with
+///   the primary container color.
+/// - [isDimmed] dims the whole card (used for the loser).
 class SideColumn extends StatelessWidget {
   const new({
     required this.side,
@@ -30,10 +32,13 @@ class SideColumn extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
+      color: isWinner ? theme.colorScheme.primaryContainer : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isWinner ? theme.colorScheme.primary : Colors.transparent,
+          color: isBreaker || isWinner
+              ? theme.colorScheme.primary
+              : Colors.transparent,
           width: 4,
         ),
       ),
@@ -43,11 +48,7 @@ class SideColumn extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Column(
             children: [
-              PlayerNameDisplay(
-                side: side,
-                isWinner: isWinner,
-                isBreaker: isBreaker,
-              ),
+              PlayerNameDisplay(side: side),
               const SizedBox(height: 8),
               Expanded(child: child),
             ],
