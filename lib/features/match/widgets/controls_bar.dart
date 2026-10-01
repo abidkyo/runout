@@ -16,12 +16,14 @@ class ControlsBar extends StatelessWidget {
   /// Called when the user wants to return to the home page.
   final VoidCallback onExit;
 
+  static const double _iconSize = 28;
+
   @override
   Widget build(BuildContext context) {
     final notifier = context.watch<MatchNotifier>();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -29,12 +31,15 @@ class ControlsBar extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.undo),
+                iconSize: _iconSize,
                 tooltip: 'Undo',
                 onPressed: notifier.canUndo ? notifier.undo : null,
                 disabledColor: Colors.transparent,
               ),
+              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.redo),
+                iconSize: _iconSize,
                 tooltip: 'Redo',
                 onPressed: notifier.canRedo ? notifier.redo : null,
                 disabledColor: Colors.transparent,
@@ -45,11 +50,14 @@ class ControlsBar extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.replay),
+                iconSize: _iconSize,
                 tooltip: 'Back to setup',
                 onPressed: onRestart,
               ),
+              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.exit_to_app),
+                iconSize: _iconSize,
                 tooltip: 'Exit to home',
                 onPressed: onExit,
               ),
