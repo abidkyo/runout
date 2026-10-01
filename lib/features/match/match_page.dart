@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
@@ -44,6 +45,7 @@ class _MatchView extends StatelessWidget {
         title: Text(
           '${config.gameType.displayName} — Race to ${config.raceTo}',
         ),
+        titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: [MatchTimer(match: match)],

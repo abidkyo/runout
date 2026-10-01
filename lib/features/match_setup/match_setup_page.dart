@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/player.dart';
@@ -80,6 +81,7 @@ class _MatchSetupView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(mode.name),
+        titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
