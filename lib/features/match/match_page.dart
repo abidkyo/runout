@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
@@ -35,6 +37,12 @@ class _MatchView extends StatelessWidget {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
+  String _appBarTitle(MatchConfig config) {
+    final base = '${config.gameType.displayName} — Race to ${config.raceTo}';
+    if (config.gameType != GameType.straightPool) return base;
+    return '$base / ${config.innings} innings';
+  }
+
   @override
   Widget build(BuildContext context) {
     final match = context.watch<MatchNotifier>().match;
@@ -42,9 +50,7 @@ class _MatchView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${config.gameType.displayName} — Race to ${config.raceTo}',
-        ),
+        title: Text(_appBarTitle(config)),
         titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         centerTitle: true,
         automaticallyImplyLeading: false,
