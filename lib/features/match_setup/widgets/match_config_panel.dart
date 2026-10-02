@@ -28,9 +28,15 @@ class MatchConfigPanel extends StatelessWidget {
                 onChanged: (v) => notifier.gameType = v,
               ),
               const SizedBox(height: 16),
-              _BreakFormatSelector(
-                value: notifier.breakFormat,
-                onChanged: (v) => notifier.breakFormat = v,
+              Visibility(
+                visible: notifier.gameType != .straightPool,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: _BreakFormatSelector(
+                  value: notifier.breakFormat,
+                  onChanged: (v) => notifier.breakFormat = v,
+                ),
               ),
             ],
           ),
@@ -44,6 +50,20 @@ class MatchConfigPanel extends StatelessWidget {
                 max: MatchLimits.maxRaceTo,
                 leadingLabel: 'Race to',
                 onChanged: (v) => notifier.raceTo = v,
+              ),
+              const SizedBox(height: 16),
+              Visibility(
+                visible: notifier.gameType == GameType.straightPool,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: NumberStepper(
+                  value: notifier.innings,
+                  min: MatchLimits.minInnings,
+                  max: MatchLimits.maxInnings,
+                  trailingLabel: 'innings',
+                  onChanged: (v) => notifier.innings = v,
+                ),
               ),
             ],
           ),
@@ -66,10 +86,9 @@ class _GameTypeSelector extends StatelessWidget {
       style: SegmentedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
-      segments: const [
-        ButtonSegment(value: GameType.eightBall, label: Text('8-Ball')),
-        ButtonSegment(value: GameType.nineBall, label: Text('9-Ball')),
-        ButtonSegment(value: GameType.tenBall, label: Text('10-Ball')),
+      segments: [
+        for (final type in GameType.values)
+          ButtonSegment(value: type, label: Text(type.shortName)),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),

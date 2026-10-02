@@ -12,4 +12,11 @@ enum GameType {
     .tenBall => '10 Ball',
     .straightPool => 'Straight Pool',
   };
+
+  String get shortName => switch (this) {
+    .eightBall => '8 Ball',
+    .nineBall => '9 Ball',
+    .tenBall => '10 Ball',
+    .straightPool => '14.1',
+  };
 }

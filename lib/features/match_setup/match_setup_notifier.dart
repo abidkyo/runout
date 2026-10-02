@@ -23,18 +23,26 @@ class MatchSetupNotifier extends ChangeNotifier {
   GameType _gameType = GameType.eightBall;
   BreakFormat _breakFormat = BreakFormat.winnerBreak;
   int _raceTo = 5;
+  int _innings = 25;
   final List<List<Player?>> _players;
 
   MatchMode get mode => _mode;
   GameType get gameType => _gameType;
   BreakFormat get breakFormat => _breakFormat;
   int get raceTo => _raceTo;
+  int get innings => _innings;
 
   /// Players per side. Outer list = sides, inner list = slots.
   List<List<Player?>> get players => _players;
 
   set gameType(GameType value) {
     if (_gameType == value) return;
+    if (value == GameType.straightPool) {
+      _raceTo = 75;
+      _breakFormat = BreakFormat.alternateBreak;
+    } else if (_gameType == GameType.straightPool) {
+      _raceTo = 5;
+    }
     _gameType = value;
     notifyListeners();
   }
@@ -49,6 +57,13 @@ class MatchSetupNotifier extends ChangeNotifier {
     final clamped = value.clamp(MatchLimits.minRaceTo, MatchLimits.maxRaceTo);
     if (_raceTo == clamped) return;
     _raceTo = clamped;
+    notifyListeners();
+  }
+
+  set innings(int value) {
+    final clamped = value.clamp(MatchLimits.minInnings, MatchLimits.maxInnings);
+    if (_innings == clamped) return;
+    _innings = clamped;
     notifyListeners();
   }
 
@@ -102,6 +117,7 @@ class MatchSetupNotifier extends ChangeNotifier {
       gameType: _gameType,
       raceTo: _raceTo,
       breakFormat: _breakFormat,
+      innings: _gameType == GameType.straightPool ? _innings : null,
     );
 
     final sides = _players

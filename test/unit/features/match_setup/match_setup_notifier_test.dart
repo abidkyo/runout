@@ -15,6 +15,7 @@ void main() {
       expect(n.gameType, GameType.eightBall);
       expect(n.breakFormat, BreakFormat.winnerBreak);
       expect(n.raceTo, 5);
+      expect(n.innings, 25);
     });
 
     test('players grid matches mode shape (singles)', () {
@@ -63,6 +64,37 @@ void main() {
       expect(notified, isFalse);
     });
 
+    test('gameType straightPool notifies once when forcing breakFormat', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..breakFormat = BreakFormat.winnerBreak;
+      var notifyCount = 0;
+      n
+        ..addListener(() => notifyCount++)
+        ..gameType = GameType.straightPool;
+
+      expect(notifyCount, 1);
+    });
+
+    test('gameType straightPool forces alternateBreak', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..breakFormat = BreakFormat.winnerBreak
+        ..gameType = GameType.straightPool;
+
+      expect(n.gameType, GameType.straightPool);
+      expect(n.breakFormat, BreakFormat.alternateBreak);
+    });
+
+    test(
+      'switching away from straightPool leaves breakFormat as alternate',
+      () {
+        final n = MatchSetupNotifier(mode: MatchMode.singles)
+          ..gameType = GameType.straightPool
+          ..gameType = GameType.eightBall;
+
+        expect(n.breakFormat, BreakFormat.alternateBreak);
+      },
+    );
+
     test('breakFormat updates and notifies', () {
       final n = MatchSetupNotifier(mode: MatchMode.singles);
       var notified = false;
@@ -71,6 +103,17 @@ void main() {
         ..breakFormat = BreakFormat.alternateBreak;
 
       expect(n.breakFormat, BreakFormat.alternateBreak);
+      expect(notified, isTrue);
+    });
+
+    test('raceTo updates and notifies', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      var notified = false;
+      n
+        ..addListener(() => notified = true)
+        ..raceTo = 7;
+
+      expect(n.raceTo, 7);
       expect(notified, isTrue);
     });
 
@@ -94,6 +137,83 @@ void main() {
         ..raceTo = 5;
 
       expect(notified, isFalse);
+    });
+
+    test('gameType straightPool sets raceTo to 75', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..raceTo = 20
+        ..gameType = GameType.straightPool;
+
+      expect(n.raceTo, 75);
+    });
+
+    test('switching back to straightPool resets raceTo to 75 again', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..gameType = GameType.straightPool
+        ..raceTo = 100
+        ..gameType = GameType.eightBall
+        ..gameType = GameType.straightPool;
+
+      expect(n.raceTo, 75);
+    });
+
+    test('switching away from straightPool resets raceTo to 5', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..gameType = GameType.straightPool
+        ..gameType = GameType.eightBall;
+
+      expect(n.raceTo, 5);
+    });
+
+    test('switching between non-straightPool games preserves raceTo', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..raceTo = 7
+        ..gameType = GameType.nineBall
+        ..gameType = GameType.tenBall;
+
+      expect(n.raceTo, 7);
+    });
+
+    test('innings updates and notifies', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      var notified = false;
+      n
+        ..addListener(() => notified = true)
+        ..innings = 50;
+
+      expect(n.innings, 50);
+      expect(notified, isTrue);
+    });
+
+    test('innings clamps to minimum', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..innings = MatchLimits.minInnings - 1;
+      expect(n.innings, MatchLimits.minInnings);
+    });
+
+    test('innings clamps to maximum', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..innings = MatchLimits.maxInnings + 1;
+      expect(n.innings, MatchLimits.maxInnings);
+    });
+
+    test('innings with same value does not notify', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      var notified = false;
+      n
+        ..addListener(() => notified = true)
+        ..innings = 25;
+
+      expect(notified, isFalse);
+    });
+
+    test('innings persists across gameType switches', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..innings = 75
+        ..gameType = GameType.straightPool
+        ..gameType = GameType.eightBall;
+
+      expect(n.innings, 75);
     });
   });
 
@@ -318,6 +438,23 @@ void main() {
 
     test('produces a Match with the right config', () {
       final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..gameType = GameType.eightBall
+        ..breakFormat = BreakFormat.winnerBreak
+        ..raceTo = 7
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.config.matchMode, MatchMode.singles);
+      expect(m.config.gameType, GameType.eightBall);
+      expect(m.config.innings, isNull);
+      expect(m.config.raceTo, 7);
+      expect(m.config.breakFormat, BreakFormat.winnerBreak);
+    });
+
+    test('produces a nine ball config with null innings', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
         ..gameType = GameType.nineBall
         ..breakFormat = BreakFormat.alternateBreak
         ..raceTo = 7
@@ -328,8 +465,26 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.nineBall);
-      expect(m.config.breakFormat, BreakFormat.alternateBreak);
+      expect(m.config.innings, isNull);
       expect(m.config.raceTo, 7);
+      expect(m.config.breakFormat, BreakFormat.alternateBreak);
+    });
+
+    test('produces a straight pool config with innings set', () {
+      final n = MatchSetupNotifier(mode: MatchMode.singles)
+        ..gameType = GameType.straightPool
+        ..innings = 50
+        ..raceTo = 100
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'));
+
+      final m = n.buildMatch();
+
+      expect(m.config.matchMode, MatchMode.singles);
+      expect(m.config.gameType, GameType.straightPool);
+      expect(m.config.innings, 50);
+      expect(m.config.raceTo, 100);
+      expect(m.config.breakFormat, BreakFormat.alternateBreak);
     });
 
     test('produces two sides for singles', () {
