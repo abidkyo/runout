@@ -40,7 +40,7 @@ class _MatchView extends StatelessWidget {
   String _appBarTitle(MatchConfig config) {
     final base = '${config.gameType.displayName} — Race to ${config.raceTo}';
     if (config.gameType != GameType.straightPool) return base;
-    return '$base / ${config.innings} innings';
+    return '$base / ${config.inningsLimit} innings';
   }
 
   @override

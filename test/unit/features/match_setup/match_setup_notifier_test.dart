@@ -448,7 +448,7 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.eightBall);
-      expect(m.config.innings, isNull);
+      expect(m.config.inningsLimit, isNull);
       expect(m.config.raceTo, 7);
       expect(m.config.breakFormat, BreakFormat.winnerBreak);
     });
@@ -465,7 +465,7 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.nineBall);
-      expect(m.config.innings, isNull);
+      expect(m.config.inningsLimit, isNull);
       expect(m.config.raceTo, 7);
       expect(m.config.breakFormat, BreakFormat.alternateBreak);
     });
@@ -482,7 +482,7 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.straightPool);
-      expect(m.config.innings, 50);
+      expect(m.config.inningsLimit, 50);
       expect(m.config.raceTo, 100);
       expect(m.config.breakFormat, BreakFormat.alternateBreak);
     });

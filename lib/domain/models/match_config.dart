@@ -10,7 +10,7 @@ import 'package:runout/domain/enums/match_mode.dart';
 /// - [breakFormat] applies to all game types. Straight pool uses
 ///   [BreakFormat.alternateBreak] by convention.
 /// - [raceTo] is the target score for every game type.
-/// - [innings] applies to straight pool only.
+/// - [inningsLimit] applies to straight pool only.
 @immutable
 class MatchConfig {
   const new({
@@ -18,13 +18,13 @@ class MatchConfig {
     required this.gameType,
     required this.raceTo,
     required this.breakFormat,
-    this.innings,
+    this.inningsLimit,
   }) : assert(
-         gameType == GameType.straightPool
-             ? (innings != null && breakFormat == BreakFormat.alternateBreak)
-             : (innings == null),
-         'Straight pool requires innings and alternate break; '
-         '8-ball, 9-ball, and 10-ball must not set innings.',
+         gameType == .straightPool
+             ? (inningsLimit != null && breakFormat == .alternateBreak)
+             : (inningsLimit == null),
+         'Straight pool requires inningsLimit and alternate break; '
+         '8-ball, 9-ball, and 10-ball must not set inningsLimit.',
        );
 
   /// How many sides the match has and how players are grouped.
@@ -39,6 +39,6 @@ class MatchConfig {
   /// Determines which side breaks each rack.
   final BreakFormat breakFormat;
 
-  /// Number of innings. Only for straight pool.
-  final int? innings;
+  /// Maximum number of innings. Only for straight pool.
+  final int? inningsLimit;
 }

@@ -117,7 +117,7 @@ class MatchSetupNotifier extends ChangeNotifier {
       gameType: _gameType,
       raceTo: _raceTo,
       breakFormat: _breakFormat,
-      innings: _gameType == GameType.straightPool ? _innings : null,
+      inningsLimit: _gameType == GameType.straightPool ? _innings : null,
     );
 
     final sides = _players
