@@ -1,7 +1,9 @@
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:runout/domain/enums/break_format.dart';
+import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/domain/models/match_config.dart';
 
 /// Holds the state of the current match and drives all transitions.
 ///
@@ -28,6 +30,9 @@ class MatchNotifier extends ChangeNotifier {
   /// Picks the side that will break first and starts the match.
   ///
   /// Only valid while the match is in [MatchStatus.created].
+  ///
+  /// In straight pool, selecting the breaker counts as that side's first
+  /// visit, so their innings counter is incremented here.
   void selectBreaker(int sideIndex) {
     assert(
       _match.status == MatchStatus.created,
@@ -38,20 +43,35 @@ class MatchNotifier extends ChangeNotifier {
       'sideIndex out of range.',
     );
 
+    final innings = List<int>.of(_match.innings);
+    if (_match.config.gameType == GameType.straightPool) {
+      innings[sideIndex] += 1;
+    }
+
     _pushHistory();
     _match = _match.copyWith(
       status: MatchStatus.playing,
       startedAt: clock.now(),
       currentBreakerIndex: sideIndex,
+      innings: innings,
     );
     notifyListeners();
   }
 
-  /// Increments the score of the given side by one.
+  /// Increments the score of the given side by one and
+  /// updates the breaking side based on [BreakFormat].
   ///
-  /// In 8-ball, 9-ball, and 10-ball, one point equals one rack won,
-  /// so this also updates the breaking side based on [BreakFormat].
-  /// Straight pool is not handled here yet.
+  /// In 8-ball, 9-ball, and 10-ball, one point equals one rack won;
+  /// in straight pool, one point equals one ball.
+  ///
+  /// In straight pool, one call represents one visit to the table.
+  /// The next breaker's innings counter is incremented by exactly one
+  /// per call (their visit is counted before they play).
+  ///
+  /// If a winner is found — by reaching [MatchConfig.raceTo] or by the
+  /// innings limit firing — the match is ended and [MatchStatus.finished]
+  /// is set. The innings limit fires when any side has exceeded
+  /// [MatchConfig.inningsLimit]; the side with the highest score then wins.
   void incrementScore(int sideIndex) {
     if (_match.status != MatchStatus.playing) return;
 
@@ -67,22 +87,38 @@ class MatchNotifier extends ChangeNotifier {
     final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
     final nextBreaker = _nextBreaker(scoringSide: sideIndex);
 
+    final updatedInnings = List<int>.of(_match.innings);
+    var winnerIndex = _match.winnerIndex;
+
+    // Score win takes priority over the innings limit.
     if (reachedTarget) {
-      _pushHistory();
-      _match = _match.copyWith(
-        scores: updatedScores,
-        status: MatchStatus.finished,
-        endedAt: clock.now(),
-        winnerIndex: sideIndex,
-        currentBreakerIndex: nextBreaker,
+      winnerIndex = sideIndex;
+    } else if (_match.config.gameType == GameType.straightPool) {
+      updatedInnings[nextBreaker] += 1;
+
+      final reachedInningsLimit = updatedInnings.any(
+        (v) => v > _match.config.inningsLimit!,
       );
-      notifyListeners();
-      return;
+
+      if (reachedInningsLimit) {
+        // Highest score wins.
+        var best = 0;
+        for (var i = 1; i < updatedScores.length; i++) {
+          if (updatedScores[i] > updatedScores[best]) best = i;
+        }
+        winnerIndex = best;
+      }
     }
+
+    final finished = winnerIndex != null;
 
     _pushHistory();
     _match = _match.copyWith(
       scores: updatedScores,
+      innings: updatedInnings,
+      status: finished ? MatchStatus.finished : null,
+      endedAt: finished ? clock.now() : null,
+      winnerIndex: winnerIndex,
       currentBreakerIndex: nextBreaker,
     );
     notifyListeners();
