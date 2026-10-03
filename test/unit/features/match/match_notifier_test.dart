@@ -250,4 +250,237 @@ void main() {
       expect(notifier.match.endedAt, isNotNull);
     });
   });
+
+  group('straight pool — selectBreaker', () {
+    test('increment inning (first visit) of the selected breaker', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
+      )..selectBreaker(1);
+
+      expect(n.match.innings, [0, 1]);
+    });
+
+    test('non-straight pool games leave innings untouched', () {
+      final n = MatchNotifier(makeMatch())..selectBreaker(0);
+
+      expect(n.match.innings, [0, 0]);
+    });
+  });
+
+  group('straight pool — increment innings', () {
+    test('alternate increments of innings', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
+      )..selectBreaker(1);
+
+      expect(n.match.innings, [0, 1]);
+
+      n.incrementScore(1);
+      expect(n.match.innings, [1, 1]);
+
+      n.incrementScore(0);
+      expect(n.match.innings, [1, 2]);
+
+      n.incrementScore(1);
+      expect(n.match.innings, [2, 2]);
+    });
+
+    test('a zero-point visit still increment innings', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(n.match.scores, [0, 0]);
+      expect(n.match.innings, [1, 0]);
+      n.incrementScore(0, points: 0);
+
+      expect(n.match.scores, [0, 0]);
+      expect(n.match.innings, [1, 1]);
+    });
+
+    test('a multi-point visit increment innings by only one', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(n.match.scores, [0, 0]);
+      expect(n.match.innings, [1, 0]);
+      n.incrementScore(0, points: 5);
+
+      expect(n.match.scores, [5, 0]);
+      expect(n.match.innings, [1, 1]);
+    });
+
+    test('non-straight pool games never increment innings', () {
+      final n = MatchNotifier(makeMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0)
+        ..incrementScore(1);
+
+      expect(n.match.innings, [0, 0]);
+    });
+  });
+
+  group('straight pool — score win', () {
+    test('reaching raceTo finishes the match and the scorer wins', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(1)
+            ..incrementScore(1, points: 10);
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 1);
+      expect(n.match.endedAt, isNotNull);
+    });
+
+    test('a multi-point visit can overshoot raceTo', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 7) // P1 = 7
+            ..incrementScore(1, points: 2) // P2 = 2
+            ..incrementScore(0, points: 6); // P1 = 13
+
+      expect(n.match.scores[0], 13);
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
+    });
+
+    test('score win does not touch innings', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10);
+
+      expect(n.match.innings, [1, 0]);
+    });
+  });
+
+  group('straight pool — innings win', () {
+    test('match ends when a side exceeds the innings limit', () {
+      // limit 1, raceTo 10.
+      // selectBreaker(0): innings [1, 0]
+      // incrementScore(0): innings [1, 1] — 1 > 1 is false, continue.
+      // incrementScore(1): innings [2, 1] — 2 > 1 is true, finish.
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0)
+            ..incrementScore(1);
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.endedAt, isNotNull);
+      expect(n.match.innings, [2, 1]);
+    });
+
+    test('higher score wins, not the last scorer', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 4) // P1 = 4, innings [1, 1]
+            ..incrementScore(1, points: 2); // P2 = 2, innings [2, 1], finish
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
+    });
+
+    test('higher score wins, is the last scorer', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0) // P1 = 1, innings [1, 1]
+            ..incrementScore(1, points: 4); // P2 = 4, innings [2, 1], finish
+
+      expect(n.match.winnerIndex, 1);
+    });
+
+    test('match still playing while neither win condition has fired', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0)
+            ..incrementScore(1);
+
+      expect(n.match.status, MatchStatus.playing);
+      expect(n.match.winnerIndex, isNull);
+    });
+  });
+
+  group('straight pool — undo / redo', () {
+    test('undo reverts the score and the innings together', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 3);
+
+      expect(n.match.scores, [3, 0]);
+      expect(n.match.innings, [1, 1]);
+
+      n.undo();
+      expect(n.match.scores, [0, 0]);
+      expect(n.match.innings, [1, 0]);
+    });
+
+    test('undo after an innings win restores playing state', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0)
+            ..incrementScore(1, points: 2);
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 1);
+      expect(n.match.endedAt, isNotNull);
+
+      n.undo();
+
+      expect(n.match.status, MatchStatus.playing);
+      expect(n.match.winnerIndex, isNull);
+      expect(n.match.endedAt, isNull);
+    });
+
+    test('redo re-applies the innings win', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0)
+            ..incrementScore(1, points: 2)
+            ..undo()
+            ..redo();
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 1);
+      expect(n.match.endedAt, isNotNull);
+    });
+
+    test('undo after a score win restores playing state', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10);
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
+      expect(n.match.endedAt, isNotNull);
+
+      n.undo();
+
+      expect(n.match.status, MatchStatus.playing);
+      expect(n.match.winnerIndex, isNull);
+      expect(n.match.endedAt, isNull);
+    });
+
+    test('redo re-applies the score win', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10)
+            ..undo()
+            ..redo();
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
+      expect(n.match.endedAt, isNotNull);
+    });
+  });
 }

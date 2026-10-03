@@ -40,3 +40,24 @@ Match makeMatch({MatchConfig? config, int sideCount = 2}) {
     status: MatchStatus.created,
   );
 }
+
+/// A straight-pool [MatchConfig] with the given limits.
+MatchConfig makeStraightPoolConfig({
+  required int inningsLimit,
+  required int raceTo,
+}) => makeConfig(
+  gameType: GameType.straightPool,
+  // breakFormat: BreakFormat.alternateBreak,
+  inningsLimit: inningsLimit,
+  raceTo: raceTo,
+);
+
+/// A straight-pool [Match] in [MatchStatus.created], with the given limits.
+Match makeStraightPoolMatch({
+  required int inningsLimit,
+  required int raceTo,
+  int sideCount = 2,
+}) => makeMatch(
+  config: makeStraightPoolConfig(inningsLimit: inningsLimit, raceTo: raceTo),
+  sideCount: sideCount,
+);
