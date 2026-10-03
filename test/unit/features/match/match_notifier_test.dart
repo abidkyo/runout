@@ -73,6 +73,12 @@ void main() {
       expect(() => notifier.incrementScore(-1), throwsAssertionError);
     });
 
+    test('throws when points are negative', () {
+      final n = MatchNotifier(makeMatch())..selectBreaker(0);
+
+      expect(() => n.incrementScore(0, points: -1), throwsAssertionError);
+    });
+
     test('is a no-op after the match has finished', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 1)))
         ..selectBreaker(0)

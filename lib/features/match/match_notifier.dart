@@ -58,7 +58,7 @@ class MatchNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Increments the score of the given side by one and
+  /// Increments the score of the given side by [points] and
   /// updates the breaking side based on [BreakFormat].
   ///
   /// In 8-ball, 9-ball, and 10-ball, one point equals one rack won;
@@ -66,13 +66,17 @@ class MatchNotifier extends ChangeNotifier {
   ///
   /// In straight pool, one call represents one visit to the table.
   /// The next breaker's innings counter is incremented by exactly one
-  /// per call (their visit is counted before they play).
+  /// per call (their visit is counted before they play), regardless of
+  /// [points].
   ///
   /// If a winner is found — by reaching [MatchConfig.raceTo] or by the
   /// innings limit firing — the match is ended and [MatchStatus.finished]
   /// is set. The innings limit fires when any side has exceeded
   /// [MatchConfig.inningsLimit]; the side with the highest score then wins.
-  void incrementScore(int sideIndex) {
+  ///
+  /// A [points] of zero is valid: it represents a visit that scored
+  /// nothing but still passes the break to the other side.
+  void incrementScore(int sideIndex, {int points = 1}) {
     if (_match.status != MatchStatus.playing) return;
 
     assert(
@@ -81,8 +85,11 @@ class MatchNotifier extends ChangeNotifier {
     );
     if (sideIndex < 0 || sideIndex >= _match.sides.length) return;
 
+    assert(points >= 0, 'points must not be negative.');
+    if (points < 0) return;
+
     final updatedScores = List<int>.of(_match.scores);
-    updatedScores[sideIndex] += 1;
+    updatedScores[sideIndex] += points;
 
     final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
     final nextBreaker = _nextBreaker(scoringSide: sideIndex);
