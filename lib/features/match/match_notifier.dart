@@ -88,6 +88,16 @@ class MatchNotifier extends ChangeNotifier {
     assert(points >= 0, 'points must not be negative.');
     if (points < 0) return;
 
+    assert(
+      _match.config.gameType != GameType.straightPool ||
+          sideIndex == _match.currentBreakerIndex,
+      'In straight pool, only the current breaker can score.',
+    );
+    if (_match.config.gameType == GameType.straightPool &&
+        sideIndex != _match.currentBreakerIndex) {
+      return;
+    }
+
     final updatedScores = List<int>.of(_match.scores);
     updatedScores[sideIndex] += points;
 

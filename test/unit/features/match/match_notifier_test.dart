@@ -267,6 +267,16 @@ void main() {
     });
   });
 
+  group('straight pool — scoring guard', () {
+    test('throws when a non-breaker tries to score', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(() => n.incrementScore(1), throwsAssertionError);
+    });
+  });
+
   group('straight pool — increment innings', () {
     test('alternate increments of innings', () {
       final n = MatchNotifier(
