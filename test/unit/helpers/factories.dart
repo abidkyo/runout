@@ -20,11 +20,13 @@ MatchConfig makeConfig({
   GameType gameType = GameType.eightBall,
   int raceTo = 8,
   BreakFormat breakFormat = BreakFormat.alternateBreak,
+  int? inningsLimit,
 }) => MatchConfig(
   matchMode: matchMode,
   gameType: gameType,
   raceTo: raceTo,
   breakFormat: breakFormat,
+  inningsLimit: inningsLimit,
 );
 
 Match makeMatch({MatchConfig? config, int sideCount = 2}) {
@@ -34,6 +36,7 @@ Match makeMatch({MatchConfig? config, int sideCount = 2}) {
     config: config ?? makeConfig(),
     sides: sides,
     scores: List.filled(sideCount, 0),
+    innings: List.filled(sideCount, 0),
     status: MatchStatus.created,
   );
 }

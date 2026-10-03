@@ -25,6 +25,7 @@ class Match {
     required this.config,
     required this.sides,
     required this.scores,
+    required this.innings,
     required this.status,
     this.startedAt,
     this.endedAt,
@@ -34,6 +35,10 @@ class Match {
        assert(
          scores.length == sides.length,
          'Scores must have one entry per side.',
+       ),
+       assert(
+         innings.length == sides.length,
+         'Innings must have one entry per side.',
        );
 
   /// Stable unique identifier.
@@ -47,6 +52,9 @@ class Match {
 
   /// Score per side, indexed parallel to [sides].
   final List<int> scores;
+
+  /// Innings per side, indexed parallel to [sides].
+  final List<int> innings;
 
   /// Current lifecycle state.
   final MatchStatus status;
@@ -72,6 +80,7 @@ class Match {
     MatchConfig? config,
     List<MatchSide>? sides,
     List<int>? scores,
+    List<int>? innings,
     MatchStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
@@ -83,6 +92,7 @@ class Match {
       config: config ?? this.config,
       sides: sides ?? this.sides,
       scores: scores ?? this.scores,
+      innings: innings ?? this.innings,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
       endedAt: endedAt ?? this.endedAt,
