@@ -417,18 +417,20 @@ void main() {
   });
 
   group('straight pool — undo / redo', () {
-    test('undo reverts the score and the innings together', () {
+    test('undo reverts the score, innings and remaining', () {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
             ..selectBreaker(0)
-            ..incrementScore(0, points: 3);
+            ..scoreRemaining(12);
 
       expect(n.match.scores, [3, 0]);
       expect(n.match.innings, [1, 1]);
+      expect(n.match.remaining, 12);
 
       n.undo();
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 0]);
+      expect(n.match.remaining, 15);
     });
 
     test('undo after an innings win restores playing state', () {
@@ -491,6 +493,104 @@ void main() {
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
       expect(n.match.endedAt, isNotNull);
+    });
+  });
+
+  group('straight pool — endVisit', () {
+    test('ends the visit with no point', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..endVisit();
+
+      expect(n.match.scores, [0, 0]);
+    });
+
+    test('advance breaker and increment inning', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(n.match.innings, [1, 0]);
+      expect(n.match.currentBreakerIndex, 0);
+      n.endVisit();
+
+      expect(n.match.innings, [1, 1]);
+      expect(n.match.currentBreakerIndex, 1);
+    });
+
+    test('throws in non-straight-pool games', () {
+      final n = MatchNotifier(makeMatch())..selectBreaker(0);
+
+      expect(n.endVisit, throwsAssertionError);
+    });
+  });
+
+  group('straight pool — scoreRemaining', () {
+    test('computes points from the remaining difference', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..scoreRemaining(10); // 15 - 10 = 5 points
+
+      expect(n.match.scores, [5, 0]);
+    });
+
+    test('updates match.remaining', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..scoreRemaining(10);
+
+      expect(n.match.remaining, 10);
+    });
+
+    test('advances breaker and counts innings', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(n.match.currentBreakerIndex, 0);
+      expect(n.match.innings, [1, 0]);
+
+      n.scoreRemaining(10);
+      expect(n.match.currentBreakerIndex, 1);
+      expect(n.match.innings, [1, 1]);
+    });
+
+    test('a zero difference is valid and scores nothing', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..scoreRemaining(15); // 15 - 15 = 0
+
+      expect(n.match.scores, [0, 0]);
+      expect(n.match.remaining, 15);
+      expect(n.match.currentBreakerIndex, 1);
+    });
+
+    test('throws when remaining is less than 2', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..scoreRemaining(10);
+
+      expect(() => n.scoreRemaining(1), throwsAssertionError);
+    });
+
+    test('throws when remaining is more than current remaining', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..scoreRemaining(10);
+
+      expect(() => n.scoreRemaining(12), throwsAssertionError);
+    });
+
+    test('throws in non-straight-pool games', () {
+      final n = MatchNotifier(makeMatch())..selectBreaker(0);
+
+      expect(() => n.scoreRemaining(10), throwsAssertionError);
     });
   });
 }

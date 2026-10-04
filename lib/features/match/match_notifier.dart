@@ -58,6 +58,44 @@ class MatchNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ends the current inning without scoring, passing the break to the
+  /// next side.
+  /// Straight pool only.
+  void endVisit() {
+    assert(
+      _match.config.gameType == GameType.straightPool,
+      'endVisit is only for straight pool.',
+    );
+    if (_match.config.gameType != GameType.straightPool) return;
+    incrementScore(_match.currentBreakerIndex ?? 0, points: 0);
+  }
+
+  /// Scores the balls potted since the last update, then ends the inning.
+  ///
+  /// [remaining] is the number of balls left on the table. Points are the
+  /// difference from the previous value.
+  /// Straight pool only.
+  void scoreRemaining(int remaining) {
+    assert(
+      _match.config.gameType == GameType.straightPool,
+      'scoreRemaining is only for straight pool.',
+    );
+    if (_match.config.gameType != GameType.straightPool) return;
+
+    assert(
+      remaining >= 2 && remaining <= _match.remaining,
+      'remaining must be between 2 and the current remaining.',
+    );
+    if (remaining < 2 || remaining > _match.remaining) return;
+
+    final points = _match.remaining - remaining;
+    incrementScore(
+      _match.currentBreakerIndex ?? 0,
+      points: points,
+      remaining: remaining,
+    );
+  }
+
   /// Increments the score of the given side by [points] and
   /// updates the breaking side based on [BreakFormat].
   ///
@@ -76,7 +114,10 @@ class MatchNotifier extends ChangeNotifier {
   ///
   /// A [points] of zero is valid: it represents a visit that scored
   /// nothing but still passes the break to the other side.
-  void incrementScore(int sideIndex, {int points = 1}) {
+  ///
+  /// [remaining] is the balls left on the table after this visit; omit it
+  /// to leave the count unchanged. Straight pool only.
+  void incrementScore(int sideIndex, {int points = 1, int? remaining}) {
     if (_match.status != MatchStatus.playing) return;
 
     assert(
@@ -133,6 +174,7 @@ class MatchNotifier extends ChangeNotifier {
     _match = _match.copyWith(
       scores: updatedScores,
       innings: updatedInnings,
+      remaining: remaining,
       status: finished ? MatchStatus.finished : null,
       endedAt: finished ? clock.now() : null,
       winnerIndex: winnerIndex,

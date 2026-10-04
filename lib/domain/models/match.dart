@@ -27,6 +27,7 @@ class Match {
     required this.scores,
     required this.innings,
     required this.status,
+    this.remaining = 15,
     this.startedAt,
     this.endedAt,
     this.currentBreakerIndex,
@@ -59,6 +60,9 @@ class Match {
   /// Current lifecycle state.
   final MatchStatus status;
 
+  /// Balls remaining on the table. Straight pool only; starts at 15.
+  final int remaining;
+
   /// When the match started. Null until [status] is [MatchStatus.playing].
   final DateTime? startedAt;
 
@@ -81,6 +85,7 @@ class Match {
     List<MatchSide>? sides,
     List<int>? scores,
     List<int>? innings,
+    int? remaining,
     MatchStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
@@ -93,6 +98,7 @@ class Match {
       sides: sides ?? this.sides,
       scores: scores ?? this.scores,
       innings: innings ?? this.innings,
+      remaining: remaining ?? this.remaining,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
       endedAt: endedAt ?? this.endedAt,
