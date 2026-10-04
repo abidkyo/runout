@@ -96,6 +96,33 @@ class MatchNotifier extends ChangeNotifier {
     );
   }
 
+  /// Ends a rack: scores the last ball(s), resets the table to 15, and
+  /// keeps the turn.
+  ///
+  /// [remaining] is the balls left before re-racking: 0 or 1.
+  /// Straight pool only.
+  void newRack(int remaining) {
+    assert(
+      _match.config.gameType == GameType.straightPool,
+      'newRack is only for straight pool.',
+    );
+    if (_match.config.gameType != GameType.straightPool) return;
+
+    assert(
+      remaining == 0 || remaining == 1,
+      'remaining must be 0 or 1 when re-racking.',
+    );
+    if (remaining != 0 && remaining != 1) return;
+
+    final points = _match.remaining - remaining;
+    incrementScore(
+      _match.currentBreakerIndex ?? 0,
+      points: points,
+      remaining: 15,
+      keepsTurn: true,
+    );
+  }
+
   /// Increments the score of the given side by [points] and
   /// updates the breaking side based on [BreakFormat].
   ///
@@ -117,7 +144,15 @@ class MatchNotifier extends ChangeNotifier {
   ///
   /// [remaining] is the balls left on the table after this visit; omit it
   /// to leave the count unchanged. Straight pool only.
-  void incrementScore(int sideIndex, {int points = 1, int? remaining}) {
+  ///
+  /// [keepsTurn] leaves the breaker unchanged and skips the innings
+  /// increment. Straight pool only.
+  void incrementScore(
+    int sideIndex, {
+    int points = 1,
+    int? remaining,
+    bool keepsTurn = false,
+  }) {
     if (_match.status != MatchStatus.playing) return;
 
     assert(
@@ -143,7 +178,9 @@ class MatchNotifier extends ChangeNotifier {
     updatedScores[sideIndex] += points;
 
     final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
-    final nextBreaker = _nextBreaker(scoringSide: sideIndex);
+    final nextBreaker = keepsTurn
+        ? _match.currentBreakerIndex!
+        : _nextBreaker(scoringSide: sideIndex);
 
     final updatedInnings = List<int>.of(_match.innings);
     var winnerIndex = _match.winnerIndex;
@@ -151,7 +188,7 @@ class MatchNotifier extends ChangeNotifier {
     // Score win takes priority over the innings limit.
     if (reachedTarget) {
       winnerIndex = sideIndex;
-    } else if (_match.config.gameType == GameType.straightPool) {
+    } else if (_match.config.gameType == GameType.straightPool && !keepsTurn) {
       updatedInnings[nextBreaker] += 1;
 
       final reachedInningsLimit = updatedInnings.any(

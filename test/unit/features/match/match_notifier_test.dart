@@ -593,4 +593,51 @@ void main() {
       expect(() => n.scoreRemaining(10), throwsAssertionError);
     });
   });
+
+  group('straight pool — newRack', () {
+    test('scores the last ball, resets to 15, keeps the turn', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..newRack(1);
+
+      expect(n.match.scores, [14, 0]);
+      expect(n.match.remaining, 15);
+      expect(n.match.currentBreakerIndex, 0);
+    });
+
+    test('table cleared scores all 15 and keeps the turn', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..newRack(0);
+
+      expect(n.match.scores, [15, 0]);
+      expect(n.match.remaining, 15);
+      expect(n.match.currentBreakerIndex, 0);
+    });
+
+    test('does not increment innings', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..newRack(1);
+
+      expect(n.match.innings, [1, 0]);
+    });
+
+    test('throws when remaining is 2', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 20),
+      )..selectBreaker(0);
+
+      expect(() => n.newRack(2), throwsAssertionError);
+    });
+
+    test('throws in non-straight-pool games', () {
+      final n = MatchNotifier(makeMatch())..selectBreaker(0);
+
+      expect(() => n.newRack(1), throwsAssertionError);
+    });
+  });
 }
