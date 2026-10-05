@@ -13,6 +13,7 @@ class SideColumn extends StatelessWidget {
   const new({
     required this.side,
     required this.child,
+    this.stats,
     this.isWinner = false,
     this.isDimmed = false,
     this.isBreaker = false,
@@ -21,6 +22,8 @@ class SideColumn extends StatelessWidget {
 
   final MatchSide side;
   final Widget child;
+  final Widget? stats;
+
   final bool isWinner;
   final bool isDimmed;
   final bool isBreaker;
@@ -51,6 +54,10 @@ class SideColumn extends StatelessWidget {
               PlayerNameDisplay(side: side),
               const SizedBox(height: 8),
               Expanded(child: child),
+              if (stats != null) ...[
+                const SizedBox(height: 8),
+                stats!,
+              ],
             ],
           ),
         ),

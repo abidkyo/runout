@@ -10,6 +10,7 @@ import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
+import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 
 /// The match scoring page.
 class MatchPage extends StatelessWidget {
@@ -78,6 +79,9 @@ class _ScoreArea extends StatelessWidget {
   Widget build(BuildContext context) {
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
+
+    final isStraightPool = match.config.gameType == GameType.straightPool;
+
     final isCreated = match.status == MatchStatus.created;
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
@@ -95,6 +99,16 @@ class _ScoreArea extends StatelessWidget {
                   isWinner: isFinished && match.winnerIndex == i,
                   isDimmed: isFinished && match.winnerIndex != i,
                   isBreaker: isPlaying && match.currentBreakerIndex == i,
+                  stats: isStraightPool && !isCreated
+                      ? StraightPoolStats(
+                          innings: match.innings[i].clamp(
+                            0,
+                            match.config.inningsLimit!,
+                          ),
+                          highRun: match.highRuns[i],
+                          score: match.scores[i],
+                        )
+                      : null,
                   child: isCreated
                       ? BreakButton(
                           onTap: () => notifier.selectBreaker(i),
