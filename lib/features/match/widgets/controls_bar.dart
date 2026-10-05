@@ -45,13 +45,23 @@ class ControlsBar extends StatelessWidget {
     BuildContext context,
     MatchNotifier notifier,
   ) async {
-    final remaining = await showDialog<int>(
+    final match = notifier.match;
+    final isOpeningBreak = match.innings.fold(0, (a, b) => a + b) == 1;
+
+    final result = await showDialog<RemainingResult>(
       context: context,
-      builder: (_) =>
-          RemainingPickerDialog(remaining: notifier.match.remaining),
+      builder: (_) => RemainingPickerDialog(
+        remaining: match.remaining,
+        showBreakFoul: isOpeningBreak,
+      ),
     );
-    if (remaining == null) return;
-    notifier.scoreRemaining(remaining);
+    if (result == null) return;
+
+    notifier.scoreRemaining(
+      result.remaining,
+      keepsTurn: result.keepsTurn,
+      foul: result.foul,
+    );
 
     if (!context.mounted) return;
     _maybeNotifyExtension(context, notifier);

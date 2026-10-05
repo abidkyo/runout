@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:runout/domain/enums/break_format.dart';
+import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_config.dart';
@@ -82,7 +83,11 @@ class MatchNotifier extends ChangeNotifier {
   /// [remaining] is the number of balls left on the table. Points are the
   /// difference from the previous value.
   /// Straight pool only.
-  void scoreRemaining(int remaining) {
+  void scoreRemaining(
+    int remaining, {
+    bool keepsTurn = false,
+    Foul foul = Foul.none,
+  }) {
     assert(
       _match.config.gameType == GameType.straightPool,
       'scoreRemaining is only for straight pool.',
@@ -100,6 +105,8 @@ class MatchNotifier extends ChangeNotifier {
       _match.currentBreakerIndex ?? 0,
       points: points,
       remaining: remaining,
+      keepsTurn: keepsTurn,
+      foul: foul,
     );
   }
 
@@ -159,6 +166,7 @@ class MatchNotifier extends ChangeNotifier {
     int points = 1,
     int? remaining,
     bool keepsTurn = false,
+    Foul foul = Foul.none,
   }) {
     if (_match.status != MatchStatus.playing) return;
 
@@ -185,7 +193,7 @@ class MatchNotifier extends ChangeNotifier {
     notifyExtension = false;
 
     final updatedScores = List<int>.of(_match.scores);
-    updatedScores[sideIndex] += points;
+    updatedScores[sideIndex] += points - foul.value;
 
     final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
     final nextBreaker = keepsTurn
@@ -207,6 +215,20 @@ class MatchNotifier extends ChangeNotifier {
           updatedHighRuns[sideIndex] = updatedCurrentRun;
         }
         updatedCurrentRun = 0;
+      }
+    }
+
+    var updatedFoulCounters = _match.foulCounters;
+    if (_match.config.gameType == GameType.straightPool) {
+      updatedFoulCounters = List<int>.of(_match.foulCounters);
+      if (foul == Foul.standard) {
+        updatedFoulCounters[sideIndex] += 1;
+        if (updatedFoulCounters[sideIndex] >= 3) {
+          updatedFoulCounters[sideIndex] = 0;
+          updatedScores[sideIndex] -= 15;
+        }
+      } else {
+        updatedFoulCounters[sideIndex] = 0;
       }
     }
 
@@ -245,6 +267,7 @@ class MatchNotifier extends ChangeNotifier {
       innings: updatedInnings,
       highRuns: updatedHighRuns,
       currentRun: updatedCurrentRun,
+      foulCounters: updatedFoulCounters,
       effectiveInningsLimit: updatedEffectiveLimit,
       remaining: remaining,
       status: finished ? MatchStatus.finished : null,

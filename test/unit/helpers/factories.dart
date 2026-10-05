@@ -42,6 +42,7 @@ Match makeMatch({
     scores: List.filled(sideCount, 0),
     innings: List.filled(sideCount, 0),
     highRuns: List.filled(sideCount, 0),
+    foulCounters: List.filled(sideCount, 0),
     effectiveInningsLimit: effectiveInningsLimit,
     status: MatchStatus.created,
   );

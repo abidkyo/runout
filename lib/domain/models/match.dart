@@ -27,6 +27,7 @@ class Match {
     required this.scores,
     required this.innings,
     required this.highRuns,
+    required this.foulCounters,
     required this.status,
     this.remaining = 15,
     this.currentRun = 0,
@@ -47,6 +48,10 @@ class Match {
        assert(
          highRuns.length == sides.length,
          'High runs must have one entry per side.',
+       ),
+       assert(
+         foulCounters.length == sides.length,
+         'Foul counters must have one entry per side.',
        );
 
   /// Stable unique identifier.
@@ -66,6 +71,12 @@ class Match {
 
   /// Highest single-visit score per side, indexed parallel to [sides].
   final List<int> highRuns;
+
+  /// Consecutive-foul count per side, indexed parallel to [sides].
+  ///
+  /// Straight pool only; stays all-zeros for 8/9/10-ball. Incremented on
+  /// each foul, reset to zero on a clean visit or after the third foul.
+  final List<int> foulCounters;
 
   /// Current lifecycle state.
   final MatchStatus status;
@@ -104,6 +115,7 @@ class Match {
     List<int>? scores,
     List<int>? innings,
     List<int>? highRuns,
+    List<int>? foulCounters,
     int? remaining,
     int? currentRun,
     int? effectiveInningsLimit,
@@ -120,6 +132,7 @@ class Match {
       scores: scores ?? this.scores,
       innings: innings ?? this.innings,
       highRuns: highRuns ?? this.highRuns,
+      foulCounters: foulCounters ?? this.foulCounters,
       remaining: remaining ?? this.remaining,
       effectiveInningsLimit:
           effectiveInningsLimit ?? this.effectiveInningsLimit,

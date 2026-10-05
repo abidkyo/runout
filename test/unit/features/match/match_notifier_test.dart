@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:runout/domain/enums/break_format.dart';
+import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 
@@ -784,6 +785,106 @@ void main() {
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
+    });
+  });
+
+  group('straight pool — fouls', () {
+    test('standard foul deducts one point', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.scores, [-1, 0]);
+    });
+
+    test('standard foul increments the counter', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.foulCounters, [1, 0]);
+    });
+
+    test('three standard fouls apply -15 and reset the counter', () {
+      // Each standard foul: -1. Third also applies -15. Total -18.
+      final n =
+          MatchNotifier(
+              makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
+            )
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.scores[0], -18);
+      expect(n.match.foulCounters[0], 0);
+    });
+
+    test('no foul resets the counter', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0);
+
+      expect(n.match.foulCounters[0], 0);
+    });
+
+    test('break foul deducts two points', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+
+      expect(n.match.scores, [-2, 0]);
+    });
+
+    test('break foul resets the counter', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+
+      expect(n.match.foulCounters[0], 0);
+    });
+
+    test('break foul does not increment the counter', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+
+      expect(n.match.foulCounters[0], 0);
+    });
+
+    test('keepsTurn keeps the breaker after a break foul', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(
+              0,
+              points: 0,
+              foul: Foul.breakFoul,
+              keepsTurn: true,
+            );
+
+      expect(n.match.currentBreakerIndex, 0);
+      expect(n.match.innings, [1, 0]);
+    });
+
+    test('non-straight-pool games never touch foul counters', () {
+      final n = MatchNotifier(makeMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, foul: Foul.standard);
+
+      expect(n.match.foulCounters, [0, 0]);
     });
   });
 }
