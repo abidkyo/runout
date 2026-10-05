@@ -449,8 +449,8 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
             ..selectBreaker(0)
-            ..incrementScore(0)
-            ..incrementScore(1);
+            ..incrementScore(0, points: 3)
+            ..incrementScore(1, points: 2);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.endedAt, isNotNull);
@@ -712,6 +712,78 @@ void main() {
       final n = MatchNotifier(makeMatch())..selectBreaker(0);
 
       expect(() => n.newRack(1), throwsAssertionError);
+    });
+  });
+
+  group('straight pool — innings extension', () {
+    test('tied at the limit extends instead of finishing', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 2)
+            ..incrementScore(1, points: 2);
+
+      expect(n.match.status, MatchStatus.playing);
+      expect(n.match.winnerIndex, isNull);
+      expect(n.match.effectiveInningsLimit, 6);
+    });
+
+    test('sets notifyExtension when extending', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 2)
+            ..incrementScore(1, points: 2);
+
+      expect(n.notifyExtension, isTrue);
+    });
+
+    test('notifyExtension is false when no extension fires', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..incrementScore(0, points: 3)
+            ..incrementScore(1, points: 2);
+
+      expect(n.notifyExtension, isFalse);
+    });
+
+    test('notifyExtension resets on the next increment', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 2)
+            ..incrementScore(1, points: 2);
+
+      expect(n.notifyExtension, isTrue);
+
+      n.incrementScore(0);
+
+      expect(n.notifyExtension, isFalse);
+    });
+
+    test('a unique leader at the extended limit finishes the match', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 100))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 5)
+            ..incrementScore(1, points: 5); // tied → effective limit 6
+
+      expect(n.match.effectiveInningsLimit, 6);
+
+      n
+        ..incrementScore(0, points: 5)
+        ..endVisit()
+        ..incrementScore(0, points: 5)
+        ..endVisit()
+        ..incrementScore(0, points: 5)
+        ..endVisit()
+        ..incrementScore(0, points: 5)
+        ..endVisit()
+        ..incrementScore(0, points: 5)
+        ..endVisit();
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
     });
   });
 }

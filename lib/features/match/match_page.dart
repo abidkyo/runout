@@ -103,7 +103,7 @@ class _ScoreArea extends StatelessWidget {
                       ? StraightPoolStats(
                           innings: match.innings[i].clamp(
                             0,
-                            match.config.inningsLimit!,
+                            match.effectiveInningsLimit,
                           ),
                           highRun: match.highRuns[i],
                           score: match.scores[i],

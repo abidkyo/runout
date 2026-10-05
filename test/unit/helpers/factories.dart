@@ -29,7 +29,11 @@ MatchConfig makeConfig({
   inningsLimit: inningsLimit,
 );
 
-Match makeMatch({MatchConfig? config, int sideCount = 2}) {
+Match makeMatch({
+  MatchConfig? config,
+  int sideCount = 2,
+  int effectiveInningsLimit = 0,
+}) {
   final sides = List.generate(sideCount, (i) => makeSide('$i'));
   return Match(
     id: 'match-1',
@@ -38,6 +42,7 @@ Match makeMatch({MatchConfig? config, int sideCount = 2}) {
     scores: List.filled(sideCount, 0),
     innings: List.filled(sideCount, 0),
     highRuns: List.filled(sideCount, 0),
+    effectiveInningsLimit: effectiveInningsLimit,
     status: MatchStatus.created,
   );
 }
@@ -61,4 +66,5 @@ Match makeStraightPoolMatch({
 }) => makeMatch(
   config: makeStraightPoolConfig(inningsLimit: inningsLimit, raceTo: raceTo),
   sideCount: sideCount,
+  effectiveInningsLimit: inningsLimit,
 );

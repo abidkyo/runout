@@ -22,6 +22,25 @@ class ControlsBar extends StatelessWidget {
 
   static const double _iconSize = 28;
 
+  void _maybeNotifyExtension( BuildContext context, MatchNotifier notifier) {
+    if (!notifier.notifyExtension) return;
+    notifier.notifyExtension = false;
+    final limit = notifier.match.effectiveInningsLimit;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Tied — 5 more innings (total $limit innings)'),
+          showCloseIcon: true,
+        ),
+      );
+  }
+
+  void _endVisit(BuildContext context, MatchNotifier notifier) {
+    notifier.endVisit();
+    _maybeNotifyExtension(context, notifier);
+  }
+
   Future<void> _pickRemaining(
     BuildContext context,
     MatchNotifier notifier,
@@ -33,6 +52,9 @@ class ControlsBar extends StatelessWidget {
     );
     if (remaining == null) return;
     notifier.scoreRemaining(remaining);
+
+    if (!context.mounted) return;
+    _maybeNotifyExtension(context, notifier);
   }
 
   Future<void> _pickRack(BuildContext context, MatchNotifier notifier) async {
@@ -88,7 +110,7 @@ class ControlsBar extends StatelessWidget {
                     icon: const Icon(Icons.swap_horiz),
                     iconSize: _iconSize + 4,
                     tooltip: 'End visit',
-                    onPressed: notifier.endVisit,
+                    onPressed: () => _endVisit(context, notifier),
                   ),
                   const SizedBox(width: 4),
                   TextButton(

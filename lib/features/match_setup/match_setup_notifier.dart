@@ -131,6 +131,7 @@ class MatchSetupNotifier extends ChangeNotifier {
       scores: List<int>.filled(sides.length, 0),
       innings: List<int>.filled(sides.length, 0),
       highRuns: List<int>.filled(sides.length, 0),
+      effectiveInningsLimit: _gameType == GameType.straightPool ? _innings : 0,
       status: MatchStatus.created,
     );
   }

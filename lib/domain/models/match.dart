@@ -30,6 +30,7 @@ class Match {
     required this.status,
     this.remaining = 15,
     this.currentRun = 0,
+    this.effectiveInningsLimit = 0,
     this.startedAt,
     this.endedAt,
     this.currentBreakerIndex,
@@ -76,6 +77,10 @@ class Match {
   /// visit ends. Straight pool only.
   final int currentRun;
 
+  /// Current innings limit. Starts at `config.inningsLimit` for straight
+  /// pool and grows by 5 on each tied innings limit. Zero for other games.
+  final int effectiveInningsLimit;
+
   /// When the match started. Null until [status] is [MatchStatus.playing].
   final DateTime? startedAt;
 
@@ -101,6 +106,7 @@ class Match {
     List<int>? highRuns,
     int? remaining,
     int? currentRun,
+    int? effectiveInningsLimit,
     MatchStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
@@ -115,6 +121,8 @@ class Match {
       innings: innings ?? this.innings,
       highRuns: highRuns ?? this.highRuns,
       remaining: remaining ?? this.remaining,
+      effectiveInningsLimit:
+          effectiveInningsLimit ?? this.effectiveInningsLimit,
       currentRun: currentRun ?? this.currentRun,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,

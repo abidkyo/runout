@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:runout/domain/enums/break_format.dart';
@@ -12,8 +14,13 @@ class MatchNotifier extends ChangeNotifier {
   new(this._match);
 
   Match _match;
+
   final List<Match> _undoStack = [];
   final List<Match> _redoStack = [];
+
+  /// Whether the innings limit was extended during the last action.
+  /// Read and reset by the UI after handling.
+  bool notifyExtension = false;
 
   /// The current match state.
   Match get match => _match;
@@ -174,6 +181,9 @@ class MatchNotifier extends ChangeNotifier {
       return;
     }
 
+    // reset
+    notifyExtension = false;
+
     final updatedScores = List<int>.of(_match.scores);
     updatedScores[sideIndex] += points;
 
@@ -183,6 +193,7 @@ class MatchNotifier extends ChangeNotifier {
         : _nextBreaker(scoringSide: sideIndex);
 
     final updatedInnings = List<int>.of(_match.innings);
+    var updatedEffectiveLimit = _match.effectiveInningsLimit;
     var winnerIndex = _match.winnerIndex;
 
     // Straight pool: track the running visit and commit it on visit end.
@@ -206,16 +217,23 @@ class MatchNotifier extends ChangeNotifier {
       updatedInnings[nextBreaker] += 1;
 
       final reachedInningsLimit = updatedInnings.any(
-        (v) => v > _match.config.inningsLimit!,
+        (v) => v > _match.effectiveInningsLimit,
       );
 
       if (reachedInningsLimit) {
-        // Highest score wins.
-        var best = 0;
-        for (var i = 1; i < updatedScores.length; i++) {
-          if (updatedScores[i] > updatedScores[best]) best = i;
+        final highestScore = updatedScores.reduce(max);
+
+        final winners = <int>[];
+        for (var i = 0; i < updatedScores.length; i++) {
+          if (updatedScores[i] == highestScore) winners.add(i);
         }
-        winnerIndex = best;
+
+        if (winners.length == 1) {
+          winnerIndex = winners.first;
+        } else {
+          updatedEffectiveLimit = _match.effectiveInningsLimit + 5;
+          notifyExtension = true;
+        }
       }
     }
 
@@ -227,6 +245,7 @@ class MatchNotifier extends ChangeNotifier {
       innings: updatedInnings,
       highRuns: updatedHighRuns,
       currentRun: updatedCurrentRun,
+      effectiveInningsLimit: updatedEffectiveLimit,
       remaining: remaining,
       status: finished ? MatchStatus.finished : null,
       endedAt: finished ? clock.now() : null,
