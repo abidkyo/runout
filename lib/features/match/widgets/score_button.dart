@@ -13,7 +13,7 @@ class ScoreButton extends StatelessWidget {
   final int score;
 
   /// Called when the score area is tapped.
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -115,7 +115,9 @@ class _ScoreArea extends StatelessWidget {
                         )
                       : ScoreButton(
                           score: match.scores[i],
-                          onTap: () => notifier.incrementScore(i),
+                          onTap: match.config.gameType == GameType.straightPool
+                              ? null
+                              : () => notifier.incrementScore(i),
                         ),
                 ),
               ),

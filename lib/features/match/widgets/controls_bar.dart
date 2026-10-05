@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/domain/enums/game_type.dart';
+import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
+import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
 
 /// Bottom bar of the match page with undo/redo and exit/restart controls.
 class ControlsBar extends StatelessWidget {
@@ -18,9 +22,35 @@ class ControlsBar extends StatelessWidget {
 
   static const double _iconSize = 28;
 
+  Future<void> _pickRemaining(
+    BuildContext context,
+    MatchNotifier notifier,
+  ) async {
+    final remaining = await showDialog<int>(
+      context: context,
+      builder: (_) =>
+          RemainingPickerDialog(remaining: notifier.match.remaining),
+    );
+    if (remaining == null) return;
+    notifier.scoreRemaining(remaining);
+  }
+
+  Future<void> _pickRack(BuildContext context, MatchNotifier notifier) async {
+    final remaining = await showDialog<int>(
+      context: context,
+      builder: (_) => const NewRackPickerDialog(),
+    );
+    if (remaining == null) return;
+    notifier.newRack(remaining);
+  }
+
   @override
   Widget build(BuildContext context) {
     final notifier = context.watch<MatchNotifier>();
+    final match = notifier.match;
+
+    final isStraightPool = match.config.gameType == GameType.straightPool;
+    final isPlaying = match.status == MatchStatus.playing;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -46,6 +76,40 @@ class ControlsBar extends StatelessWidget {
               ),
             ],
           ),
+          if (isStraightPool)
+            Visibility(
+              visible: isPlaying,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz),
+                    iconSize: _iconSize + 4,
+                    tooltip: 'End visit',
+                    onPressed: notifier.endVisit,
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton(
+                    onPressed: () => _pickRemaining(context, notifier),
+                    style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontSize: 12 * 1.5),
+                    ),
+                    child: Text('${match.remaining}'),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.change_history),
+                    iconSize: _iconSize + 4,
+                    tooltip: 'New rack',
+                    onPressed: () => notifier.newRack(1),
+                    onLongPress: () => _pickRack(context, notifier),
+                  ),
+                ],
+              ),
+            ),
           Row(
             children: [
               IconButton(
