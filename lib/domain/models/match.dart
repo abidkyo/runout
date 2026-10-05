@@ -31,6 +31,7 @@ class Match {
     required this.status,
     this.remaining = 15,
     this.currentRun = 0,
+    this.isOpeningBreak = true,
     this.effectiveInningsLimit = 0,
     this.startedAt,
     this.endedAt,
@@ -92,6 +93,10 @@ class Match {
   /// pool and grows by 5 on each tied innings limit. Zero for other games.
   final int effectiveInningsLimit;
 
+  /// Whether the next shot is an opening break. Starts true; cleared after
+  /// the first visit ends; set again by the three-foul penalty (re-rack).
+  final bool isOpeningBreak;
+
   /// When the match started. Null until [status] is [MatchStatus.playing].
   final DateTime? startedAt;
 
@@ -119,6 +124,7 @@ class Match {
     int? remaining,
     int? currentRun,
     int? effectiveInningsLimit,
+    bool? isOpeningBreak,
     MatchStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
@@ -137,6 +143,7 @@ class Match {
       effectiveInningsLimit:
           effectiveInningsLimit ?? this.effectiveInningsLimit,
       currentRun: currentRun ?? this.currentRun,
+      isOpeningBreak: isOpeningBreak ?? this.isOpeningBreak,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
       endedAt: endedAt ?? this.endedAt,

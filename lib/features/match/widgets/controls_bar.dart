@@ -22,23 +22,38 @@ class ControlsBar extends StatelessWidget {
 
   static const double _iconSize = 28;
 
-  void _maybeNotifyExtension( BuildContext context, MatchNotifier notifier) {
-    if (!notifier.notifyExtension) return;
-    notifier.notifyExtension = false;
-    final limit = notifier.match.effectiveInningsLimit;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('Tied — 5 more innings (total $limit innings)'),
-          showCloseIcon: true,
-        ),
-      );
+  void _maybeNotify(BuildContext context, MatchNotifier notifier) {
+    if (notifier.notifyExtension) {
+      notifier.notifyExtension = false;
+      final limit = notifier.match.effectiveInningsLimit;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('Tied — 5 more innings (total $limit innings)'),
+            showCloseIcon: true,
+          ),
+        );
+      return;
+    }
+
+    if (notifier.notifyThreeFouls) {
+      notifier.notifyThreeFouls = false;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Three fouls — 15 point penalty, re-rack'),
+            showCloseIcon: true,
+          ),
+        );
+      return;
+    }
   }
 
   void _endVisit(BuildContext context, MatchNotifier notifier) {
     notifier.endVisit();
-    _maybeNotifyExtension(context, notifier);
+    _maybeNotify(context, notifier);
   }
 
   Future<void> _pickRemaining(
@@ -46,13 +61,12 @@ class ControlsBar extends StatelessWidget {
     MatchNotifier notifier,
   ) async {
     final match = notifier.match;
-    final isOpeningBreak = match.innings.fold(0, (a, b) => a + b) == 1;
 
     final result = await showDialog<RemainingResult>(
       context: context,
       builder: (_) => RemainingPickerDialog(
         remaining: match.remaining,
-        showBreakFoul: isOpeningBreak,
+        showBreakFoul: match.isOpeningBreak,
       ),
     );
     if (result == null) return;
@@ -64,7 +78,7 @@ class ControlsBar extends StatelessWidget {
     );
 
     if (!context.mounted) return;
-    _maybeNotifyExtension(context, notifier);
+    _maybeNotify(context, notifier);
   }
 
   Future<void> _pickRack(BuildContext context, MatchNotifier notifier) async {

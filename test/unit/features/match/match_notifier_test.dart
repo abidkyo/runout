@@ -879,12 +879,132 @@ void main() {
       expect(n.match.innings, [1, 0]);
     });
 
+    test('sets notifyThreeFouls on the third standard foul', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.notifyThreeFouls, isTrue);
+    });
+
+    test('notifyThreeFouls is false when no penalty fires', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.notifyThreeFouls, isFalse);
+    });
+
     test('non-straight-pool games never touch foul counters', () {
       final n = MatchNotifier(makeMatch())
         ..selectBreaker(0)
         ..incrementScore(0, foul: Foul.standard);
 
       expect(n.match.foulCounters, [0, 0]);
+    });
+  });
+
+  group('straight pool — opening break flag', () {
+    test('starts true on a fresh match', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
+      );
+
+      expect(n.match.isOpeningBreak, isTrue);
+    });
+
+    test('stays true after selectBreaker', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
+      )..selectBreaker(0);
+
+      expect(n.match.isOpeningBreak, isTrue);
+    });
+
+    test('becomes false after the first visit ends', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 3);
+
+      expect(n.match.isOpeningBreak, isFalse);
+    });
+
+    test('clears after the first visit even with a foul', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.isOpeningBreak, isFalse);
+    });
+
+    test('stays true while keepsTurn is true', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(
+              0,
+              points: 0,
+              foul: Foul.breakFoul,
+              keepsTurn: true,
+            );
+
+      expect(n.match.isOpeningBreak, isTrue);
+    });
+
+    test('three-foul penalty sets it back to true', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.isOpeningBreak, isTrue);
+      expect(n.match.foulCounters[0], 0);
+    });
+
+    test('three-foul penalty resets remaining to 15', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.remaining, 15);
+    });
+
+    test('third standard foul forces keepsTurn', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 100))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard)
+            ..incrementScore(1, points: 0)
+            ..incrementScore(0, points: 0, foul: Foul.standard);
+
+      expect(n.match.currentBreakerIndex, 0);
+    });
+
+    test('non-straight-pool games never touch isOpeningBreak', () {
+      final n = MatchNotifier(makeMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0);
+
+      expect(n.match.isOpeningBreak, isTrue);
     });
   });
 }

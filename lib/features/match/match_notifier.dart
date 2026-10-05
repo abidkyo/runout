@@ -23,6 +23,10 @@ class MatchNotifier extends ChangeNotifier {
   /// Read and reset by the UI after handling.
   bool notifyExtension = false;
 
+  /// Whether the three-foul penalty fired during the last action.
+  /// Read and reset by the UI after handling.
+  bool notifyThreeFouls = false;
+
   /// The current match state.
   Match get match => _match;
 
@@ -160,7 +164,8 @@ class MatchNotifier extends ChangeNotifier {
   /// to leave the count unchanged. Straight pool only.
   ///
   /// [keepsTurn] leaves the breaker unchanged and skips the innings
-  /// increment. Straight pool only.
+  /// increment. A third consecutive [Foul.standard] forces [keepsTurn]
+  /// regardless of the passed value. Straight pool only.
   void incrementScore(
     int sideIndex, {
     int points = 1,
@@ -179,37 +184,56 @@ class MatchNotifier extends ChangeNotifier {
     assert(points >= 0, 'points must not be negative.');
     if (points < 0) return;
 
-    assert(
-      _match.config.gameType != GameType.straightPool ||
-          sideIndex == _match.currentBreakerIndex,
-      'In straight pool, only the current breaker can score.',
-    );
-    if (_match.config.gameType == GameType.straightPool &&
-        sideIndex != _match.currentBreakerIndex) {
-      return;
+    if (_match.config.gameType == GameType.straightPool) {
+      assert(
+        sideIndex == _match.currentBreakerIndex,
+        'In straight pool, only the current breaker can score.',
+      );
+      if (sideIndex != _match.currentBreakerIndex) return;
     }
 
     // reset
     notifyExtension = false;
+    notifyThreeFouls = false;
 
     final updatedScores = List<int>.of(_match.scores);
     updatedScores[sideIndex] += points - foul.value;
 
+    // Foul counters. A third standard foul forces the turn to stay.
+    var updatedFoulCounters = _match.foulCounters;
+    var isThirdFoul = false;
+    if (_match.config.gameType == GameType.straightPool) {
+      updatedFoulCounters = List<int>.of(_match.foulCounters);
+      if (foul == Foul.standard) {
+        updatedFoulCounters[sideIndex] += 1;
+        if (updatedFoulCounters[sideIndex] >= 3) {
+          updatedFoulCounters[sideIndex] = 0;
+          updatedScores[sideIndex] -= 15;
+          isThirdFoul = true;
+        }
+      } else {
+        updatedFoulCounters[sideIndex] = 0;
+      }
+    }
+
+    final effectiveKeepsTurn = keepsTurn || isThirdFoul;
+
     final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
-    final nextBreaker = keepsTurn
+    final nextBreaker = effectiveKeepsTurn
         ? _match.currentBreakerIndex!
         : _nextBreaker(scoringSide: sideIndex);
 
-    final updatedInnings = List<int>.of(_match.innings);
+    var updatedInnings = _match.innings;
     var updatedEffectiveLimit = _match.effectiveInningsLimit;
-    var winnerIndex = _match.winnerIndex;
+    var updatedRemaining = remaining ?? _match.remaining;
+    var updatedIsOpeningBreak = _match.isOpeningBreak;
 
-    // Straight pool: track the running visit and commit it on visit end.
+    // Straight pool: accumulate the run; commit it when the visit ends.
     var updatedHighRuns = _match.highRuns;
     var updatedCurrentRun = _match.currentRun;
     if (_match.config.gameType == GameType.straightPool) {
       updatedCurrentRun += points;
-      if (!keepsTurn) {
+      if (!effectiveKeepsTurn) {
         updatedHighRuns = List<int>.of(_match.highRuns);
         if (updatedCurrentRun > updatedHighRuns[sideIndex]) {
           updatedHighRuns[sideIndex] = updatedCurrentRun;
@@ -218,28 +242,29 @@ class MatchNotifier extends ChangeNotifier {
       }
     }
 
-    var updatedFoulCounters = _match.foulCounters;
-    if (_match.config.gameType == GameType.straightPool) {
-      updatedFoulCounters = List<int>.of(_match.foulCounters);
-      if (foul == Foul.standard) {
-        updatedFoulCounters[sideIndex] += 1;
-        if (updatedFoulCounters[sideIndex] >= 3) {
-          updatedFoulCounters[sideIndex] = 0;
-          updatedScores[sideIndex] -= 15;
-        }
-      } else {
-        updatedFoulCounters[sideIndex] = 0;
-      }
+    if (_match.config.gameType == GameType.straightPool &&
+        !effectiveKeepsTurn) {
+      updatedIsOpeningBreak = false;
     }
+
+    if (isThirdFoul) {
+      updatedIsOpeningBreak = true;
+      updatedRemaining = 15;
+      notifyThreeFouls = true;
+    }
+
+    var winnerIndex = _match.winnerIndex;
 
     // Score win takes priority over the innings limit.
     if (reachedTarget) {
       winnerIndex = sideIndex;
-    } else if (_match.config.gameType == GameType.straightPool && !keepsTurn) {
+    } else if (_match.config.gameType == GameType.straightPool &&
+        !effectiveKeepsTurn) {
+      updatedInnings = List<int>.of(_match.innings);
       updatedInnings[nextBreaker] += 1;
 
       final reachedInningsLimit = updatedInnings.any(
-        (v) => v > _match.effectiveInningsLimit,
+        (v) => v > updatedEffectiveLimit,
       );
 
       if (reachedInningsLimit) {
@@ -266,10 +291,11 @@ class MatchNotifier extends ChangeNotifier {
       scores: updatedScores,
       innings: updatedInnings,
       highRuns: updatedHighRuns,
-      currentRun: updatedCurrentRun,
       foulCounters: updatedFoulCounters,
+      remaining: updatedRemaining,
+      currentRun: updatedCurrentRun,
       effectiveInningsLimit: updatedEffectiveLimit,
-      remaining: remaining,
+      isOpeningBreak: updatedIsOpeningBreak,
       status: finished ? MatchStatus.finished : null,
       endedAt: finished ? clock.now() : null,
       winnerIndex: winnerIndex,
