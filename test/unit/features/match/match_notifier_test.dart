@@ -331,6 +331,80 @@ void main() {
     });
   });
 
+  group('straight pool — highRuns and currentRun', () {
+    test('start at zero', () {
+      final n = MatchNotifier(
+        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
+      );
+
+      expect(n.match.highRuns, [0, 0]);
+      expect(n.match.currentRun, 0);
+    });
+
+    test('accumulate points during a visit', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true);
+
+      expect(n.match.currentRun, 5);
+      expect(n.match.highRuns, [0, 0]);
+    });
+
+    test('commit currentRun to highRuns when the visit ends', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true)
+            ..incrementScore(0, points: 3, remaining: 7); // visit ends
+
+      expect(n.match.highRuns, [8, 0]);
+      expect(n.match.currentRun, 0);
+    });
+
+    test('keeps the highest run across visits', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10) // visit 1: high run 10
+            ..incrementScore(1, points: 3) // side 1 visit: high run 3
+            ..incrementScore(0, points: 5); // visit 2: high run stays 10
+
+      expect(n.match.highRuns, [10, 3]);
+    });
+
+    test('a new higher run replaces the old one', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 5)
+            ..incrementScore(1, points: 2)
+            ..incrementScore(0, points: 9);
+
+      expect(n.match.highRuns, [9, 2]);
+    });
+
+    test('non-straight-pool games never touch highRuns or currentRun', () {
+      final n = MatchNotifier(makeMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0)
+        ..incrementScore(1);
+
+      expect(n.match.highRuns, [0, 0]);
+      expect(n.match.currentRun, 0);
+    });
+
+    test('the final visit still commits its run on a score win', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10);
+
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.highRuns, [10, 0]);
+    });
+  });
+
   group('straight pool — score win', () {
     test('reaching raceTo finishes the match and the scorer wins', () {
       final n =

@@ -37,6 +37,7 @@ Match makeMatch({MatchConfig? config, int sideCount = 2}) {
     sides: sides,
     scores: List.filled(sideCount, 0),
     innings: List.filled(sideCount, 0),
+    highRuns: List.filled(sideCount, 0),
     status: MatchStatus.created,
   );
 }

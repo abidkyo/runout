@@ -130,6 +130,7 @@ class MatchSetupNotifier extends ChangeNotifier {
       sides: sides,
       scores: List<int>.filled(sides.length, 0),
       innings: List<int>.filled(sides.length, 0),
+      highRuns: List<int>.filled(sides.length, 0),
       status: MatchStatus.created,
     );
   }

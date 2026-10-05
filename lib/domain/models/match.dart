@@ -26,8 +26,10 @@ class Match {
     required this.sides,
     required this.scores,
     required this.innings,
+    required this.highRuns,
     required this.status,
     this.remaining = 15,
+    this.currentRun = 0,
     this.startedAt,
     this.endedAt,
     this.currentBreakerIndex,
@@ -40,6 +42,10 @@ class Match {
        assert(
          innings.length == sides.length,
          'Innings must have one entry per side.',
+       ),
+       assert(
+         highRuns.length == sides.length,
+         'High runs must have one entry per side.',
        );
 
   /// Stable unique identifier.
@@ -57,11 +63,18 @@ class Match {
   /// Innings per side, indexed parallel to [sides].
   final List<int> innings;
 
+  /// Highest single-visit score per side, indexed parallel to [sides].
+  final List<int> highRuns;
+
   /// Current lifecycle state.
   final MatchStatus status;
 
   /// Balls remaining on the table. Straight pool only; starts at 15.
   final int remaining;
+
+  /// Points accumulated in the current visit. Reset to zero when the
+  /// visit ends. Straight pool only.
+  final int currentRun;
 
   /// When the match started. Null until [status] is [MatchStatus.playing].
   final DateTime? startedAt;
@@ -85,7 +98,9 @@ class Match {
     List<MatchSide>? sides,
     List<int>? scores,
     List<int>? innings,
+    List<int>? highRuns,
     int? remaining,
+    int? currentRun,
     MatchStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
@@ -98,7 +113,9 @@ class Match {
       sides: sides ?? this.sides,
       scores: scores ?? this.scores,
       innings: innings ?? this.innings,
+      highRuns: highRuns ?? this.highRuns,
       remaining: remaining ?? this.remaining,
+      currentRun: currentRun ?? this.currentRun,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
       endedAt: endedAt ?? this.endedAt,

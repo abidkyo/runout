@@ -185,6 +185,20 @@ class MatchNotifier extends ChangeNotifier {
     final updatedInnings = List<int>.of(_match.innings);
     var winnerIndex = _match.winnerIndex;
 
+    // Straight pool: track the running visit and commit it on visit end.
+    var updatedHighRuns = _match.highRuns;
+    var updatedCurrentRun = _match.currentRun;
+    if (_match.config.gameType == GameType.straightPool) {
+      updatedCurrentRun += points;
+      if (!keepsTurn) {
+        updatedHighRuns = List<int>.of(_match.highRuns);
+        if (updatedCurrentRun > updatedHighRuns[sideIndex]) {
+          updatedHighRuns[sideIndex] = updatedCurrentRun;
+        }
+        updatedCurrentRun = 0;
+      }
+    }
+
     // Score win takes priority over the innings limit.
     if (reachedTarget) {
       winnerIndex = sideIndex;
@@ -211,6 +225,8 @@ class MatchNotifier extends ChangeNotifier {
     _match = _match.copyWith(
       scores: updatedScores,
       innings: updatedInnings,
+      highRuns: updatedHighRuns,
+      currentRun: updatedCurrentRun,
       remaining: remaining,
       status: finished ? MatchStatus.finished : null,
       endedAt: finished ? clock.now() : null,
