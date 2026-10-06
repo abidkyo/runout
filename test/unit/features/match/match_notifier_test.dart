@@ -342,17 +342,28 @@ void main() {
       expect(n.match.currentRun, 0);
     });
 
-    test('accumulate points during a visit', () {
+    test('update highRuns live during a visit', () {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
             ..selectBreaker(0)
             ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true);
 
       expect(n.match.currentRun, 5);
-      expect(n.match.highRuns, [0, 0]);
+      expect(n.match.highRuns, [5, 0]);
     });
 
-    test('commit currentRun to highRuns when the visit ends', () {
+    test('update highRuns live across multiple visits', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 4, remaining: 11, keepsTurn: true)
+            ..incrementScore(0, points: 6, remaining: 5, keepsTurn: true);
+
+      expect(n.match.currentRun, 10);
+      expect(n.match.highRuns, [10, 0]);
+    });
+
+    test('reset currentRun and update highRuns when the visit ends', () {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
             ..selectBreaker(0)
@@ -371,6 +382,18 @@ void main() {
             ..incrementScore(1, points: 3) // side 1 visit: high run 3
             ..incrementScore(0, points: 5); // visit 2: high run stays 10
 
+      expect(n.match.highRuns, [10, 3]);
+    });
+
+    test('keeps the highest run on mid-visit as well', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 10)
+            ..incrementScore(1, points: 3)
+            ..incrementScore(0, points: 5, keepsTurn: true);
+
+      expect(n.match.currentRun, 5);
       expect(n.match.highRuns, [10, 3]);
     });
 

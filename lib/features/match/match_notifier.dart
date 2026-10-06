@@ -233,16 +233,18 @@ class MatchNotifier extends ChangeNotifier {
     var updatedRemaining = remaining ?? _match.remaining;
     var updatedIsOpeningBreak = _match.isOpeningBreak;
 
-    // Straight pool: accumulate the run; commit it when the visit ends.
+    // Straight pool: accumulate the run and keep highRuns live.
     var updatedHighRuns = _match.highRuns;
     var updatedCurrentRun = _match.currentRun;
     if (_match.config.gameType == GameType.straightPool) {
       updatedCurrentRun += points;
+
+      updatedHighRuns = List<int>.of(_match.highRuns);
+      if (updatedCurrentRun > updatedHighRuns[sideIndex]) {
+        updatedHighRuns[sideIndex] = updatedCurrentRun;
+      }
+
       if (!effectiveKeepsTurn) {
-        updatedHighRuns = List<int>.of(_match.highRuns);
-        if (updatedCurrentRun > updatedHighRuns[sideIndex]) {
-          updatedHighRuns[sideIndex] = updatedCurrentRun;
-        }
         updatedCurrentRun = 0;
       }
     }
