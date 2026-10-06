@@ -1007,4 +1007,39 @@ void main() {
       expect(n.match.isOpeningBreak, isTrue);
     });
   });
+
+  group('straight pool — continue after target', () {
+    test('sets askToContinue when the target is reached on a kept turn', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..newRack(1); // 14 points >= raceTo 10, keepsTurn true
+
+      expect(n.askToContinue, isTrue);
+      expect(n.match.status, MatchStatus.playing);
+      expect(n.match.winnerIndex, isNull);
+    });
+
+    test('does not set askToContinue when the target ends the visit', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..incrementScore(0, points: 14);
+
+      expect(n.askToContinue, isFalse);
+      expect(n.match.status, MatchStatus.finished);
+      expect(n.match.winnerIndex, 0);
+    });
+
+    test('askToContinue is set again when the target is still reached', () {
+      final n =
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
+            ..selectBreaker(0)
+            ..newRack(1)
+            ..askToContinue = false
+            ..incrementScore(0, points: 0, keepsTurn: true);
+
+      expect(n.askToContinue, isTrue);
+    });
+  });
 }

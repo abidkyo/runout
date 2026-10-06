@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/widgets/continue_prompt_dialog.dart';
 import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
 import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
 
@@ -81,13 +82,37 @@ class ControlsBar extends StatelessWidget {
     _maybeNotify(context, notifier);
   }
 
-  Future<void> _pickRack(BuildContext context, MatchNotifier notifier) async {
-    final remaining = await showDialog<int>(
+  Future<void> _newRack(
+    BuildContext context,
+    MatchNotifier notifier, {
+    int? remaining,
+  }) async {
+    var value = remaining;
+    if (value == null) {
+      value = await showDialog<int>(
+        context: context,
+        builder: (_) => const NewRackPickerDialog(),
+      );
+      if (value == null) return;
+    }
+
+    final points = notifier.match.remaining - value;
+    notifier.newRack(value);
+
+    if (!notifier.askToContinue) return;
+    notifier.askToContinue = false;
+
+    if (!context.mounted) return;
+    final shouldContinue = await showDialog<bool>(
       context: context,
-      builder: (_) => const NewRackPickerDialog(),
+      builder: (_) => const ContinuePromptDialog(),
     );
-    if (remaining == null) return;
-    notifier.newRack(remaining);
+    if (shouldContinue == false) {
+      final sideIndex = notifier.match.currentBreakerIndex!;
+      notifier
+        ..undo()
+        ..incrementScore(sideIndex, points: points, remaining: value);
+    }
   }
 
   @override
@@ -150,8 +175,8 @@ class ControlsBar extends StatelessWidget {
                     icon: const Icon(Icons.change_history),
                     iconSize: _iconSize + 4,
                     tooltip: 'New rack',
-                    onPressed: () => notifier.newRack(1),
-                    onLongPress: () => _pickRack(context, notifier),
+                    onPressed: () => _newRack(context, notifier, remaining: 1),
+                    onLongPress: () => _newRack(context, notifier),
                   ),
                 ],
               ),

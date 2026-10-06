@@ -27,6 +27,10 @@ class MatchNotifier extends ChangeNotifier {
   /// Read and reset by the UI after handling.
   bool notifyThreeFouls = false;
 
+  /// Whether the goal was reached during a turn that continues. Read and
+  /// reset by the UI after showing the continue dialog.
+  bool askToContinue = false;
+
   /// The current match state.
   Match get match => _match;
 
@@ -195,6 +199,7 @@ class MatchNotifier extends ChangeNotifier {
     // reset
     notifyExtension = false;
     notifyThreeFouls = false;
+    askToContinue = false;
 
     final updatedScores = List<int>.of(_match.scores);
     updatedScores[sideIndex] += points - foul.value;
@@ -257,7 +262,11 @@ class MatchNotifier extends ChangeNotifier {
 
     // Score win takes priority over the innings limit.
     if (reachedTarget) {
-      winnerIndex = sideIndex;
+      if (effectiveKeepsTurn) {
+        askToContinue = true;
+      } else {
+        winnerIndex = sideIndex;
+      }
     } else if (_match.config.gameType == GameType.straightPool &&
         !effectiveKeepsTurn) {
       updatedInnings = List<int>.of(_match.innings);
