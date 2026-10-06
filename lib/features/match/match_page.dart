@@ -7,6 +7,7 @@ import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
+import 'package:runout/features/match/widgets/exit_warning_dialog.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
@@ -30,11 +31,19 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
-  void _restart(BuildContext context) {
+  Future<void> _restart(BuildContext context, MatchStatus status) async {
+    if (status == MatchStatus.playing) {
+      final leave = await ExitWarningDialog.show(context);
+      if (!leave || !context.mounted) return;
+    }
     Navigator.of(context).pop();
   }
 
-  void _exit(BuildContext context) {
+  Future<void> _exit(BuildContext context, MatchStatus status) async {
+    if (status == MatchStatus.playing) {
+      final leave = await ExitWarningDialog.show(context);
+      if (!leave || !context.mounted) return;
+    }
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -62,8 +71,8 @@ class _MatchView extends StatelessWidget {
           children: [
             const Expanded(child: _ScoreArea()),
             ControlsBar(
-              onRestart: () => _restart(context),
-              onExit: () => _exit(context),
+              onRestart: () => _restart(context, match.status),
+              onExit: () => _exit(context, match.status),
             ),
           ],
         ),
