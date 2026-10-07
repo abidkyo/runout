@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
                 ModeCard(
                   icon: Icons.emoji_events,
                   label: 'Tournament',
-                  onTap: () => _openSetup(context, MatchMode.tournament),
+                  onTap: () => {},
                 ),
               ],
             ),
