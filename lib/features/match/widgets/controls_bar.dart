@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
-import 'package:runout/features/match/widgets/continue_prompt_dialog.dart';
 import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
 import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
+import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// Bottom bar of the match page with undo/redo and exit/restart controls.
 class ControlsBar extends StatelessWidget {
@@ -103,11 +103,17 @@ class ControlsBar extends StatelessWidget {
     notifier.askToContinue = false;
 
     if (!context.mounted) return;
-    final shouldContinue = await showDialog<bool>(
-      context: context,
-      builder: (_) => const ContinuePromptDialog(),
+
+    final shouldContinue = await showConfirmDialog(
+      context,
+      title: 'Target reached.',
+      message:
+          'The target score is reached.\n'
+          'Do you want to continue playing?',
+      confirmLabel: 'Continue',
+      cancelLabel: 'End',
     );
-    if (shouldContinue == false) {
+    if (!shouldContinue) {
       final sideIndex = notifier.match.currentBreakerIndex!;
       notifier
         ..undo()

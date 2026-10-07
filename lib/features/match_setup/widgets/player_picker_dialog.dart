@@ -92,6 +92,7 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(padding: const EdgeInsets.all(12)),
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),

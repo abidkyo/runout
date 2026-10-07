@@ -7,11 +7,11 @@ import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
-import 'package:runout/features/match/widgets/exit_warning_dialog.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_columns.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
+import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// The match scoring page.
 class MatchPage extends StatelessWidget {
@@ -33,7 +33,15 @@ class _MatchView extends StatelessWidget {
 
   Future<void> _restart(BuildContext context, MatchStatus status) async {
     if (status == MatchStatus.playing) {
-      final leave = await ExitWarningDialog.show(context);
+      final leave = await showConfirmDialog(
+        context,
+        title: 'Leave match?',
+        message:
+            'The match is still in progress.\n'
+            'Are you sure you want to leave?',
+        confirmLabel: 'Leave',
+        destructive: true,
+      );
       if (!leave || !context.mounted) return;
     }
     Navigator.of(context).pop();
@@ -41,7 +49,15 @@ class _MatchView extends StatelessWidget {
 
   Future<void> _exit(BuildContext context, MatchStatus status) async {
     if (status == MatchStatus.playing) {
-      final leave = await ExitWarningDialog.show(context);
+      final leave = await showConfirmDialog(
+        context,
+        title: 'Leave match?',
+        message:
+            'The match is still in progress.\n'
+            'Are you sure you want to leave?',
+        confirmLabel: 'Leave',
+        destructive: true,
+      );
       if (!leave || !context.mounted) return;
     }
     Navigator.of(context).popUntil((route) => route.isFirst);
