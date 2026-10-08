@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-import 'package:runout/core/constants/app_affiliation.dart';
 
 /// A billiard player, uniquely identified and used across matches.
 @immutable
@@ -29,11 +28,4 @@ class Player {
 
   /// Full name for display.
   String get fullName => '$firstName $lastName';
-
-  /// Affiliation for display, based on [AppAffiliation.mode].
-  /// Returns the club name in club mode, the country code in country mode.
-  String? get affiliation => switch (AppAffiliation.mode) {
-    .club => clubName,
-    .country => countryCode,
-  };
 }

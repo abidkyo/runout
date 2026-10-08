@@ -33,7 +33,7 @@ class PlayerSlot extends StatelessWidget {
   }
 }
 
-/// Displays a chosen player, with an affiliation line.
+/// Displays a chosen player, with club shown above the name.
 class _PlayerDisplay extends StatelessWidget {
   const new({required this.player});
 
@@ -46,7 +46,7 @@ class _PlayerDisplay extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          player.affiliation ?? '',
+          player.clubName ?? '',
           style: theme.textTheme.titleMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

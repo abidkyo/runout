@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:runout/domain/models/match_side.dart';
 
-/// Displays the players of a side, with affiliation shown above the name.
-///
-/// Affiliation is only shown for the first player in the side.
+/// Displays the players of a side, with club shown above the name.
+/// Club is only shown for the first player in the side.
 class PlayerNameDisplay extends StatelessWidget {
   const new({required this.side, super.key});
 
@@ -16,20 +15,22 @@ class PlayerNameDisplay extends StatelessWidget {
       children: [
         for (var i = 0; i < side.players.length; i++)
           _PlayerLine(
+            showClub: i == 0,
             name: side.players[i].fullName,
-            affiliation: i == 0 ? side.players[i].affiliation : null,
+            club: side.players[i].clubName,
           ),
       ],
     );
   }
 }
 
-/// A single player line: optional affiliation above the name.
+/// A single player line: optional club above the name.
 class _PlayerLine extends StatelessWidget {
-  const new({required this.name, this.affiliation});
+  const new({required this.showClub, required this.name, this.club});
 
+  final bool showClub;
   final String name;
-  final String? affiliation;
+  final String? club;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +38,9 @@ class _PlayerLine extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (affiliation != null)
+        if (showClub)
           Text(
-            affiliation!,
+            club ?? '',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontSize: 12 * 1.75,

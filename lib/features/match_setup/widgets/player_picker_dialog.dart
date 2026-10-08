@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:runout/core/constants/app_affiliation.dart';
 import 'package:runout/domain/models/player.dart';
 
-/// Dialog for picking a player from a list, with name search and a
-/// configurable affiliation filter (club or country).
+/// Dialog for picking a player from a list, with name search and a club filter.
 ///
 /// Returns the selected [Player], or null if cancelled.
 class PlayerPickerDialog extends StatefulWidget {
@@ -22,7 +20,7 @@ class PlayerPickerDialog extends StatefulWidget {
 class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
-  String? _affiliationFilter; // null = all
+  String? _club; // null = all
 
   @override
   void dispose() {
@@ -30,33 +28,28 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
     super.dispose();
   }
 
-  /// The affiliation value of [player] under the active mode.
-  String? _affiliationOf(Player player) => switch (AppAffiliation.mode) {
-    .club => player.clubName,
-    .country => player.countryCode,
-  };
-
-  /// Unique non-null affiliation values, sorted case-insensitively.
-  List<String> get _affiliations {
+  /// Unique non-null club values, sorted case-insensitively.
+  List<String> get _clubs {
     final set =
-        widget.players.map(_affiliationOf).whereType<String>().toSet().toList()
+        widget.players
+            .map((p) => p.clubName)
+            .whereType<String>()
+            .toSet()
+            .toList()
           ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     return set;
   }
 
-  /// Players matching the current search and affiliation filter.
+  /// Players matching the current search and club filter.
   List<Player> get _filtered {
     final q = _query.toLowerCase().trim();
     return widget.players.where((p) {
-      final affiliation = _affiliationOf(p);
-      final matchesAffiliation =
-          _affiliationFilter == null || affiliation == _affiliationFilter;
+      final matchesClub = _club == null || p.clubName == _club;
       final matchesQuery =
           q.isEmpty ||
           p.firstName.toLowerCase().contains(q) ||
-          p.lastName.toLowerCase().contains(q) ||
-          (affiliation?.toLowerCase().contains(q) ?? false);
-      return matchesAffiliation && matchesQuery;
+          p.lastName.toLowerCase().contains(q);
+      return matchesClub && matchesQuery;
     }).toList();
   }
 
@@ -70,15 +63,10 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
         height: 480,
         child: Column(
           children: [
-            _AffiliationDropdown(
-              affiliations: _affiliations,
-              selectedAffiliation: _affiliationFilter,
-              label: switch (AppAffiliation.mode) {
-                .club => 'Club',
-                .country => 'Country',
-              },
-              onAffiliationChanged: (v) =>
-                  setState(() => _affiliationFilter = v),
+            _ClubDropdown(
+              clubs: _clubs,
+              selectedClub: _club,
+              onClubChanged: (v) => setState(() => _club = v),
             ),
             const SizedBox(height: 12),
             _SearchField(
@@ -101,19 +89,17 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
   }
 }
 
-/// Searchable dropdown for filtering players by affiliation.
-class _AffiliationDropdown extends StatelessWidget {
+/// Searchable dropdown for filtering players by club.
+class _ClubDropdown extends StatelessWidget {
   const new({
-    required this.affiliations,
-    required this.selectedAffiliation,
-    required this.label,
-    required this.onAffiliationChanged,
+    required this.clubs,
+    required this.selectedClub,
+    required this.onClubChanged,
   });
 
-  final List<String> affiliations;
-  final String? selectedAffiliation;
-  final String label;
-  final ValueChanged<String?> onAffiliationChanged;
+  final List<String> clubs;
+  final String? selectedClub;
+  final ValueChanged<String?> onClubChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -123,26 +109,26 @@ class _AffiliationDropdown extends StatelessWidget {
       expandedInsets: .zero,
       enableFilter: true,
       requestFocusOnTap: true,
-      label: Text(label, style: textTheme.labelMedium),
-      initialSelection: selectedAffiliation,
+      label: Text('Club', style: textTheme.labelMedium),
+      initialSelection: selectedClub,
       textStyle: textTheme.labelLarge,
       dropdownMenuEntries: [
         const DropdownMenuEntry<String?>(
           value: null,
           label: 'All',
         ),
-        for (final affiliation in affiliations)
+        for (final club in clubs)
           DropdownMenuEntry<String?>(
-            value: affiliation,
-            label: affiliation,
+            value: club,
+            label: club,
           ),
       ],
-      onSelected: onAffiliationChanged,
+      onSelected: onClubChanged,
     );
   }
 }
 
-/// Search field for filtering players by name or affiliation.
+/// Search field for filtering players by name.
 class _SearchField extends StatelessWidget {
   const new({
     required this.controller,
