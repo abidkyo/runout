@@ -63,11 +63,17 @@ class _NumberStepperState extends State<NumberStepper> {
     final canDecrease = widget.value > widget.min;
     final canIncrease = widget.value < widget.max;
 
+    final labels = [
+      if (widget.leadingLabel != null) widget.leadingLabel!,
+      '${widget.value}',
+      if (widget.trailingLabel != null) widget.trailingLabel!,
+    ];
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _StepButton(
-          label: '−−',
+          icon: Icons.keyboard_double_arrow_left,
           enabled: canDecrease,
           onTap: () => _apply(-10),
           onLongPressStart: () => _startRepeat(-10),
@@ -75,7 +81,7 @@ class _NumberStepperState extends State<NumberStepper> {
         ),
         const SizedBox(width: 12),
         _StepButton(
-          label: '−',
+          icon: Icons.remove,
           enabled: canDecrease,
           onTap: () => _apply(-1),
           onLongPressStart: () => _startRepeat(-1),
@@ -85,16 +91,14 @@ class _NumberStepperState extends State<NumberStepper> {
         SizedBox(
           width: 160,
           child: Text(
-            '${widget.leadingLabel ?? ''}'
-            ' ${widget.value} '
-            '${widget.trailingLabel ?? ''}',
+            labels.join(' '),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         const SizedBox(width: 12),
         _StepButton(
-          label: '+',
+          icon: Icons.add,
           enabled: canIncrease,
           onTap: () => _apply(1),
           onLongPressStart: () => _startRepeat(1),
@@ -102,7 +106,7 @@ class _NumberStepperState extends State<NumberStepper> {
         ),
         const SizedBox(width: 12),
         _StepButton(
-          label: '++',
+          icon: Icons.keyboard_double_arrow_right,
           enabled: canIncrease,
           onTap: () => _apply(10),
           onLongPressStart: () => _startRepeat(10),
@@ -116,14 +120,14 @@ class _NumberStepperState extends State<NumberStepper> {
 /// A single stepper button, disabled when [enabled] is false.
 class _StepButton extends StatelessWidget {
   const new({
-    required this.label,
+    required this.icon,
     required this.enabled,
     required this.onTap,
     required this.onLongPressStart,
     required this.onLongPressEnd,
   });
 
-  final String label;
+  final IconData icon;
   final bool enabled;
   final VoidCallback onTap;
   final VoidCallback onLongPressStart;
@@ -149,10 +153,7 @@ class _StepButton extends StatelessWidget {
         onLongPressUp: enabled ? onLongPressEnd : null,
         customBorder: const CircleBorder(),
         child: Center(
-          child: Text(
-            label,
-            style: theme.textTheme.titleMedium?.copyWith(color: color),
-          ),
+          child: Icon(icon, color: color, size: 24),
         ),
       ),
     );
