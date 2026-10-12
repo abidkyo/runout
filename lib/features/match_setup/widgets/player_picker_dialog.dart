@@ -48,7 +48,8 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
       final matchesQuery =
           q.isEmpty ||
           p.firstName.toLowerCase().contains(q) ||
-          p.lastName.toLowerCase().contains(q);
+          p.lastName.toLowerCase().contains(q) ||
+          p.fullName.toLowerCase().contains(q);
       return matchesClub && matchesQuery;
     }).toList();
   }
@@ -143,6 +144,7 @@ class _SearchField extends StatelessWidget {
     final theme = Theme.of(context);
 
     return TextField(
+      key: const ValueKey('player-search'),
       controller: controller,
       style: theme.textTheme.titleMedium,
       decoration: InputDecoration(
