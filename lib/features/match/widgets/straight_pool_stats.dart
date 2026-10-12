@@ -29,7 +29,7 @@ class StraightPoolStats extends StatelessWidget {
     );
 
     return Text(
-      'I: $innings   HR: $highRun   Ø: $_average',
+      'I: $innings   HR: $highRun   Ø: $_average', // Ø U+00D8
       style: style,
       textAlign: TextAlign.center,
     );
