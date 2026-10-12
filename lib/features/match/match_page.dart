@@ -9,7 +9,7 @@ import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
-import 'package:runout/features/match/widgets/side_columns.dart';
+import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 

@@ -9,6 +9,10 @@ import 'package:runout/features/match/widgets/player_name_display.dart';
 /// - [isWinner] draws a primary-colored border and fills the card with
 ///   the primary container color.
 /// - [isDimmed] dims the whole card (used for the loser).
+///
+/// [isBreaker] and [isWinner] are independent: the winner is not
+/// necessarily the breaker, and a side can be the breaker without being
+/// the winner. When both are true the border is drawn once (same color).
 class SideColumn extends StatelessWidget {
   const new({
     required this.side,
@@ -38,6 +42,8 @@ class SideColumn extends StatelessWidget {
       color: isWinner ? theme.colorScheme.primaryContainer : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        // Always width 4, transparent when neither breaker nor winner, so the
+        // card's content box stays the same size with/without border.
         side: BorderSide(
           color: isBreaker || isWinner
               ? theme.colorScheme.primary
@@ -45,6 +51,8 @@ class SideColumn extends StatelessWidget {
           width: 4,
         ),
       ),
+      // Opacity with value 1.0 is a no-op in Flutter (no layer is created),
+      // so this is free when not dimmed.
       child: Opacity(
         opacity: isDimmed ? 0.5 : 1,
         child: Padding(
