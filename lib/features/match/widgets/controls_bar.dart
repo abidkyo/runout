@@ -3,9 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
-import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
-import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
-import 'package:runout/shared/widgets/confirm_dialog.dart';
+import 'package:runout/features/match/widgets/straight_pool_actions.dart';
 
 /// Bottom bar of the match page with undo/redo and exit/restart controls.
 class ControlsBar extends StatelessWidget {
@@ -22,104 +20,6 @@ class ControlsBar extends StatelessWidget {
   final VoidCallback onExit;
 
   static const double _iconSize = 28;
-
-  void _maybeNotify(BuildContext context, MatchNotifier notifier) {
-    if (notifier.notifyExtension) {
-      notifier.notifyExtension = false;
-      final limit = notifier.match.effectiveInningsLimit;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text('Tied — 5 more innings (total $limit innings)'),
-            showCloseIcon: true,
-          ),
-        );
-      return;
-    }
-
-    if (notifier.notifyThreeFouls) {
-      notifier.notifyThreeFouls = false;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text('Three fouls — 15 point penalty, re-rack'),
-            showCloseIcon: true,
-          ),
-        );
-      return;
-    }
-  }
-
-  void _endVisit(BuildContext context, MatchNotifier notifier) {
-    notifier.endVisit();
-    _maybeNotify(context, notifier);
-  }
-
-  Future<void> _pickRemaining(
-    BuildContext context,
-    MatchNotifier notifier,
-  ) async {
-    final match = notifier.match;
-
-    final result = await showDialog<RemainingResult>(
-      context: context,
-      builder: (_) => RemainingPickerDialog(
-        remaining: match.remaining,
-        showBreakFoul: match.isOpeningBreak,
-      ),
-    );
-    if (result == null) return;
-
-    notifier.scoreRemaining(
-      result.remaining,
-      keepsTurn: result.keepsTurn,
-      foul: result.foul,
-    );
-
-    if (!context.mounted) return;
-    _maybeNotify(context, notifier);
-  }
-
-  Future<void> _newRack(
-    BuildContext context,
-    MatchNotifier notifier, {
-    int? remaining,
-  }) async {
-    var value = remaining;
-    if (value == null) {
-      value = await showDialog<int>(
-        context: context,
-        builder: (_) => const NewRackPickerDialog(),
-      );
-      if (value == null) return;
-    }
-
-    final points = notifier.match.remaining - value;
-    notifier.newRack(value);
-
-    if (!notifier.askToContinue) return;
-    notifier.askToContinue = false;
-
-    if (!context.mounted) return;
-
-    final shouldContinue = await showConfirmDialog(
-      context,
-      title: 'Target reached.',
-      message:
-          'The target score is reached.\n'
-          'Do you want to continue playing?',
-      confirmLabel: 'Continue',
-      cancelLabel: 'End',
-    );
-    if (!shouldContinue) {
-      final sideIndex = notifier.match.currentBreakerIndex!;
-      notifier
-        ..undo()
-        ..incrementScore(sideIndex, points: points, remaining: value);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,33 +59,7 @@ class ControlsBar extends StatelessWidget {
               maintainSize: true,
               maintainAnimation: true,
               maintainState: true,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.swap_horiz),
-                    iconSize: _iconSize + 4,
-                    tooltip: 'End visit',
-                    onPressed: () => _endVisit(context, notifier),
-                  ),
-                  const SizedBox(width: 4),
-                  TextButton(
-                    onPressed: () => _pickRemaining(context, notifier),
-                    style: TextButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontSize: 12 * 1.5),
-                    ),
-                    child: Text('${match.remaining}'),
-                  ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: const Icon(Icons.change_history),
-                    iconSize: _iconSize + 4,
-                    tooltip: 'New rack',
-                    onPressed: () => _newRack(context, notifier, remaining: 1),
-                    onLongPress: () => _newRack(context, notifier),
-                  ),
-                ],
-              ),
+              child: const StraightPoolActions(),
             ),
           Row(
             children: [
