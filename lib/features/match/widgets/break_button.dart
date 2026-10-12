@@ -9,19 +9,15 @@ class BreakButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return InkWell(
-      customBorder: const StadiumBorder(),
-      onTap: onTap,
-      child: Center(
-        child: Text(
-          'Who breaks?',
-          style: theme.textTheme.headlineMedium?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
+
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        textStyle: theme.textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w500,
         ),
       ),
+      child: const Text('Who breaks?'),
     );
   }
 }

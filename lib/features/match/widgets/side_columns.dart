@@ -50,6 +50,7 @@ class SideColumn extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(
+            crossAxisAlignment: .stretch,
             children: [
               PlayerNameDisplay(side: side),
               const SizedBox(height: 8),

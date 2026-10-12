@@ -18,17 +18,14 @@ class ScoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return InkWell(
-      customBorder: const StadiumBorder(),
-      onTap: onTap,
-      child: Center(
-        child: AutoSizeText(
-          '$score',
-          style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 20),
-          maxLines: 1,
-          minFontSize: 12 * 5,
-          textAlign: TextAlign.center,
-        ),
+
+    return TextButton(
+      onPressed: onTap,
+      child: AutoSizeText(
+        '$score',
+        style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 20),
+        maxLines: 1,
+        minFontSize: 12 * 5,
       ),
     );
   }
