@@ -29,6 +29,7 @@ class MatchConfigPanel extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Visibility(
+                key: const ValueKey('break-format-visibility'),
                 visible: notifier.gameType != .straightPool,
                 maintainSize: true,
                 maintainAnimation: true,
@@ -53,6 +54,7 @@ class MatchConfigPanel extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Visibility(
+                key: const ValueKey('innings-visibility'),
                 visible: notifier.gameType == GameType.straightPool,
                 maintainSize: true,
                 maintainAnimation: true,
