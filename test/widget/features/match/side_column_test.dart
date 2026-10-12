@@ -87,20 +87,84 @@ void main() {
       expect(shape.side.color, Colors.transparent);
     });
 
-    testWidgets('dims the content when isDimmed', (tester) async {
+    testWidgets('dims the content when loser', (tester) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isDimmed: true),
+        _host(child: const SizedBox(), isLoser: true),
       );
 
       final opacity = tester.widget<Opacity>(find.byType(Opacity));
       expect(opacity.opacity, 0.5);
     });
 
-    testWidgets('does not dim the content when not isDimmed', (tester) async {
+    testWidgets('does not dim the content when not loser', (tester) async {
       await tester.pumpWidget(_host(child: const SizedBox()));
 
       final opacity = tester.widget<Opacity>(find.byType(Opacity));
       expect(opacity.opacity, 1);
+    });
+  });
+
+  group('SideColumn semantics', () {
+    testWidgets('announces winner', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(child: const SizedBox(), isWinner: true),
+      );
+
+      expect(
+        tester.getSemantics(find.byType(SideColumn)).label,
+        contains('Winner'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('announces breaker', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(child: const SizedBox(), isBreaker: true),
+      );
+
+      expect(
+        tester.getSemantics(find.byType(SideColumn)).label,
+        contains('Breaking'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('announces loser', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(child: const SizedBox(), isLoser: true),
+      );
+
+      expect(
+        tester.getSemantics(find.byType(SideColumn)).label,
+        contains('Loser'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('winner label wins over breaker', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(child: const SizedBox(), isWinner: true, isBreaker: true),
+      );
+
+      final label = tester.getSemantics(find.byType(SideColumn)).label;
+      expect(label, contains('Winner'));
+      expect(label, isNot(contains('Breaking')));
+      handle.dispose();
+    });
+
+    testWidgets('no state label when neutral', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_host(child: const SizedBox()));
+
+      final label = tester.getSemantics(find.byType(SideColumn)).label;
+      expect(label, isNot(contains('Winner')));
+      expect(label, isNot(contains('Breaking')));
+      expect(label, isNot(contains('Loser')));
+      handle.dispose();
     });
   });
 }
@@ -115,7 +179,7 @@ Widget _host({
   required Widget child,
   Widget? stats,
   bool isWinner = false,
-  bool isDimmed = false,
+  bool isLoser = false,
   bool isBreaker = false,
 }) {
   return MaterialApp(
@@ -124,7 +188,7 @@ Widget _host({
         side: _side(),
         stats: stats,
         isWinner: isWinner,
-        isDimmed: isDimmed,
+        isLoser: isLoser,
         isBreaker: isBreaker,
         child: child,
       ),

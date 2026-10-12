@@ -122,7 +122,7 @@ class _ScoreArea extends StatelessWidget {
                 child: SideColumn(
                   side: match.sides[i],
                   isWinner: isFinished && match.winnerIndex == i,
-                  isDimmed: isFinished && match.winnerIndex != i,
+                  isLoser: isFinished && match.winnerIndex != i,
                   isBreaker: isPlaying && match.currentBreakerIndex == i,
                   stats: isStraightPool && !isCreated
                       ? StraightPoolStats(
