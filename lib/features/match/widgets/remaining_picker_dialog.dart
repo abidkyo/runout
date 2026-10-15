@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
 
@@ -32,23 +33,31 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
   bool _keepsTurn = false;
 
   /// Rows of the triangle, top to bottom: 2, 3, 4, 5 balls.
-  static const _rowSizes = [2, 3, 4, 5];
+  static const _rows = <List<int>>[
+    [2, 3],
+    [4, 5, 6],
+    [7, 8, 9, 10],
+    [11, 12, 13, 14, 15],
+  ];
 
   @override
   Widget build(BuildContext context) {
-    var next = 2;
-    final rows = <List<int>>[];
-    for (final size in _rowSizes) {
-      rows.add(List.generate(size, (_) => next++));
-    }
+    final isBreakFoul = _foul == Foul.breakFoul;
+    final result = (
+      remaining: _selected,
+      keepsTurn: isBreakFoul && _keepsTurn,
+      foul: _foul,
+    );
 
     return AlertDialog(
+      scrollable: true,
       title: const Text('How many balls left?'),
-      titleTextStyle: Theme.of(context).textTheme.titleMedium,
+      titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final row in rows)
+          const SizedBox(height: 8),
+          for (final row in _rows)
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -57,9 +66,8 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
                     padding: const EdgeInsets.all(4),
                     child: BallButton(
                       value: value,
-                      selected: _foul != Foul.breakFoul && value <= _selected,
-                      onTap:
-                          _foul != Foul.breakFoul && value <= widget.remaining
+                      selected: !isBreakFoul && value <= _selected,
+                      onTap: !isBreakFoul && value <= widget.remaining
                           ? () => setState(() => _selected = value)
                           : null,
                     ),
@@ -75,13 +83,18 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
               if (foul != Foul.breakFoul) _keepsTurn = false;
             }),
           ),
-          if (_foul == Foul.breakFoul) ...[
-            const SizedBox(height: 8),
-            _TurnSelector(
+          const SizedBox(height: 16),
+          Visibility(
+            key: const ValueKey('turn-selector-visibility'),
+            visible: isBreakFoul,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: _TurnSelector(
               keepsTurn: _keepsTurn,
               onChanged: (value) => setState(() => _keepsTurn = value),
             ),
-          ],
+          ),
         ],
       ),
       actions: [
@@ -92,13 +105,7 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
         ),
         TextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.all(12)),
-          onPressed: () => Navigator.of(context).pop(
-            (
-              remaining: _selected,
-              keepsTurn: _foul == Foul.breakFoul && _keepsTurn,
-              foul: _foul,
-            ),
-          ),
+          onPressed: () => Navigator.of(context).pop(result),
           child: const Text('Confirm'),
         ),
       ],
