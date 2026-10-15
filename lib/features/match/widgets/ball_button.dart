@@ -27,6 +27,7 @@ class BallButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: EdgeInsets.zero,
         shape: const CircleBorder(),
+        side: selected ? BorderSide.none : null,
         fixedSize: const Size(56, 56),
         textStyle: Theme.of(context).textTheme.titleMedium
             ?.copyWith(fontSize: 12 * 1.5),
