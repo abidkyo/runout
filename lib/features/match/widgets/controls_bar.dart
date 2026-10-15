@@ -55,6 +55,7 @@ class ControlsBar extends StatelessWidget {
           ),
           if (isStraightPool)
             Visibility(
+              key: const ValueKey('straight-pool-actions-visibility'),
               visible: isPlaying,
               maintainSize: true,
               maintainAnimation: true,
