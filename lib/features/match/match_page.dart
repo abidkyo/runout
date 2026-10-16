@@ -5,6 +5,7 @@ import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
@@ -21,8 +22,15 @@ class MatchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MatchNotifier(match),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<MatchNotifier>(
+          create: (_) => MatchNotifier(match),
+        ),
+        ChangeNotifierProvider<MatchTimerNotifier>(
+          create: (ctx) => MatchTimerNotifier(ctx.read<MatchNotifier>()),
+        ),
+      ],
       child: const _MatchView(),
     );
   }
@@ -80,7 +88,7 @@ class _MatchView extends StatelessWidget {
         titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        actions: [MatchTimer(match: match)],
+        actions: const [MatchTimer()],
       ),
       body: SafeArea(
         child: Column(
