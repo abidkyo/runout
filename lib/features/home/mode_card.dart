@@ -22,26 +22,30 @@ class ModeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 64,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                label,
-                style: theme.textTheme.titleLargeSolid,
-                textAlign: TextAlign.center,
-              ),
-            ],
+
+    return Semantics(
+      button: true,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 64,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  label,
+                  style: theme.textTheme.titleLargeSolid,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
