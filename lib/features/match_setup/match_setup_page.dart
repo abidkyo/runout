@@ -80,7 +80,7 @@ class _MatchSetupView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(mode.name),
+        title: Text('${mode.displayName} Match'),
         titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         automaticallyImplyLeading: false,
       ),
