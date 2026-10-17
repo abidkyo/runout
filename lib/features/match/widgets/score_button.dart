@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A large, tappable score display that fills its available space.
 class ScoreButton extends StatelessWidget {

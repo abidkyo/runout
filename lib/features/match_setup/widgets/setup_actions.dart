@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Start / Cancel action row at the bottom of the setup page.
 class SetupActions extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:runout/domain/models/match_side.dart';
 
 /// Displays the players of a side, with club shown above the name.

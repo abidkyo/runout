@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 

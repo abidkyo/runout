@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:runout/domain/models/player.dart';
 
 /// Dialog for picking a player from a list, with name search and a club filter.

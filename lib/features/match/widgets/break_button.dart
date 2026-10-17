@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Large tappable button used to select the breaking side before a match.
 class BreakButton extends StatelessWidget {

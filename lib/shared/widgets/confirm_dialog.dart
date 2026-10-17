@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 
 /// A two-button confirmation dialog.

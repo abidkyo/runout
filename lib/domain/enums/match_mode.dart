@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The format of a match in terms of player count and pairing.
 enum MatchMode {

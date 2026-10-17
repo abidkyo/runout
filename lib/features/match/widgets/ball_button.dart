@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A circular ball button used in match dialogs.
 class BallButton extends StatelessWidget {
