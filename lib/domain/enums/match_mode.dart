@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// The format of a match in terms of player count and pairing.
 enum MatchMode {
   /// One player against one player.
@@ -12,6 +14,20 @@ enum MatchMode {
   /// Tournament bracket mode, driven by the manager app.
   tournament,
   ;
+
+  String get displayName => switch (this) {
+    .singles => 'Singles',
+    .doubles => 'Doubles',
+    .threePlayer => 'Three Players',
+    .tournament => 'Tournament',
+  };
+
+  IconData get icon => switch (this) {
+    .singles => Icons.person,
+    .doubles => Icons.people,
+    .threePlayer => Icons.groups,
+    .tournament => Icons.emoji_events,
+  };
 
   /// Number of sides in a match of this mode.
   ///

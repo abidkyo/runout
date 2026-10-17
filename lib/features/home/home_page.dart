@@ -35,26 +35,14 @@ class HomePage extends StatelessWidget {
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               children: [
-                ModeCard(
-                  icon: Icons.person,
-                  label: 'Singles',
-                  onTap: () => _openSetup(context, MatchMode.singles),
-                ),
-                ModeCard(
-                  icon: Icons.people,
-                  label: 'Doubles',
-                  onTap: () => _openSetup(context, MatchMode.doubles),
-                ),
-                ModeCard(
-                  icon: Icons.groups,
-                  label: 'Three Players',
-                  onTap: () => _openSetup(context, MatchMode.threePlayer),
-                ),
-                ModeCard(
-                  icon: Icons.emoji_events,
-                  label: 'Tournament',
-                  onTap: () => {},
-                ),
+                for (final mode in MatchMode.values)
+                  ModeCard(
+                    icon: mode.icon,
+                    label: mode.displayName,
+                    onTap: (mode == .tournament)
+                        ? () {}
+                        : () => _openSetup(context, mode),
+                  ),
               ],
             ),
           ),
