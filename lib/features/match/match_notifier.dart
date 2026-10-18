@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
+import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/enums/game_type.dart';
@@ -213,7 +214,7 @@ class MatchNotifier extends ChangeNotifier {
         updatedFoulCounters[sideIndex] += 1;
         if (updatedFoulCounters[sideIndex] >= 3) {
           updatedFoulCounters[sideIndex] = 0;
-          updatedScores[sideIndex] -= 15;
+          updatedScores[sideIndex] -= MatchDefaults.threeFoulsPenalty;
           isThirdFoul = true;
         }
       } else {
@@ -289,7 +290,8 @@ class MatchNotifier extends ChangeNotifier {
         if (winners.length == 1) {
           winnerIndex = winners.first;
         } else {
-          updatedEffectiveLimit = _match.effectiveInningsLimit + 5;
+          updatedEffectiveLimit =
+              _match.effectiveInningsLimit + MatchDefaults.inningsExtension;
           notifyExtension = true;
         }
       }

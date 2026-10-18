@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/models/match.dart';
@@ -706,14 +707,20 @@ void main() {
 
   group('straight pool — innings extension', () {
     test('tied at the limit extends instead of finishing', () {
-      final n = MatchNotifier(makeStraightPoolMatch())
+      final n = MatchNotifier(makeStraightPoolMatch());
+      final current = n.match.effectiveInningsLimit;
+
+      n
         ..selectBreaker(0)
         ..incrementScore(0, points: 2)
         ..incrementScore(1, points: 2);
 
       expect(n.match.status, MatchStatus.playing);
       expect(n.match.winnerIndex, isNull);
-      expect(n.match.effectiveInningsLimit, 6);
+      expect(
+        n.match.effectiveInningsLimit,
+        current + MatchDefaults.inningsExtension,
+      );
     });
 
     test('sets notifyExtension when extending', () {
@@ -747,14 +754,20 @@ void main() {
     });
 
     test('a unique leader at the extended limit finishes the match', () {
-      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 100))
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 100));
+      final current = n.match.effectiveInningsLimit;
+
+      n
         ..selectBreaker(0)
         ..incrementScore(0, points: 5)
-        ..incrementScore(1, points: 5); // tied → effective limit 6
+        ..incrementScore(1, points: 5);
 
-      expect(n.match.effectiveInningsLimit, 6);
+      expect(
+        n.match.effectiveInningsLimit,
+        current + MatchDefaults.inningsExtension,
+      );
 
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < MatchDefaults.inningsExtension; i++) {
         n
           ..incrementScore(0, points: i)
           ..endVisit();
@@ -782,8 +795,8 @@ void main() {
       expect(n.match.foulCounters, [1, 0]);
     });
 
-    test('three standard fouls apply -15 and reset the counter', () {
-      // Each standard foul: -1. Third also applies -15. Total -18.
+    test('three standard fouls apply penalty and reset the counter', () {
+      // Each standard foul: -1. Third also applies penalty.
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectBreaker(0)
         ..incrementScore(0, points: 0, foul: Foul.standard)
@@ -792,7 +805,7 @@ void main() {
         ..incrementScore(1, points: 0)
         ..incrementScore(0, points: 0, foul: Foul.standard);
 
-      expect(n.match.scores[0], -18);
+      expect(n.match.scores[0], -3 - MatchDefaults.threeFoulsPenalty);
       expect(n.match.foulCounters[0], 0);
     });
 
