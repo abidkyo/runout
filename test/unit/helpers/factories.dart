@@ -18,7 +18,7 @@ MatchSide makeSide(String id) => MatchSide(players: [makePlayer(id)]);
 MatchConfig makeConfig({
   MatchMode matchMode = MatchMode.singles,
   GameType gameType = GameType.eightBall,
-  int raceTo = 8,
+  int raceTo = 10,
   BreakFormat breakFormat = BreakFormat.alternateBreak,
   int? inningsLimit,
 }) => MatchConfig(
@@ -32,40 +32,29 @@ MatchConfig makeConfig({
 Match makeMatch({
   MatchConfig? config,
   int sideCount = 2,
-  int effectiveInningsLimit = 0,
 }) {
   final sides = List.generate(sideCount, (i) => makeSide('$i'));
-  return Match(
+  return Match.create(
     id: 'match-1',
     config: config ?? makeConfig(),
     sides: sides,
-    scores: List.filled(sideCount, 0),
-    innings: List.filled(sideCount, 0),
-    highRuns: List.filled(sideCount, 0),
-    foulCounters: List.filled(sideCount, 0),
-    effectiveInningsLimit: effectiveInningsLimit,
-    status: MatchStatus.created,
   );
 }
 
-/// A straight-pool [MatchConfig] with the given limits.
 MatchConfig makeStraightPoolConfig({
-  required int inningsLimit,
-  required int raceTo,
+  int inningsLimit = 1,
+  int raceTo = 10,
 }) => makeConfig(
   gameType: GameType.straightPool,
-  // breakFormat: BreakFormat.alternateBreak,
   inningsLimit: inningsLimit,
   raceTo: raceTo,
 );
 
-/// A straight-pool [Match] in [MatchStatus.created], with the given limits.
 Match makeStraightPoolMatch({
-  required int inningsLimit,
-  required int raceTo,
+  int inningsLimit = 1,
+  int raceTo = 10,
   int sideCount = 2,
 }) => makeMatch(
   config: makeStraightPoolConfig(inningsLimit: inningsLimit, raceTo: raceTo),
   sideCount: sideCount,
-  effectiveInningsLimit: inningsLimit,
 );

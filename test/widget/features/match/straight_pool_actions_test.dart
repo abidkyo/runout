@@ -25,7 +25,7 @@ Widget _host(MatchNotifier notifier) {
 // ---------------------------------------------------------------------------
 
 void main() {
-  final match = makeStraightPoolMatch(inningsLimit: 1, raceTo: 10);
+  final match = makeStraightPoolMatch();
   late MatchNotifier notifier;
 
   setUp(() {

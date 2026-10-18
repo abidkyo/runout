@@ -136,36 +136,29 @@ void main() {
     });
 
     testWidgets('present for straight pool', (tester) async {
-      notifier = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
-      );
+      notifier = MatchNotifier(makeStraightPoolMatch());
       await _pump(tester, notifier);
       expect(find.byType(StraightPoolActions), findsOneWidget);
     });
 
     testWidgets('hidden when straight pool is not playing', (tester) async {
-      notifier = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
-      );
+      notifier = MatchNotifier(makeStraightPoolMatch());
       await _pump(tester, notifier);
 
       expect(_actionsVisibility(tester).visible, isFalse);
     });
 
     testWidgets('visible when straight pool is playing', (tester) async {
-      notifier = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
-      )..selectBreaker(0);
+      notifier = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
       await _pump(tester, notifier);
 
       expect(_actionsVisibility(tester).visible, isTrue);
     });
 
     testWidgets('hidden when straight pool is finished', (tester) async {
-      notifier =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(2);
+      notifier = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(2);
       await _pump(tester, notifier);
 
       expect(_actionsVisibility(tester).visible, isFalse);
@@ -174,9 +167,7 @@ void main() {
 
   group('icon styling', () {
     testWidgets('all icons use the shared icon size', (tester) async {
-      notifier = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
-      );
+      notifier = MatchNotifier(makeStraightPoolMatch());
       await _pump(tester, notifier);
 
       expect(_icon(tester, Icons.undo).iconSize, 28);

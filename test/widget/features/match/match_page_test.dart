@@ -60,19 +60,15 @@ class _StubPage extends StatelessWidget {
   }
 }
 
-Match _playingMatch() {
-  return makeMatch().copyWith(
-    status: MatchStatus.playing,
-    currentBreakerIndex: 0,
-  );
-}
+Match _playingMatch() => makeMatch().copyWith(
+  status: MatchStatus.playing,
+  currentBreakerIndex: 0,
+);
 
-Match _playingSPMatch() {
-  return makeStraightPoolMatch(inningsLimit: 1, raceTo: 10).copyWith(
-    status: MatchStatus.playing,
-    currentBreakerIndex: 0,
-  );
-}
+Match _playingSPMatch() => makeStraightPoolMatch().copyWith(
+  status: MatchStatus.playing,
+  currentBreakerIndex: 0,
+);
 
 // ---------------------------------------------------------------------------
 
@@ -144,7 +140,7 @@ void main() {
 
       testWidgets('straight pool stats hidden when created', (tester) async {
         await tester.pumpWidget(
-          _host(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10)),
+          _host(makeStraightPoolMatch()),
         );
 
         expect(find.byType(StraightPoolStats), findsNothing);
@@ -202,10 +198,9 @@ void main() {
       });
 
       testWidgets('renders straight pool stats', (tester) async {
-        final match = makeStraightPoolMatch(
-          inningsLimit: 1,
-          raceTo: 10,
-        ).copyWith(status: MatchStatus.finished);
+        final match = makeStraightPoolMatch().copyWith(
+          status: MatchStatus.finished,
+        );
         await tester.pumpWidget(_host(match));
 
         expect(find.byType(StraightPoolStats), findsNWidgets(2));
@@ -216,7 +211,6 @@ void main() {
       ) async {
         final match = makeStraightPoolMatch(
           inningsLimit: 5,
-          raceTo: 10,
         ).copyWith(status: MatchStatus.finished, innings: [7, 2]);
         await tester.pumpWidget(_host(match));
 

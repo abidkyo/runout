@@ -254,9 +254,7 @@ void main() {
 
   group('straight pool — selectBreaker', () {
     test('increment inning (first visit) of the selected breaker', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
-      )..selectBreaker(1);
+      final n = MatchNotifier(makeStraightPoolMatch())..selectBreaker(1);
 
       expect(n.match.innings, [0, 1]);
     });
@@ -270,9 +268,7 @@ void main() {
 
   group('straight pool — scoring guard', () {
     test('throws when a non-breaker tries to score', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
 
       expect(() => n.incrementScore(1), throwsAssertionError);
     });
@@ -280,9 +276,8 @@ void main() {
 
   group('straight pool — increment innings', () {
     test('alternate increments of innings', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
-      )..selectBreaker(1);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(1);
 
       expect(n.match.innings, [0, 1]);
 
@@ -297,9 +292,8 @@ void main() {
     });
 
     test('a zero-point visit still increment innings', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0);
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 0]);
@@ -310,9 +304,8 @@ void main() {
     });
 
     test('a multi-point visit increment innings by only one', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0);
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 0]);
@@ -334,41 +327,36 @@ void main() {
 
   group('straight pool — highRuns and currentRun', () {
     test('start at zero', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 10),
-      );
+      final n = MatchNotifier(makeStraightPoolMatch());
 
       expect(n.match.highRuns, [0, 0]);
       expect(n.match.currentRun, 0);
     });
 
     test('update highRuns live during a visit', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true);
 
       expect(n.match.currentRun, 5);
       expect(n.match.highRuns, [5, 0]);
     });
 
     test('update highRuns live across multiple visits', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 4, remaining: 11, keepsTurn: true)
-            ..incrementScore(0, points: 6, remaining: 5, keepsTurn: true);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 4, remaining: 11, keepsTurn: true)
+        ..incrementScore(0, points: 6, remaining: 5, keepsTurn: true);
 
       expect(n.match.currentRun, 10);
       expect(n.match.highRuns, [10, 0]);
     });
 
     test('reset currentRun and update highRuns when the visit ends', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true)
-            ..incrementScore(0, points: 3, remaining: 7); // visit ends
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true)
+        ..incrementScore(0, points: 3, remaining: 7); // visit ends
 
       expect(n.match.highRuns, [8, 0]);
       expect(n.match.currentRun, 0);
@@ -376,7 +364,7 @@ void main() {
 
     test('keeps the highest run across visits', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(0)
             ..incrementScore(0, points: 10) // visit 1: high run 10
             ..incrementScore(1, points: 3) // side 1 visit: high run 3
@@ -399,7 +387,7 @@ void main() {
 
     test('a new higher run replaces the old one', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(0)
             ..incrementScore(0, points: 5)
             ..incrementScore(1, points: 2)
@@ -420,21 +408,21 @@ void main() {
 
     test('the final visit still commits its run on a score win', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(0)
-            ..incrementScore(0, points: 10);
+            ..incrementScore(0, points: 20);
 
       expect(n.match.status, MatchStatus.finished);
-      expect(n.match.highRuns, [10, 0]);
+      expect(n.match.highRuns, [20, 0]);
     });
   });
 
   group('straight pool — score win', () {
     test('reaching raceTo finishes the match and the scorer wins', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(1)
-            ..incrementScore(1, points: 10);
+            ..incrementScore(1, points: 20);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 1);
@@ -443,22 +431,22 @@ void main() {
 
     test('a multi-point visit can overshoot raceTo', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(0)
-            ..incrementScore(0, points: 7) // P1 = 7
-            ..incrementScore(1, points: 2) // P2 = 2
-            ..incrementScore(0, points: 6); // P1 = 13
+            ..incrementScore(0, points: 14)
+            ..incrementScore(1, points: 2)
+            ..incrementScore(0, points: 14);
 
-      expect(n.match.scores[0], 13);
+      expect(n.match.scores[0], 28);
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
     });
 
     test('score win does not touch innings', () {
       final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
+          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectBreaker(0)
-            ..incrementScore(0, points: 10);
+            ..incrementScore(0, points: 20);
 
       expect(n.match.innings, [1, 0]);
     });
@@ -470,11 +458,10 @@ void main() {
       // selectBreaker(0): innings [1, 0]
       // incrementScore(0): innings [1, 1] — 1 > 1 is false, continue.
       // incrementScore(1): innings [2, 1] — 2 > 1 is true, finish.
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 3)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 3)
+        ..incrementScore(1, points: 2);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.endedAt, isNotNull);
@@ -482,32 +469,29 @@ void main() {
     });
 
     test('higher score wins, not the last scorer', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 4) // P1 = 4, innings [1, 1]
-            ..incrementScore(1, points: 2); // P2 = 2, innings [2, 1], finish
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 4) // P1 = 4, innings [1, 1]
+        ..incrementScore(1, points: 2); // P2 = 2, innings [2, 1], finish
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
     });
 
     test('higher score wins, is the last scorer', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0) // P1 = 1, innings [1, 1]
-            ..incrementScore(1, points: 4); // P2 = 4, innings [2, 1], finish
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0) // P1 = 1, innings [1, 1]
+        ..incrementScore(1, points: 4); // P2 = 4, innings [2, 1], finish
 
       expect(n.match.winnerIndex, 1);
     });
 
     test('match still playing while neither win condition has fired', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0)
-            ..incrementScore(1);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0)
+        ..incrementScore(1);
 
       expect(n.match.status, MatchStatus.playing);
       expect(n.match.winnerIndex, isNull);
@@ -516,10 +500,9 @@ void main() {
 
   group('straight pool — undo / redo', () {
     test('undo reverts the score, innings and remaining', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(12);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(12);
 
       expect(n.match.scores, [3, 0]);
       expect(n.match.innings, [1, 1]);
@@ -532,11 +515,10 @@ void main() {
     });
 
     test('undo after an innings win restores playing state', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0)
+        ..incrementScore(1, points: 2);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 1);
@@ -550,13 +532,12 @@ void main() {
     });
 
     test('redo re-applies the innings win', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0)
-            ..incrementScore(1, points: 2)
-            ..undo()
-            ..redo();
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0)
+        ..incrementScore(1, points: 2)
+        ..undo()
+        ..redo();
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 1);
@@ -564,10 +545,9 @@ void main() {
     });
 
     test('undo after a score win restores playing state', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 10);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 20);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
@@ -581,12 +561,11 @@ void main() {
     });
 
     test('redo re-applies the score win', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 10)
-            ..undo()
-            ..redo();
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 20)
+        ..undo()
+        ..redo();
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
@@ -596,18 +575,15 @@ void main() {
 
   group('straight pool — endVisit', () {
     test('ends the visit with no point', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..endVisit();
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..endVisit();
 
       expect(n.match.scores, [0, 0]);
     });
 
     test('advance breaker and increment inning', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
 
       expect(n.match.innings, [1, 0]);
       expect(n.match.currentBreakerIndex, 0);
@@ -626,27 +602,23 @@ void main() {
 
   group('straight pool — scoreRemaining', () {
     test('computes points from the remaining difference', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(10); // 15 - 10 = 5 points
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(10); // 15 - 10 = 5 points
 
       expect(n.match.scores, [5, 0]);
     });
 
     test('updates match.remaining', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(10);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(10);
 
       expect(n.match.remaining, 10);
     });
 
     test('advances breaker and counts innings', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 1, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
 
       expect(n.match.currentBreakerIndex, 0);
       expect(n.match.innings, [1, 0]);
@@ -657,10 +629,9 @@ void main() {
     });
 
     test('a zero difference is valid and scores nothing', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(15); // 15 - 15 = 0
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(15); // 15 - 15 = 0
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.remaining, 15);
@@ -668,19 +639,17 @@ void main() {
     });
 
     test('throws when remaining is less than 2', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(10);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(10);
 
       expect(() => n.scoreRemaining(1), throwsAssertionError);
     });
 
     test('throws when remaining is more than current remaining', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..scoreRemaining(10);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..scoreRemaining(10);
 
       expect(() => n.scoreRemaining(12), throwsAssertionError);
     });
@@ -694,10 +663,9 @@ void main() {
 
   group('straight pool — newRack', () {
     test('scores the last ball, resets to 15, keeps the turn', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..newRack(1);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..newRack(1);
 
       expect(n.match.scores, [14, 0]);
       expect(n.match.remaining, 15);
@@ -705,10 +673,9 @@ void main() {
     });
 
     test('table cleared scores all 15 and keeps the turn', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..newRack(0);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..newRack(0);
 
       expect(n.match.scores, [15, 0]);
       expect(n.match.remaining, 15);
@@ -716,18 +683,16 @@ void main() {
     });
 
     test('does not increment innings', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 2, raceTo: 20))
-            ..selectBreaker(0)
-            ..newRack(1);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0)
+        ..newRack(1);
 
       expect(n.match.innings, [1, 0]);
     });
 
     test('throws when remaining is 2', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 2, raceTo: 20),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
+        ..selectBreaker(0);
 
       expect(() => n.newRack(2), throwsAssertionError);
     });
@@ -741,11 +706,10 @@ void main() {
 
   group('straight pool — innings extension', () {
     test('tied at the limit extends instead of finishing', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 2)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 2)
+        ..incrementScore(1, points: 2);
 
       expect(n.match.status, MatchStatus.playing);
       expect(n.match.winnerIndex, isNull);
@@ -753,30 +717,27 @@ void main() {
     });
 
     test('sets notifyExtension when extending', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 2)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 2)
+        ..incrementScore(1, points: 2);
 
       expect(n.notifyExtension, isTrue);
     });
 
     test('notifyExtension is false when no extension fires', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..incrementScore(0, points: 3)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..incrementScore(0, points: 3)
+        ..incrementScore(1, points: 2);
 
       expect(n.notifyExtension, isFalse);
     });
 
     test('notifyExtension resets on the next increment', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 2)
-            ..incrementScore(1, points: 2);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 2)
+        ..incrementScore(1, points: 2);
 
       expect(n.notifyExtension, isTrue);
 
@@ -786,25 +747,18 @@ void main() {
     });
 
     test('a unique leader at the extended limit finishes the match', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 1, raceTo: 100))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 5)
-            ..incrementScore(1, points: 5); // tied → effective limit 6
+      final n = MatchNotifier(makeStraightPoolMatch(raceTo: 100))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 5)
+        ..incrementScore(1, points: 5); // tied → effective limit 6
 
       expect(n.match.effectiveInningsLimit, 6);
 
-      n
-        ..incrementScore(0, points: 5)
-        ..endVisit()
-        ..incrementScore(0, points: 5)
-        ..endVisit()
-        ..incrementScore(0, points: 5)
-        ..endVisit()
-        ..incrementScore(0, points: 5)
-        ..endVisit()
-        ..incrementScore(0, points: 5)
-        ..endVisit();
+      for (var i = 0; i < 5; i++) {
+        n
+          ..incrementScore(0, points: i)
+          ..endVisit();
+      }
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
@@ -813,113 +767,96 @@ void main() {
 
   group('straight pool — fouls', () {
     test('standard foul deducts one point', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.scores, [-1, 0]);
     });
 
     test('standard foul increments the counter', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.foulCounters, [1, 0]);
     });
 
     test('three standard fouls apply -15 and reset the counter', () {
       // Each standard foul: -1. Third also applies -15. Total -18.
-      final n =
-          MatchNotifier(
-              makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
-            )
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.scores[0], -18);
       expect(n.match.foulCounters[0], 0);
     });
 
     test('no foul resets the counter', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0);
 
       expect(n.match.foulCounters[0], 0);
     });
 
     test('break foul deducts two points', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
 
       expect(n.match.scores, [-2, 0]);
     });
 
     test('break foul resets the counter', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
 
       expect(n.match.foulCounters[0], 0);
     });
 
     test('break foul does not increment the counter', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
 
       expect(n.match.foulCounters[0], 0);
     });
 
     test('keepsTurn keeps the breaker after a break foul', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(
-              0,
-              points: 0,
-              foul: Foul.breakFoul,
-              keepsTurn: true,
-            );
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul, keepsTurn: true);
 
       expect(n.match.currentBreakerIndex, 0);
       expect(n.match.innings, [1, 0]);
     });
 
     test('sets notifyThreeFouls on the third standard foul', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.notifyThreeFouls, isTrue);
     });
 
     test('notifyThreeFouls is false when no penalty fires', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.notifyThreeFouls, isFalse);
     });
@@ -935,89 +872,74 @@ void main() {
 
   group('straight pool — opening break flag', () {
     test('starts true on a fresh match', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
-      );
+      final n = MatchNotifier(makeStraightPoolMatch());
 
       expect(n.match.isOpeningBreak, isTrue);
     });
 
     test('stays true after selectBreaker', () {
-      final n = MatchNotifier(
-        makeStraightPoolMatch(inningsLimit: 5, raceTo: 10),
-      )..selectBreaker(0);
+      final n = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
 
       expect(n.match.isOpeningBreak, isTrue);
     });
 
     test('becomes false after the first visit ends', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 3);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 3);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
 
     test('clears after the first visit even with a foul', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
 
     test('stays true while keepsTurn is true', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(
-              0,
-              points: 0,
-              foul: Foul.breakFoul,
-              keepsTurn: true,
-            );
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul, keepsTurn: true);
 
       expect(n.match.isOpeningBreak, isTrue);
     });
 
     test('three-foul penalty sets it back to true', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.isOpeningBreak, isTrue);
       expect(n.match.foulCounters[0], 0);
     });
 
     test('three-foul penalty resets remaining to 15', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.remaining, 15);
     });
 
     test('third standard foul forces keepsTurn', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 100))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard)
-            ..incrementScore(1, points: 0)
-            ..incrementScore(0, points: 0, foul: Foul.standard);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard)
+        ..incrementScore(1, points: 0)
+        ..incrementScore(0, points: 0, foul: Foul.standard);
 
       expect(n.match.currentBreakerIndex, 0);
     });
@@ -1033,10 +955,9 @@ void main() {
 
   group('straight pool — continue after target', () {
     test('sets askToContinue when the target is reached on a kept turn', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..newRack(1); // 14 points >= raceTo 10, keepsTurn true
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 10, keepsTurn: true);
 
       expect(n.askToContinue, isTrue);
       expect(n.match.status, MatchStatus.playing);
@@ -1044,10 +965,9 @@ void main() {
     });
 
     test('does not set askToContinue when the target ends the visit', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..incrementScore(0, points: 14);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 10);
 
       expect(n.askToContinue, isFalse);
       expect(n.match.status, MatchStatus.finished);
@@ -1055,12 +975,11 @@ void main() {
     });
 
     test('askToContinue is set again when the target is still reached', () {
-      final n =
-          MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 10))
-            ..selectBreaker(0)
-            ..newRack(1)
-            ..askToContinue = false
-            ..incrementScore(0, points: 0, keepsTurn: true);
+      final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 10, keepsTurn: true)
+        ..askToContinue = false
+        ..incrementScore(0, points: 10, keepsTurn: true);
 
       expect(n.askToContinue, isTrue);
     });
