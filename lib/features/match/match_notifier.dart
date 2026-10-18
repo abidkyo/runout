@@ -195,6 +195,13 @@ class MatchNotifier extends ChangeNotifier {
         'In straight pool, only the current breaker can score.',
       );
       if (sideIndex != _match.currentBreakerIndex) return;
+
+      if (foul == Foul.breakFoul) {
+        assert(
+          points == 0,
+          'In straight pool, cannot score points upon break foul.',
+        );
+      }
     }
 
     // reset
@@ -250,8 +257,8 @@ class MatchNotifier extends ChangeNotifier {
       }
     }
 
-    if (_match.config.gameType == GameType.straightPool &&
-        !effectiveKeepsTurn) {
+    if ((_match.config.gameType == GameType.straightPool) &&
+        (foul != Foul.breakFoul || !effectiveKeepsTurn)) {
       updatedIsOpeningBreak = false;
     }
 

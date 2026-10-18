@@ -126,8 +126,8 @@ class Match {
   /// pool and grows by 5 on each tied innings limit. Zero for other games.
   final int effectiveInningsLimit;
 
-  /// Whether the next shot is an opening break. Starts true; cleared after
-  /// the first visit ends; set again by the three-foul penalty (re-rack).
+  /// Whether the next shot is an opening break. Starts true; cleared after the
+  /// first visit scores or ends; set again by the three-foul penalty (re-rack).
   final bool isOpeningBreak;
 
   /// When the match started. Null until [status] is [MatchStatus.playing].

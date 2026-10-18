@@ -912,12 +912,28 @@ void main() {
       expect(n.match.isOpeningBreak, isFalse);
     });
 
-    test('stays true while keepsTurn is true', () {
+    test('stays true after breakfoul and keepsTurn is true', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectBreaker(0)
         ..incrementScore(0, points: 0, foul: Foul.breakFoul, keepsTurn: true);
 
       expect(n.match.isOpeningBreak, isTrue);
+    });
+
+    test('clears after breakfoul and keepsTurn is false', () {
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+
+      expect(n.match.isOpeningBreak, isFalse);
+    });
+
+    test('clears after scoring points with keepsTurn is true', () {
+      final n = MatchNotifier(makeStraightPoolMatch())
+        ..selectBreaker(0)
+        ..incrementScore(0, points: 5, keepsTurn: true);
+
+      expect(n.match.isOpeningBreak, isFalse);
     });
 
     test('three-foul penalty sets it back to true', () {
