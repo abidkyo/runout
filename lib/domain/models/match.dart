@@ -55,6 +55,39 @@ class Match {
          'Foul counters must have one entry per side.',
        );
 
+  /// Creates a new match from its [sides], filling all per-side lists
+  /// with zeroes, and status set to created.
+  ///
+  /// This is the convenience constructor for starting a fresh match: callers
+  /// only supply [id], [config], and [sides], and the parallel state
+  /// ([scores], [innings], [highRuns], [foulCounters]) is allocated to
+  /// match. Every list therefore has exactly `sides.length` entries, so the
+  /// per-side invariants enforced by the main constructor hold by
+  /// construction.
+  ///
+  /// The [effectiveInningsLimit] is seeded from [MatchConfig.inningsLimit],
+  /// or zero if that is null (for straight pool).
+  factory create({
+    required String id,
+    required MatchConfig config,
+    required List<MatchSide> sides,
+  }) {
+    final n = sides.length;
+    final innings = config.inningsLimit ?? 0;
+
+    return Match(
+      id: id,
+      config: config,
+      sides: sides,
+      effectiveInningsLimit: innings,
+      scores: List<int>.filled(n, 0),
+      innings: List<int>.filled(n, 0),
+      highRuns: List<int>.filled(n, 0),
+      foulCounters: List<int>.filled(n, 0),
+      status: MatchStatus.created,
+    );
+  }
+
   /// Stable unique identifier.
   final String id;
 

@@ -124,16 +124,10 @@ class MatchSetupNotifier extends ChangeNotifier {
         .map((side) => MatchSide(players: side.whereType<Player>().toList()))
         .toList();
 
-    return Match(
+    return Match.create(
       id: const Uuid().v7(),
       config: config,
       sides: sides,
-      scores: List<int>.filled(sides.length, 0),
-      innings: List<int>.filled(sides.length, 0),
-      highRuns: List<int>.filled(sides.length, 0),
-      foulCounters: List<int>.filled(sides.length, 0),
-      effectiveInningsLimit: _gameType == GameType.straightPool ? _innings : 0,
-      status: MatchStatus.created,
     );
   }
 }
