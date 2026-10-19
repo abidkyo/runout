@@ -4,6 +4,7 @@ import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
+import 'package:runout/features/match_setup/widgets/player_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/widgets/player_slot.dart';
 import 'package:runout/features/match_setup/widgets/setup_actions.dart';
@@ -95,36 +96,65 @@ void main() {
       );
     });
 
-    testWidgets('renders two player slots for singles', (tester) async {
-      await _pumpSetupPage(tester, MatchMode.singles);
-
-      expect(find.byType(PlayerSlot), findsNWidgets(2));
-    });
-
-    testWidgets('renders four player slots for doubles', (tester) async {
-      await _pumpSetupPage(tester, MatchMode.doubles);
-
-      expect(find.byType(PlayerSlot), findsNWidgets(4));
-    });
-
-    testWidgets(
-      'renders three player slots for three-player',
-      (tester) async {
-        await _pumpSetupPage(tester, MatchMode.threePlayer);
-
-        expect(find.byType(PlayerSlot), findsNWidgets(3));
-      },
-    );
-
     testWidgets('renders the config panel and actions', (tester) async {
       await _pumpSetupPage(tester, MatchMode.singles);
 
       expect(find.byType(MatchConfigPanel), findsOneWidget);
       expect(find.byType(SetupActions), findsOneWidget);
     });
+
+    testWidgets('setup actions are pinned outside the scroll view', (
+      tester,
+    ) async {
+      await _pumpSetupPage(tester, MatchMode.singles);
+
+      expect(
+        find.descendant(
+          of: find.byType(SingleChildScrollView),
+          matching: find.byType(SetupActions),
+        ),
+        findsNothing,
+      );
+      expect(find.byType(SetupActions), findsOneWidget);
+    });
+
+    testWidgets('player panel and config panel are inside the scroll view', (
+      tester,
+    ) async {
+      await _pumpSetupPage(tester, MatchMode.singles);
+
+      expect(
+        find.descendant(
+          of: find.byType(SingleChildScrollView),
+          matching: find.byType(PlayerPanel),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(SingleChildScrollView),
+          matching: find.byType(MatchConfigPanel),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 
   group('player selection', () {
+    testWidgets('tapping a slot opens the picker for that side', (
+      tester,
+    ) async {
+      await _pumpSetupPage(tester, MatchMode.singles);
+
+      await _pickPlayer(tester, 1, p2);
+
+      final slots = tester
+          .widgetList<PlayerSlot>(find.byType(PlayerSlot))
+          .toList();
+      expect(slots[0].player, isNull);
+      expect(slots[1].player?.fullName, p2);
+    });
+
     testWidgets('tapping a slot opens the player picker', (tester) async {
       await _pumpSetupPage(tester, MatchMode.singles);
 

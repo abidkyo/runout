@@ -7,8 +7,8 @@ import 'package:runout/domain/models/player.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
+import 'package:runout/features/match_setup/widgets/player_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
-import 'package:runout/features/match_setup/widgets/player_slot.dart';
 import 'package:runout/features/match_setup/widgets/setup_actions.dart';
 
 /// Setup page. Lets the user pick players and match settings.
@@ -88,12 +88,19 @@ class _MatchSetupView extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: _SideRow(
-                mode: mode,
-                onSlotTap: (side, slot) => _pickPlayer(context, side, slot),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    PlayerPanel(
+                      mode: mode,
+                      onSlotTap: (side, slot) =>
+                          _pickPlayer(context, side, slot),
+                    ),
+                    const MatchConfigPanel(),
+                  ],
+                ),
               ),
             ),
-            const MatchConfigPanel(),
             SetupActions(
               onStart: () => _start(context),
               onCancel: () => Navigator.of(context).pop(),
@@ -101,67 +108,6 @@ class _MatchSetupView extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SideRow extends StatelessWidget {
-  const new({
-    required this.mode,
-    required this.onSlotTap,
-  });
-
-  final MatchMode mode;
-  final void Function(int sideIndex, int slotIndex) onSlotTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < mode.sideCount; i++)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _SideColumn(
-                mode: mode,
-                sideIndex: i,
-                onSlotTap: onSlotTap,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _SideColumn extends StatelessWidget {
-  const new({
-    required this.mode,
-    required this.sideIndex,
-    required this.onSlotTap,
-  });
-
-  final MatchMode mode;
-  final int sideIndex;
-  final void Function(int sideIndex, int slotIndex) onSlotTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final players = context.watch<MatchSetupNotifier>().players[sideIndex];
-
-    return Column(
-      children: [
-        for (var i = 0; i < mode.playersPerSide; i++)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: PlayerSlot(
-                player: players[i],
-                onTap: () => onSlotTap(sideIndex, i),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }

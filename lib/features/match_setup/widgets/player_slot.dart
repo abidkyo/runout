@@ -16,12 +16,13 @@ class PlayerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 160, minHeight: 120),
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
           child: Center(
             child: player == null
                 ? const _EmptySlot()
@@ -70,15 +71,16 @@ class _EmptySlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
       children: [
         Icon(
           Icons.add,
           size: 20,
           color: theme.colorScheme.primary,
         ),
-        const SizedBox(width: 8),
         Text(
           'Pick player',
           style: theme.textTheme.titleMedium?.copyWith(
