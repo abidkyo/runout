@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/home/home_page.dart';
 import 'package:runout/features/home/mode_card.dart';
@@ -62,6 +63,37 @@ void main() {
       expect(find.byIcon(Icons.people), findsOneWidget);
       expect(find.byIcon(Icons.groups), findsOneWidget);
       expect(find.byIcon(Icons.emoji_events), findsOneWidget);
+    });
+
+    group('responsive', () {
+      testWidgets('renders a single column below the compact breakpoint', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(
+          LayoutBreakpoints.compact - 100,
+          600,
+        );
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(_host());
+
+        final grid = tester.widget<GridView>(find.byType(GridView));
+        final delegate =
+            grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+        expect(delegate.crossAxisCount, 1);
+      });
+
+      testWidgets('renders two columns at or above the compact breakpoint', (
+        tester,
+      ) async {
+        await tester.pumpWidget(_host());
+
+        final grid = tester.widget<GridView>(find.byType(GridView));
+        final delegate =
+            grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+        expect(delegate.crossAxisCount, 2);
+      });
     });
 
     group('navigation', () {
