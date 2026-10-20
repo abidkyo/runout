@@ -167,6 +167,27 @@ void main() {
       await tester.pump();
     });
   });
+
+  group('NumberStepper — icon centering', () {
+    testWidgets('the + icon is centered in its 44×44 button', (tester) async {
+      await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
+
+      final iconRect = tester.getRect(find.byIcon(Icons.add));
+      // The button is the nearest Container ancestor of the icon.
+      final buttonRect = tester.getRect(
+        find.ancestor(
+          of: find.byIcon(Icons.add),
+          matching: find.byType(Container),
+        ),
+      );
+
+      expect(buttonRect.size, const Size(44, 44));
+      expect(
+        iconRect.center,
+        offsetMoreOrLessEquals(buttonRect.center, epsilon: 0.5),
+      );
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------

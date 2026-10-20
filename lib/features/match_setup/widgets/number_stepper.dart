@@ -69,50 +69,51 @@ class _NumberStepperState extends State<NumberStepper> {
       if (widget.trailingLabel != null) widget.trailingLabel!,
     ];
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _StepButton(
-          icon: Icons.keyboard_double_arrow_left,
-          enabled: canDecrease,
-          onTap: () => _apply(-10),
-          onLongPressStart: () => _startRepeat(-10),
-          onLongPressEnd: _cancelTimer,
-        ),
-        const SizedBox(width: 12),
-        _StepButton(
-          icon: Icons.remove,
-          enabled: canDecrease,
-          onTap: () => _apply(-1),
-          onLongPressStart: () => _startRepeat(-1),
-          onLongPressEnd: _cancelTimer,
-        ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 160,
-          child: Text(
-            labels.join(' '),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+    return SizedBox(
+      height: 44,
+      width: 360,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _StepButton(
+            icon: Icons.keyboard_double_arrow_left,
+            enabled: canDecrease,
+            onTap: () => _apply(-10),
+            onLongPressStart: () => _startRepeat(-10),
+            onLongPressEnd: _cancelTimer,
           ),
-        ),
-        const SizedBox(width: 12),
-        _StepButton(
-          icon: Icons.add,
-          enabled: canIncrease,
-          onTap: () => _apply(1),
-          onLongPressStart: () => _startRepeat(1),
-          onLongPressEnd: _cancelTimer,
-        ),
-        const SizedBox(width: 12),
-        _StepButton(
-          icon: Icons.keyboard_double_arrow_right,
-          enabled: canIncrease,
-          onTap: () => _apply(10),
-          onLongPressStart: () => _startRepeat(10),
-          onLongPressEnd: _cancelTimer,
-        ),
-      ],
+          _StepButton(
+            icon: Icons.remove,
+            enabled: canDecrease,
+            onTap: () => _apply(-1),
+            onLongPressStart: () => _startRepeat(-1),
+            onLongPressEnd: _cancelTimer,
+          ),
+          SizedBox(
+            width: 150,
+            child: Text(
+              labels.join(' '),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          _StepButton(
+            icon: Icons.add,
+            enabled: canIncrease,
+            onTap: () => _apply(1),
+            onLongPressStart: () => _startRepeat(1),
+            onLongPressEnd: _cancelTimer,
+          ),
+          _StepButton(
+            icon: Icons.keyboard_double_arrow_right,
+            enabled: canIncrease,
+            onTap: () => _apply(10),
+            onLongPressStart: () => _startRepeat(10),
+            onLongPressEnd: _cancelTimer,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -136,25 +137,27 @@ class _StepButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = enabled
+    final iconColor = enabled
         ? theme.colorScheme.primary
         : theme.colorScheme.onSurface.withValues(alpha: 0.38);
 
+    final borderColor = enabled
+        ? theme.colorScheme.outline
+        : theme.colorScheme.outline.withValues(alpha: 0.38);
+
     return Container(
-      width: 48,
-      height: 48,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: borderColor),
       ),
       child: InkWell(
         onTap: enabled ? onTap : null,
         onLongPress: enabled ? onLongPressStart : null,
         onLongPressUp: enabled ? onLongPressEnd : null,
         customBorder: const CircleBorder(),
-        child: Center(
-          child: Icon(icon, color: color, size: 24),
-        ),
+        child: Icon(icon, color: iconColor, size: 24),
       ),
     );
   }
