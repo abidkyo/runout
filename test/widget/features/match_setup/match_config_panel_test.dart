@@ -17,8 +17,6 @@ const ValueKey<String> _inningsVisibility = ValueKey('innings-visibility');
 void main() {
   group('MatchConfigPanel — rendering', () {
     testWidgets('renders all four game-type segments', (tester) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -31,8 +29,6 @@ void main() {
     testWidgets('renders break-format segments for non-straight-pool', (
       tester,
     ) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -43,8 +39,6 @@ void main() {
     testWidgets('renders the innings stepper for straight pool', (
       tester,
     ) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host(gameType: .straightPool);
       await tester.pumpWidget(widget);
 
@@ -57,8 +51,6 @@ void main() {
     testWidgets('break-format is visible for non-straight-pool', (
       tester,
     ) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -69,8 +61,6 @@ void main() {
     });
 
     testWidgets('break-format is hidden for straight pool', (tester) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host(gameType: .straightPool);
       await tester.pumpWidget(widget);
 
@@ -81,8 +71,6 @@ void main() {
     });
 
     testWidgets('innings is hidden for non-straight-pool', (tester) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -93,8 +81,6 @@ void main() {
     });
 
     testWidgets('innings is visible for straight pool', (tester) async {
-      _setTabletViewport(tester);
-
       final (_, widget) = _host(gameType: .straightPool);
       await tester.pumpWidget(widget);
 
@@ -107,8 +93,6 @@ void main() {
 
   group('MatchConfigPanel — callback wiring', () {
     testWidgets('tapping 14.1 updates the notifier game type', (tester) async {
-      _setTabletViewport(tester);
-
       final (notifier, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -121,8 +105,6 @@ void main() {
     testWidgets('tapping Winner Break updates the notifier break format', (
       tester,
     ) async {
-      _setTabletViewport(tester);
-
       final (notifier, widget) = _host();
       await tester.pumpWidget(widget);
 
@@ -232,14 +214,6 @@ void main() {
 
 void _setWidth(WidgetTester tester, double width) {
   tester.view.physicalSize = Size(width, 600);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
-
-/// MatchConfigPanel requires ~960px width; the default 800×600 test surface
-/// is too narrow. Use a landscape tablet viewport.
-void _setTabletViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 }

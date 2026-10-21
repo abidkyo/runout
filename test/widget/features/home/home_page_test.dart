@@ -23,14 +23,6 @@ MatchSetupPage _getPage(WidgetTester tester) {
   );
 }
 
-/// MatchConfigPanel in MatchSetupPage requires ~960px width; the default
-/// 800×600 test surface is too narrow. Use a landscape tablet viewport.
-void _setTabletViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(1000, 600);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
-
 // ---------------------------------------------------------------------------
 
 void main() {
@@ -100,8 +92,6 @@ void main() {
       testWidgets('tapping Singles opens MatchSetupPage with singles mode', (
         tester,
       ) async {
-        _setTabletViewport(tester);
-
         await tester.pumpWidget(_host());
         await _tapCard(tester, 'Singles');
 
@@ -111,8 +101,6 @@ void main() {
       testWidgets('tapping Doubles opens MatchSetupPage with doubles mode', (
         tester,
       ) async {
-        _setTabletViewport(tester);
-
         await tester.pumpWidget(_host());
         await _tapCard(tester, 'Doubles');
 
@@ -123,8 +111,6 @@ void main() {
       testWidgets(
         'tapping Three Players opens MatchSetupPage with threePlayer mode',
         (tester) async {
-          _setTabletViewport(tester);
-
           await tester.pumpWidget(_host());
           await _tapCard(tester, 'Three Players');
 

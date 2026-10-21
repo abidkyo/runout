@@ -15,17 +15,7 @@ import 'package:runout/features/match_setup/widgets/setup_actions.dart';
 const p1 = 'Joshua Filler';
 const p2 = 'Shane Van Boening';
 
-/// MatchConfigPanel in MatchSetupPage requires ~960px width; the default
-/// 800×600 test surface is too narrow. Use a landscape tablet viewport.
-void _setTabletViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(1000, 600);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
-
 Future<void> _pumpSetupPage(WidgetTester tester, MatchMode mode) async {
-  _setTabletViewport(tester);
-
   await tester.pumpWidget(
     MaterialApp(
       home: MatchSetupPage(mode: mode),
@@ -37,8 +27,6 @@ Future<void> _pumpStackedSetupPage(
   WidgetTester tester,
   MatchMode mode,
 ) async {
-  _setTabletViewport(tester);
-
   await tester.pumpWidget(
     MaterialApp(
       home: Builder(
