@@ -81,8 +81,9 @@ class _SideBlock extends StatelessWidget {
     final players = context.watch<MatchSetupNotifier>().players[sideIndex];
 
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             _label,

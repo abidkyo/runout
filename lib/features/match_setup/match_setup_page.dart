@@ -89,6 +89,7 @@ class _MatchSetupView extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   children: [
                     PlayerPanel(
@@ -96,6 +97,7 @@ class _MatchSetupView extends StatelessWidget {
                       onSlotTap: (side, slot) =>
                           _pickPlayer(context, side, slot),
                     ),
+                    const SizedBox(height: 8),
                     const MatchConfigPanel(),
                   ],
                 ),
