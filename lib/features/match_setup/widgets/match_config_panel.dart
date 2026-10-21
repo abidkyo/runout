@@ -44,8 +44,12 @@ class _WideLayout extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _GameTypeSelector(
-              value: notifier.gameType,
+            _SegmentSelector<GameType>(
+              segments: [
+                for (final value in GameType.values)
+                  ButtonSegment(value: value, label: Text(value.shortName)),
+              ],
+              selected: notifier.gameType,
               onChanged: (v) => notifier.gameType = v,
             ),
             const SizedBox(height: 16),
@@ -55,8 +59,12 @@ class _WideLayout extends StatelessWidget {
               maintainSize: true,
               maintainAnimation: true,
               maintainState: true,
-              child: _BreakFormatSelector(
-                value: notifier.breakFormat,
+              child: _SegmentSelector<BreakFormat>(
+                segments: [
+                  for (final value in BreakFormat.values)
+                    ButtonSegment(value: value, label: Text(value.displayName)),
+                ],
+                selected: notifier.breakFormat,
                 onChanged: (v) => notifier.breakFormat = v,
               ),
             ),
@@ -105,8 +113,12 @@ class _NarrowLayout extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _GameTypeSelector(
-          value: notifier.gameType,
+        _SegmentSelector<GameType>(
+          segments: [
+            for (final type in GameType.values)
+              ButtonSegment(value: type, label: Text(type.shortName)),
+          ],
+          selected: notifier.gameType,
           onChanged: (v) => notifier.gameType = v,
         ),
         Visibility(
@@ -114,8 +126,12 @@ class _NarrowLayout extends StatelessWidget {
           visible: notifier.gameType != .straightPool,
           child: Padding(
             padding: const EdgeInsets.only(top: 16),
-            child: _BreakFormatSelector(
-              value: notifier.breakFormat,
+            child: _SegmentSelector<BreakFormat>(
+              segments: [
+                for (final value in BreakFormat.values)
+                  ButtonSegment(value: value, label: Text(value.displayName)),
+              ],
+              selected: notifier.breakFormat,
               onChanged: (v) => notifier.breakFormat = v,
             ),
           ),
@@ -147,60 +163,29 @@ class _NarrowLayout extends StatelessWidget {
   }
 }
 
-class _GameTypeSelector extends StatelessWidget {
-  const new({required this.value, required this.onChanged});
+class _SegmentSelector<T> extends StatelessWidget {
+  const new({
+    required this.segments,
+    required this.selected,
+    required this.onChanged,
+  });
 
-  final GameType value;
-  final ValueChanged<GameType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      width: 360,
-      child: SegmentedButton<GameType>(
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-        segments: [
-          for (final type in GameType.values)
-            ButtonSegment(value: type, label: Text(type.shortName)),
-        ],
-        selected: {value},
-        onSelectionChanged: (s) => onChanged(s.first),
-      ),
-    );
-  }
-}
-
-class _BreakFormatSelector extends StatelessWidget {
-  const new({required this.value, required this.onChanged});
-
-  final BreakFormat value;
-  final ValueChanged<BreakFormat> onChanged;
+  final List<ButtonSegment<T>> segments;
+  final T selected;
+  final ValueChanged<T> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 44,
       width: 360,
-      child: SegmentedButton<BreakFormat>(
+      child: SegmentedButton<T>(
         showSelectedIcon: false,
         style: SegmentedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
         ),
-        segments: const [
-          ButtonSegment(
-            value: BreakFormat.winnerBreak,
-            label: Text('Winner Break'),
-          ),
-          ButtonSegment(
-            value: BreakFormat.alternateBreak,
-            label: Text('Alternate Break'),
-          ),
-        ],
-        selected: {value},
+        segments: segments,
+        selected: {selected},
         onSelectionChanged: (s) => onChanged(s.first),
       ),
     );

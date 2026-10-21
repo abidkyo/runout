@@ -5,4 +5,10 @@ enum BreakFormat {
 
   /// Sides alternate breaking each rack.
   alternateBreak,
+  ;
+
+  String get displayName => switch (this) {
+    .winnerBreak => 'Winner Break',
+    .alternateBreak => 'Alternate Break',
+  };
 }
