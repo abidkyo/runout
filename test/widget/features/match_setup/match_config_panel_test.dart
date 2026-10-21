@@ -9,16 +9,51 @@ import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
 import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 
-const ValueKey<String> _breakFormatVisibility = ValueKey(
-  'break-format-visibility',
-);
-const ValueKey<String> _inningsVisibility = ValueKey('innings-visibility');
+// ---------------------------------------------------------------------------
+
+Visibility _breakFormatVisibility(WidgetTester tester) {
+  return tester.widget<Visibility>(
+    find.byKey(const ValueKey('break-format-visibility')),
+  );
+}
+
+Visibility _inningsVisibility(WidgetTester tester) {
+  return tester.widget<Visibility>(
+    find.byKey(const ValueKey('innings-visibility')),
+  );
+}
+
+void _setWidth(WidgetTester tester, double width) {
+  tester.view.physicalSize = Size(width, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
+
+Future<void> _pump(WidgetTester tester, MatchSetupNotifier notifier) async {
+  await tester.pumpWidget(
+    ChangeNotifierProvider<MatchSetupNotifier>.value(
+      value: notifier,
+      child: const MaterialApp(home: Scaffold(body: MatchConfigPanel())),
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 void main() {
+  late MatchSetupNotifier notifier;
+
+  setUp(() {
+    notifier = MatchSetupNotifier(mode: MatchMode.singles);
+  });
+
+  tearDown(() {
+    notifier.dispose();
+  });
+
   group('MatchConfigPanel — rendering', () {
     testWidgets('renders all four game-type segments', (tester) async {
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       expect(find.text('8 Ball'), findsOneWidget);
       expect(find.text('9 Ball'), findsOneWidget);
@@ -29,8 +64,7 @@ void main() {
     testWidgets('renders break-format segments for non-straight-pool', (
       tester,
     ) async {
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       expect(find.text('Winner Break'), findsOneWidget);
       expect(find.text('Alternate Break'), findsOneWidget);
@@ -39,8 +73,8 @@ void main() {
     testWidgets('renders the innings stepper for straight pool', (
       tester,
     ) async {
-      final (_, widget) = _host(gameType: .straightPool);
-      await tester.pumpWidget(widget);
+      notifier.gameType = GameType.straightPool;
+      await _pump(tester, notifier);
 
       // The stepper's label is composed as '25 innings' for the default value.
       expect(find.text('25 innings'), findsOneWidget);
@@ -51,50 +85,39 @@ void main() {
     testWidgets('break-format is visible for non-straight-pool', (
       tester,
     ) async {
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
-      final visibility = tester.widget<Visibility>(
-        find.byKey(_breakFormatVisibility),
-      );
+      final visibility = _breakFormatVisibility(tester);
       expect(visibility.visible, isTrue);
     });
 
     testWidgets('break-format is hidden for straight pool', (tester) async {
-      final (_, widget) = _host(gameType: .straightPool);
-      await tester.pumpWidget(widget);
+      notifier.gameType = GameType.straightPool;
+      await _pump(tester, notifier);
 
-      final visibility = tester.widget<Visibility>(
-        find.byKey(_breakFormatVisibility),
-      );
+      final visibility = _breakFormatVisibility(tester);
       expect(visibility.visible, isFalse);
     });
 
     testWidgets('innings is hidden for non-straight-pool', (tester) async {
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
-      final visibility = tester.widget<Visibility>(
-        find.byKey(_inningsVisibility),
-      );
+      final visibility = _inningsVisibility(tester);
       expect(visibility.visible, isFalse);
     });
 
     testWidgets('innings is visible for straight pool', (tester) async {
-      final (_, widget) = _host(gameType: .straightPool);
-      await tester.pumpWidget(widget);
+      notifier.gameType = GameType.straightPool;
+      await _pump(tester, notifier);
 
-      final visibility = tester.widget<Visibility>(
-        find.byKey(_inningsVisibility),
-      );
+      final visibility = _inningsVisibility(tester);
       expect(visibility.visible, isTrue);
     });
   });
 
   group('MatchConfigPanel — callback wiring', () {
     testWidgets('tapping 14.1 updates the notifier game type', (tester) async {
-      final (notifier, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       await tester.tap(find.text('14.1'));
       await tester.pump();
@@ -105,8 +128,7 @@ void main() {
     testWidgets('tapping Winner Break updates the notifier break format', (
       tester,
     ) async {
-      final (notifier, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       await tester.tap(find.text('Winner Break'));
       await tester.pump();
@@ -120,9 +142,7 @@ void main() {
       tester,
     ) async {
       _setWidth(tester, LayoutBreakpoints.wide + 100);
-
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       final gameType = tester.getTopLeft(
         find.byType(SegmentedButton<GameType>),
@@ -138,14 +158,10 @@ void main() {
 
     testWidgets('wide Visibility maintains hidden size', (tester) async {
       _setWidth(tester, LayoutBreakpoints.wide + 100);
+      await _pump(tester, notifier);
 
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
-
-      expect(
-        tester.widget<Visibility>(find.byKey(_inningsVisibility)).maintainSize,
-        isTrue,
-      );
+      final visibility = _inningsVisibility(tester);
+      expect(visibility.maintainSize, isTrue);
     });
   });
 
@@ -154,9 +170,7 @@ void main() {
       tester,
     ) async {
       _setWidth(tester, LayoutBreakpoints.wide - 100);
-
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       final gameType = tester.getTopLeft(
         find.byType(SegmentedButton<GameType>),
@@ -178,14 +192,10 @@ void main() {
       tester,
     ) async {
       _setWidth(tester, LayoutBreakpoints.wide - 100);
+      await _pump(tester, notifier);
 
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
-
-      expect(
-        tester.widget<Visibility>(find.byKey(_inningsVisibility)).maintainSize,
-        isFalse,
-      );
+      final visibility = _inningsVisibility(tester);
+      expect(visibility.maintainSize, isFalse);
     });
   });
 
@@ -193,8 +203,7 @@ void main() {
     testWidgets('selector labels are centered within their segments', (
       tester,
     ) async {
-      final (_, widget) = _host();
-      await tester.pumpWidget(widget);
+      await _pump(tester, notifier);
 
       final label = find.text(GameType.tenBall.displayName);
       final labelRect = tester.getRect(label);
@@ -208,24 +217,4 @@ void main() {
       );
     });
   });
-}
-
-// ---------------------------------------------------------------------------
-
-void _setWidth(WidgetTester tester, double width) {
-  tester.view.physicalSize = Size(width, 600);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
-
-(MatchSetupNotifier, Widget) _host({GameType gameType = GameType.eightBall}) {
-  final notifier = MatchSetupNotifier(mode: MatchMode.singles)
-    ..gameType = gameType;
-  return (
-    notifier,
-    ChangeNotifierProvider<MatchSetupNotifier>.value(
-      value: notifier,
-      child: const MaterialApp(home: Scaffold(body: MatchConfigPanel())),
-    ),
-  );
 }
