@@ -1,11 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
+import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 
 const ValueKey<String> _breakFormatVisibility = ValueKey(
   'break-format-visibility',
@@ -130,9 +132,109 @@ void main() {
       expect(notifier.breakFormat, BreakFormat.winnerBreak);
     });
   });
+
+  group('MatchConfigPanel — wide layout', () {
+    testWidgets('above the wide breakpoint side-by-side', (
+      tester,
+    ) async {
+      _setWidth(tester, LayoutBreakpoints.wide + 100);
+
+      final (_, widget) = _host();
+      await tester.pumpWidget(widget);
+
+      final gameType = tester.getTopLeft(
+        find.byType(SegmentedButton<GameType>),
+      );
+      final raceTo = tester.getTopLeft(
+        find.byType(NumberStepper).first,
+      );
+
+      // Same row: tops align; stepper sits to the right.
+      expect(gameType.dy, raceTo.dy);
+      expect(raceTo.dx, greaterThan(gameType.dx));
+    });
+
+    testWidgets('wide Visibility maintains hidden size', (tester) async {
+      _setWidth(tester, LayoutBreakpoints.wide + 100);
+
+      final (_, widget) = _host();
+      await tester.pumpWidget(widget);
+
+      expect(
+        tester.widget<Visibility>(find.byKey(_inningsVisibility)).maintainSize,
+        isTrue,
+      );
+    });
+  });
+
+  group('MatchConfigPanel — narrow layout', () {
+    testWidgets('below the wide breakpoint stacks vertically', (
+      tester,
+    ) async {
+      _setWidth(tester, LayoutBreakpoints.wide - 100);
+
+      final (_, widget) = _host();
+      await tester.pumpWidget(widget);
+
+      final gameType = tester.getTopLeft(
+        find.byType(SegmentedButton<GameType>),
+      );
+      final breakFormat = tester.getTopLeft(
+        find.byType(SegmentedButton<BreakFormat>),
+      );
+      final raceTo = tester.getTopLeft(
+        find.byType(NumberStepper).first,
+      );
+
+      expect(gameType.dx, breakFormat.dx);
+      expect(breakFormat.dx, raceTo.dx);
+      expect(breakFormat.dy, greaterThan(gameType.dy));
+      expect(raceTo.dy, greaterThan(breakFormat.dy));
+    });
+
+    testWidgets('narrow Visibility does not maintain hidden size', (
+      tester,
+    ) async {
+      _setWidth(tester, LayoutBreakpoints.wide - 100);
+
+      final (_, widget) = _host();
+      await tester.pumpWidget(widget);
+
+      expect(
+        tester.widget<Visibility>(find.byKey(_inningsVisibility)).maintainSize,
+        isFalse,
+      );
+    });
+  });
+
+  group('MatchConfigPanel — alignment', () {
+    testWidgets('selector labels are centered within their segments', (
+      tester,
+    ) async {
+      final (_, widget) = _host();
+      await tester.pumpWidget(widget);
+
+      final label = find.text(GameType.tenBall.displayName);
+      final labelRect = tester.getRect(label);
+      final segmentRect = tester.getRect(
+        find.ancestor(of: label, matching: find.byType(InkWell)).first,
+      );
+
+      expect(
+        labelRect.center,
+        offsetMoreOrLessEquals(segmentRect.center, epsilon: 0.5),
+      );
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
+
+void _setWidth(WidgetTester tester, double width) {
+  tester.view.physicalSize = Size(width, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
 
 /// MatchConfigPanel requires ~960px width; the default 800×600 test surface
 /// is too narrow. Use a landscape tablet viewport.
