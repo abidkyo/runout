@@ -78,6 +78,10 @@ void _setWidth(WidgetTester tester, double width) {
   addTearDown(tester.view.reset);
 }
 
+Iterable<SideColumn> _columns(WidgetTester tester) {
+  return tester.widgetList<SideColumn>(find.byType(SideColumn));
+}
+
 // ---------------------------------------------------------------------------
 
 void main() {
@@ -172,11 +176,9 @@ void main() {
       testWidgets('marks the breaker side columns', (tester) async {
         await tester.pumpWidget(_host(_playingMatch()));
 
-        final columns = tester
-            .widgetList<SideColumn>(find.byType(SideColumn))
-            .toList();
-        expect(columns[0].isBreaker, isTrue);
-        expect(columns[1].isBreaker, isFalse);
+        final columns = _columns(tester);
+        expect(columns.first.isBreaker, isTrue);
+        expect(columns.last.isBreaker, isFalse);
       });
 
       testWidgets('straight pool stats hidden for non-straight-pool games', (
@@ -202,13 +204,11 @@ void main() {
         );
         await tester.pumpWidget(_host(match));
 
-        final columns = tester
-            .widgetList<SideColumn>(find.byType(SideColumn))
-            .toList();
-        expect(columns[0].isWinner, isTrue);
-        expect(columns[0].isLoser, isFalse);
-        expect(columns[1].isWinner, isFalse);
-        expect(columns[1].isLoser, isTrue);
+        final columns = _columns(tester);
+        expect(columns.first.isWinner, isTrue);
+        expect(columns.first.isLoser, isFalse);
+        expect(columns.last.isWinner, isFalse);
+        expect(columns.last.isLoser, isTrue);
       });
 
       testWidgets('renders straight pool stats', (tester) async {
@@ -239,64 +239,70 @@ void main() {
   });
 
   group('interactions', () {
-    testWidgets('tapping a break button switches to score buttons', (
+    testWidgets('tapping a side when created selects the breaker', (
       tester,
     ) async {
       await tester.pumpWidget(_host(makeMatch()));
 
-      await tester.tap(find.byType(BreakButton).first);
+      await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
       expect(find.byType(ScoreButton), findsNWidgets(2));
       expect(find.byType(BreakButton), findsNothing);
     });
 
-    testWidgets('tapping a score button increments that side', (tester) async {
+    testWidgets('tapping a side in play increments that side', (tester) async {
       await tester.pumpWidget(_host(_playingMatch()));
 
       final buttonsFinder = find.byType(ScoreButton);
       final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
 
-      await tester.tap(buttonsFinder.first);
+      await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
       expect(buttons.first.score, 1);
       expect(buttons.last.score, 0);
     });
 
-    testWidgets('score button onTap is not null in non-straight-pool match', (
+    testWidgets('non-straight-pool sides are tappable while playing', (
       tester,
     ) async {
       await tester.pumpWidget(_host(_playingMatch()));
 
-      final buttonsFinder = find.byType(ScoreButton);
-      final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
-
-      expect(buttons.first.onTap, isNotNull);
-      expect(buttons.last.onTap, isNotNull);
+      final columns = _columns(tester);
+      expect(columns.first.onTap, isNotNull);
+      expect(columns.last.onTap, isNotNull);
     });
 
-    testWidgets('score button onTap is null in straight pool match', (
+    testWidgets('straight-pool sides are not tappable while playing', (
       tester,
     ) async {
+      await tester.pumpWidget(_host(_playingSPMatch()));
+
+      final columns = _columns(tester);
+      expect(columns.first.onTap, isNull);
+      expect(columns.last.onTap, isNull);
+    });
+
+    testWidgets('finished sides are not tappable', (tester) async {
+      final match = makeMatch().copyWith(
+        status: MatchStatus.finished,
+        winnerIndex: 0,
+      );
+      await tester.pumpWidget(_host(match));
+
+      final columns = _columns(tester);
+      expect(columns.first.onTap, isNull);
+      expect(columns.last.onTap, isNull);
+    });
+
+    testWidgets('tapping a straight-pool side does nothing', (tester) async {
       await tester.pumpWidget(_host(_playingSPMatch()));
 
       final buttonsFinder = find.byType(ScoreButton);
       final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
 
-      expect(buttons.first.onTap, isNull);
-      expect(buttons.last.onTap, isNull);
-    });
-
-    testWidgets('tapping a score button in straight pool match does nothing', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_host(_playingSPMatch()));
-
-      final buttonsFinder = find.byType(ScoreButton);
-      final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
-
-      await tester.tap(buttonsFinder.first);
+      await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
       expect(buttons.first.score, 0);

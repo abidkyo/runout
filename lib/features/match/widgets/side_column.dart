@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 
-/// One side's column on the match page, presented as a single card.
+/// One side's column on the match page, presented as a single tappable card.
 ///
 /// [children] are laid out top-to-bottom and stretched horizontally.
+/// When [onTap] is non-null, tapping anywhere on the card invokes it.
 ///
 /// - [isBreaker] draws a primary-colored border.
 /// - [isWinner] draws a primary-colored border and fills the card with
@@ -15,6 +16,7 @@ import 'package:material_ui/material_ui.dart';
 class SideColumn extends StatelessWidget {
   const new({
     required this.children,
+    this.onTap,
     this.isWinner = false,
     this.isLoser = false,
     this.isBreaker = false,
@@ -22,6 +24,7 @@ class SideColumn extends StatelessWidget {
   });
 
   final List<Widget> children;
+  final VoidCallback? onTap;
 
   final bool isWinner;
   final bool isLoser;
@@ -40,6 +43,7 @@ class SideColumn extends StatelessWidget {
 
     return Semantics(
       container: true,
+      button: onTap != null,
       label: stateLabel,
       child: Card(
         clipBehavior: Clip.antiAlias,
@@ -60,11 +64,14 @@ class SideColumn extends StatelessWidget {
         // so this is free when not dimmed.
         child: Opacity(
           opacity: isLoser ? 0.5 : 1,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: .stretch,
-              children: children,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: .stretch,
+                children: children,
+              ),
             ),
           ),
         ),

@@ -124,6 +124,13 @@ class _ScoreArea extends StatelessWidget {
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
 
+    VoidCallback? onTapFor(int i) {
+      if (isCreated) return () => notifier.selectBreaker(i);
+      if (isStraightPool) return null;
+      if (isFinished) return null;
+      return () => notifier.incrementScore(i);
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < LayoutBreakpoints.compact;
@@ -137,6 +144,7 @@ class _ScoreArea extends StatelessWidget {
                   vertical: isCompact ? 8 : 0,
                 ),
                 child: SideColumn(
+                  onTap: onTapFor(i),
                   isWinner: isFinished && match.winnerIndex == i,
                   isLoser: isFinished && match.winnerIndex != i,
                   isBreaker: isPlaying && match.currentBreakerIndex == i,

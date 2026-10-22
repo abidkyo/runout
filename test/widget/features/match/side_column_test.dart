@@ -87,6 +87,39 @@ void main() {
     });
   });
 
+  group('SideColumn — tap', () {
+    testWidgets('tapping the card calls onTap', (tester) async {
+      var calls = 0;
+      await tester.pumpWidget(
+        _host(children: const [SizedBox()], onTap: () => calls++),
+      );
+
+      await tester.tap(find.byType(SideColumn));
+      await tester.pump();
+
+      expect(calls, 1);
+    });
+
+    testWidgets('tapping a child inside the card calls onTap', (tester) async {
+      var calls = 0;
+      await tester.pumpWidget(
+        _host(children: const [Text('inner')], onTap: () => calls++),
+      );
+
+      await tester.tap(find.text('inner'));
+      await tester.pump();
+
+      expect(calls, 1);
+    });
+
+    testWidgets('onTap null makes the card non-tappable', (tester) async {
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
+
+      final inkWell = tester.widget<InkWell>(find.byType(InkWell));
+      expect(inkWell.onTap, isNull);
+    });
+  });
+
   group('SideColumn semantics', () {
     testWidgets('announces winner', (tester) async {
       final handle = tester.ensureSemantics();
@@ -153,6 +186,28 @@ void main() {
       expect(label, isNot(contains('Loser')));
       handle.dispose();
     });
+
+    testWidgets('announces as a button when tappable', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(children: const [SizedBox()], onTap: () {}),
+      );
+
+      final node = tester.getSemantics(find.byType(SideColumn));
+      expect(node, isSemantics(isButton: true));
+      handle.dispose();
+    });
+
+    testWidgets('does not announce as a button when not tappable', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
+
+      final node = tester.getSemantics(find.byType(SideColumn));
+      expect(node, isSemantics(isButton: false));
+      handle.dispose();
+    });
   });
 }
 
@@ -160,6 +215,7 @@ void main() {
 
 Widget _host({
   required List<Widget> children,
+  VoidCallback? onTap,
   bool isWinner = false,
   bool isLoser = false,
   bool isBreaker = false,
@@ -167,6 +223,7 @@ Widget _host({
   return MaterialApp(
     home: Scaffold(
       body: SideColumn(
+        onTap: onTap,
         isWinner: isWinner,
         isLoser: isLoser,
         isBreaker: isBreaker,
