@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
@@ -123,45 +124,54 @@ class _ScoreArea extends StatelessWidget {
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
 
-    return Row(
-      children: [
-        for (var i = 0; i < match.sides.length; i++)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: SideColumn(
-                isWinner: isFinished && match.winnerIndex == i,
-                isLoser: isFinished && match.winnerIndex != i,
-                isBreaker: isPlaying && match.currentBreakerIndex == i,
-                children: [
-                  PlayerNameDisplay(side: match.sides[i]),
-                  Expanded(
-                    child: isCreated
-                        ? BreakButton(
-                            onTap: () => notifier.selectBreaker(i),
-                          )
-                        : ScoreButton(
-                            score: match.scores[i],
-                            onTap:
-                                match.config.gameType == GameType.straightPool
-                                ? null
-                                : () => notifier.incrementScore(i),
-                          ),
-                  ),
-                  if (isStraightPool && !isCreated)
-                    StraightPoolStats(
-                      innings: match.innings[i].clamp(
-                        0,
-                        match.effectiveInningsLimit,
-                      ),
-                      highRun: match.highRuns[i],
-                      score: match.scores[i],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < LayoutBreakpoints.compact;
+
+        final cards = <Widget>[
+          for (var i = 0; i < match.sides.length; i++)
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 0 : 8,
+                  vertical: isCompact ? 8 : 0,
+                ),
+                child: SideColumn(
+                  isWinner: isFinished && match.winnerIndex == i,
+                  isLoser: isFinished && match.winnerIndex != i,
+                  isBreaker: isPlaying && match.currentBreakerIndex == i,
+                  children: [
+                    PlayerNameDisplay(side: match.sides[i]),
+                    Expanded(
+                      child: isCreated
+                          ? BreakButton(
+                              onTap: () => notifier.selectBreaker(i),
+                            )
+                          : ScoreButton(
+                              score: match.scores[i],
+                              onTap:
+                                  match.config.gameType == GameType.straightPool
+                                  ? null
+                                  : () => notifier.incrementScore(i),
+                            ),
                     ),
-                ],
+                    if (isStraightPool && !isCreated)
+                      StraightPoolStats(
+                        innings: match.innings[i].clamp(
+                          0,
+                          match.effectiveInningsLimit,
+                        ),
+                        highRun: match.highRuns[i],
+                        score: match.scores[i],
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
+        ];
+
+        return isCompact ? Column(children: cards) : Row(children: cards);
+      },
     );
   }
 }

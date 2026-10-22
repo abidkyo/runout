@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
@@ -70,6 +71,12 @@ Match _playingSPMatch() => makeStraightPoolMatch().copyWith(
   status: MatchStatus.playing,
   currentBreakerIndex: 0,
 );
+
+void _setWidth(WidgetTester tester, double width) {
+  tester.view.physicalSize = Size(width, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
 
 // ---------------------------------------------------------------------------
 
@@ -365,6 +372,35 @@ void main() {
 
       expect(find.byType(MatchPage), findsNothing);
       expect(find.text('home'), findsOneWidget);
+    });
+  });
+
+  group('responsive layout', () {
+    testWidgets('uses a Row above the compact breakpoint', (
+      tester,
+    ) async {
+      _setWidth(tester, LayoutBreakpoints.compact + 100);
+      await tester.pumpWidget(_host(makeMatch()));
+
+      final columns = find.byType(SideColumn);
+      final a = tester.getTopLeft(columns.at(0));
+      final b = tester.getTopLeft(columns.at(1));
+
+      expect(a.dy, b.dy); // same row
+      expect(b.dx, greaterThan(a.dx));
+    });
+
+    testWidgets('stacks in a Column below the compact breakpoint', (
+      tester,
+    ) async {
+      _setWidth(tester, LayoutBreakpoints.compact - 100);
+      await tester.pumpWidget(_host(makeMatch()));
+
+      final columns = find.byType(SideColumn);
+      final a = tester.getTopLeft(columns.at(0));
+      final b = tester.getTopLeft(columns.at(1));
+
+      expect(b.dy, greaterThan(a.dy)); // stacked
     });
   });
 }
