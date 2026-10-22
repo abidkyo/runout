@@ -23,9 +23,9 @@ class ScoreButton extends StatelessWidget {
       onPressed: onTap,
       child: AutoSizeText(
         '$score',
-        style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 20),
+        style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 24),
         maxLines: 1,
-        minFontSize: 12 * 5,
+        minFontSize: 12 * 2,
       ),
     );
   }

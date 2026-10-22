@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 
 /// Large tappable button used to select the breaking side before a match.
 class BreakButton extends StatelessWidget {
@@ -12,11 +13,7 @@ class BreakButton extends StatelessWidget {
 
     return TextButton(
       onPressed: onTap,
-      style: TextButton.styleFrom(
-        textStyle: theme.textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      style: TextButton.styleFrom(textStyle: theme.textTheme.titleLargeSolid),
       child: const Text('Who breaks?'),
     );
   }

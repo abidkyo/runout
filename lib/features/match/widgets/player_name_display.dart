@@ -35,15 +35,20 @@ class _PlayerLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
+
+    final nameSize = (size.shortestSide / 25).clamp(18.0, 36.0);
+    final clubSize = nameSize * 0.8;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (showClub)
           Text(
             club ?? '',
-            style: theme.textTheme.bodyLarge?.copyWith(
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
-              fontSize: 12 * 1.75,
+              fontSize: clubSize,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -51,7 +56,9 @@ class _PlayerLine extends StatelessWidget {
           ),
         Text(
           name,
-          style: theme.textTheme.titleMedium?.copyWith(fontSize: 12 * 2.5),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontSize: nameSize,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
