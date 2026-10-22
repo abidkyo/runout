@@ -9,6 +9,7 @@ import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
+import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -129,30 +130,34 @@ class _ScoreArea extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: SideColumn(
-                side: match.sides[i],
                 isWinner: isFinished && match.winnerIndex == i,
                 isLoser: isFinished && match.winnerIndex != i,
                 isBreaker: isPlaying && match.currentBreakerIndex == i,
-                stats: isStraightPool && !isCreated
-                    ? StraightPoolStats(
-                        innings: match.innings[i].clamp(
-                          0,
-                          match.effectiveInningsLimit,
-                        ),
-                        highRun: match.highRuns[i],
-                        score: match.scores[i],
-                      )
-                    : null,
-                child: isCreated
-                    ? BreakButton(
-                        onTap: () => notifier.selectBreaker(i),
-                      )
-                    : ScoreButton(
-                        score: match.scores[i],
-                        onTap: match.config.gameType == GameType.straightPool
-                            ? null
-                            : () => notifier.incrementScore(i),
+                children: [
+                  PlayerNameDisplay(side: match.sides[i]),
+                  Expanded(
+                    child: isCreated
+                        ? BreakButton(
+                            onTap: () => notifier.selectBreaker(i),
+                          )
+                        : ScoreButton(
+                            score: match.scores[i],
+                            onTap:
+                                match.config.gameType == GameType.straightPool
+                                ? null
+                                : () => notifier.incrementScore(i),
+                          ),
+                  ),
+                  if (isStraightPool && !isCreated)
+                    StraightPoolStats(
+                      innings: match.innings[i].clamp(
+                        0,
+                        match.effectiveInningsLimit,
                       ),
+                      highRun: match.highRuns[i],
+                      score: match.scores[i],
+                    ),
+                ],
               ),
             ),
           ),

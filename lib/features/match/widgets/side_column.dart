@@ -1,9 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/domain/models/match_side.dart';
-import 'package:runout/features/match/widgets/player_name_display.dart';
 
-/// One side's column on the match page, presented as a single card:
-/// names on top, [child] filling below.
+/// One side's column on the match page, presented as a single card.
+///
+/// [children] are laid out top-to-bottom and stretched horizontally.
 ///
 /// - [isBreaker] draws a primary-colored border.
 /// - [isWinner] draws a primary-colored border and fills the card with
@@ -15,18 +14,14 @@ import 'package:runout/features/match/widgets/player_name_display.dart';
 /// the winner. When both are true the border is drawn once (same color).
 class SideColumn extends StatelessWidget {
   const new({
-    required this.side,
-    required this.child,
-    this.stats,
+    required this.children,
     this.isWinner = false,
     this.isLoser = false,
     this.isBreaker = false,
     super.key,
   });
 
-  final MatchSide side;
-  final Widget child;
-  final Widget? stats;
+  final List<Widget> children;
 
   final bool isWinner;
   final bool isLoser;
@@ -69,15 +64,7 @@ class SideColumn extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: .stretch,
-              children: [
-                PlayerNameDisplay(side: side),
-                const SizedBox(height: 8),
-                Expanded(child: child),
-                if (stats != null) ...[
-                  const SizedBox(height: 8),
-                  stats!,
-                ],
-              ],
+              children: children,
             ),
           ),
         ),

@@ -1,46 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/domain/models/match_side.dart';
-import 'package:runout/domain/models/player.dart';
-import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
+
+// ---------------------------------------------------------------------------
 
 void main() {
   group('SideColumn', () {
-    testWidgets('renders the side name display', (tester) async {
-      await tester.pumpWidget(_host(child: const SizedBox()));
-
-      final display = tester.widget<PlayerNameDisplay>(
-        find.byType(PlayerNameDisplay),
-      );
-      expect(display.side.players.first.firstName, 'Ada');
-    });
-
-    testWidgets('renders the child', (tester) async {
-      await tester.pumpWidget(_host(child: const Text('child')));
-
-      expect(find.text('child'), findsOneWidget);
-    });
-
-    testWidgets('does not render stats when null', (tester) async {
-      await tester.pumpWidget(_host(child: const SizedBox()));
-
-      expect(find.text('stats'), findsNothing);
-    });
-
-    testWidgets('renders stats when provided', (tester) async {
+    testWidgets('renders its children in order', (tester) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), stats: const Text('stats')),
+        _host(children: const [Text('first'), Text('second')]),
       );
 
-      expect(find.text('stats'), findsOneWidget);
+      expect(find.text('first'), findsOneWidget);
+      expect(find.text('second'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('first')).dy,
+        lessThan(tester.getTopLeft(find.text('second')).dy),
+      );
     });
 
     testWidgets('fills the card with primaryContainer when winner', (
       tester,
     ) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isWinner: true),
+        _host(children: const [SizedBox()], isWinner: true),
       );
 
       final card = tester.widget<Card>(find.byType(Card));
@@ -49,7 +32,7 @@ void main() {
     });
 
     testWidgets('does not fill the card when not winner', (tester) async {
-      await tester.pumpWidget(_host(child: const SizedBox()));
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
 
       final card = tester.widget<Card>(find.byType(Card));
       expect(card.color, isNull);
@@ -57,7 +40,7 @@ void main() {
 
     testWidgets('draws a primary border when breaker', (tester) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isBreaker: true),
+        _host(children: const [SizedBox()], isBreaker: true),
       );
 
       final card = tester.widget<Card>(find.byType(Card));
@@ -68,7 +51,7 @@ void main() {
 
     testWidgets('draws a primary border when winner', (tester) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isWinner: true),
+        _host(children: const [SizedBox()], isWinner: true),
       );
 
       final card = tester.widget<Card>(find.byType(Card));
@@ -80,7 +63,7 @@ void main() {
     testWidgets('draws a transparent border when neither breaker nor winner', (
       tester,
     ) async {
-      await tester.pumpWidget(_host(child: const SizedBox()));
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
 
       final card = tester.widget<Card>(find.byType(Card));
       final shape = card.shape! as RoundedRectangleBorder;
@@ -89,7 +72,7 @@ void main() {
 
     testWidgets('dims the content when loser', (tester) async {
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isLoser: true),
+        _host(children: const [SizedBox()], isLoser: true),
       );
 
       final opacity = tester.widget<Opacity>(find.byType(Opacity));
@@ -97,7 +80,7 @@ void main() {
     });
 
     testWidgets('does not dim the content when not loser', (tester) async {
-      await tester.pumpWidget(_host(child: const SizedBox()));
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
 
       final opacity = tester.widget<Opacity>(find.byType(Opacity));
       expect(opacity.opacity, 1);
@@ -108,7 +91,7 @@ void main() {
     testWidgets('announces winner', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isWinner: true),
+        _host(children: const [SizedBox()], isWinner: true),
       );
 
       expect(
@@ -121,7 +104,7 @@ void main() {
     testWidgets('announces breaker', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isBreaker: true),
+        _host(children: const [SizedBox()], isBreaker: true),
       );
 
       expect(
@@ -134,7 +117,7 @@ void main() {
     testWidgets('announces loser', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isLoser: true),
+        _host(children: const [SizedBox()], isLoser: true),
       );
 
       expect(
@@ -147,7 +130,11 @@ void main() {
     testWidgets('winner label wins over breaker', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _host(child: const SizedBox(), isWinner: true, isBreaker: true),
+        _host(
+          children: const [SizedBox()],
+          isWinner: true,
+          isBreaker: true,
+        ),
       );
 
       final label = tester.getSemantics(find.byType(SideColumn)).label;
@@ -158,7 +145,7 @@ void main() {
 
     testWidgets('no state label when neutral', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(_host(child: const SizedBox()));
+      await tester.pumpWidget(_host(children: const [SizedBox()]));
 
       final label = tester.getSemantics(find.byType(SideColumn)).label;
       expect(label, isNot(contains('Winner')));
@@ -169,15 +156,10 @@ void main() {
   });
 }
 
-MatchSide _side() => MatchSide(
-  players: const [
-    Player(id: 'p1', firstName: 'Ada', lastName: 'Lovelace'),
-  ],
-);
+// ---------------------------------------------------------------------------
 
 Widget _host({
-  required Widget child,
-  Widget? stats,
+  required List<Widget> children,
   bool isWinner = false,
   bool isLoser = false,
   bool isBreaker = false,
@@ -185,12 +167,10 @@ Widget _host({
   return MaterialApp(
     home: Scaffold(
       body: SideColumn(
-        side: _side(),
-        stats: stats,
         isWinner: isWinner,
         isLoser: isLoser,
         isBreaker: isBreaker,
-        child: child,
+        children: children,
       ),
     ),
   );

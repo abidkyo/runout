@@ -5,6 +5,7 @@ import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
+import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -116,6 +117,12 @@ void main() {
           expect(find.byType(SideColumn), findsNWidgets(3));
         },
       );
+
+      testWidgets('renders the player names on each side', (tester) async {
+        await tester.pumpWidget(_host(makeMatch()));
+
+        expect(find.byType(PlayerNameDisplay), findsNWidgets(2));
+      });
 
       testWidgets('renders a break button on each side', (tester) async {
         await tester.pumpWidget(_host(makeMatch()));
