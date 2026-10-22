@@ -1,3 +1,4 @@
+import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
@@ -7,11 +8,9 @@ import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
-import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
-import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
@@ -115,6 +114,8 @@ class _ScoreArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
 
@@ -151,17 +152,25 @@ class _ScoreArea extends StatelessWidget {
                   children: [
                     PlayerNameDisplay(side: match.sides[i]),
                     Expanded(
-                      child: isCreated
-                          ? BreakButton(
-                              onTap: () => notifier.selectBreaker(i),
-                            )
-                          : ScoreButton(
-                              score: match.scores[i],
-                              onTap:
-                                  match.config.gameType == GameType.straightPool
-                                  ? null
-                                  : () => notifier.incrementScore(i),
-                            ),
+                      child: Center(
+                        child: isCreated
+                            ? Text(
+                                key: const ValueKey('break-text'),
+                                'Who breaks?',
+                                style: theme.textTheme.titleLargeSolid.copyWith(
+                                  color: theme.colorScheme.primary,
+                                ),
+                              )
+                            : AutoSizeText(
+                                key: const ValueKey('score-text'),
+                                '${match.scores[i]}',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontSize: 12 * 24,
+                                ),
+                                minFontSize: 12 * 2,
+                                maxLines: 1,
+                              ),
+                      ),
                     ),
                     if (isStraightPool && !isCreated)
                       StraightPoolStats(

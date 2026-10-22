@@ -1,13 +1,12 @@
+import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
-import 'package:runout/features/match/widgets/break_button.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
-import 'package:runout/features/match/widgets/score_button.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
@@ -15,6 +14,9 @@ import 'package:runout/shared/widgets/confirm_dialog.dart';
 import '../../../unit/helpers/factories.dart';
 
 // ---------------------------------------------------------------------------
+
+const ValueKey<String> _breakKey = ValueKey('break-text');
+const ValueKey<String> _scoreKey = ValueKey('score-text');
 
 Widget _host(Match match) => MaterialApp(home: MatchPage(match: match));
 
@@ -82,6 +84,10 @@ Iterable<SideColumn> _columns(WidgetTester tester) {
   return tester.widgetList<SideColumn>(find.byType(SideColumn));
 }
 
+Iterable<AutoSizeText> _scores(WidgetTester tester) {
+  return tester.widgetList<AutoSizeText>(find.byKey(_scoreKey));
+}
+
 // ---------------------------------------------------------------------------
 
 void main() {
@@ -135,10 +141,10 @@ void main() {
         expect(find.byType(PlayerNameDisplay), findsNWidgets(2));
       });
 
-      testWidgets('renders a break button on each side', (tester) async {
+      testWidgets('renders a break text on each side', (tester) async {
         await tester.pumpWidget(_host(makeMatch()));
 
-        expect(find.byType(BreakButton), findsNWidgets(2));
+        expect(find.byKey(_breakKey), findsNWidgets(2));
       });
 
       testWidgets('renders the timer and controls bar', (tester) async {
@@ -166,11 +172,11 @@ void main() {
     });
 
     group('playing', () {
-      testWidgets('renders a score button on each side', (tester) async {
+      testWidgets('renders a score text on each side', (tester) async {
         await tester.pumpWidget(_host(_playingMatch()));
 
-        expect(find.byType(ScoreButton), findsNWidgets(2));
-        expect(find.byType(BreakButton), findsNothing);
+        expect(find.byKey(_scoreKey), findsNWidgets(2));
+        expect(find.byKey(_breakKey), findsNothing);
       });
 
       testWidgets('marks the breaker side columns', (tester) async {
@@ -247,21 +253,19 @@ void main() {
       await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
-      expect(find.byType(ScoreButton), findsNWidgets(2));
-      expect(find.byType(BreakButton), findsNothing);
+      expect(find.byKey(_scoreKey), findsNWidgets(2));
+      expect(find.byKey(_breakKey), findsNothing);
     });
 
     testWidgets('tapping a side in play increments that side', (tester) async {
       await tester.pumpWidget(_host(_playingMatch()));
 
-      final buttonsFinder = find.byType(ScoreButton);
-      final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
-
       await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
-      expect(buttons.first.score, 1);
-      expect(buttons.last.score, 0);
+      final scores = _scores(tester);
+      expect(scores.first.data, '1');
+      expect(scores.last.data, '0');
     });
 
     testWidgets('non-straight-pool sides are tappable while playing', (
@@ -299,14 +303,12 @@ void main() {
     testWidgets('tapping a straight-pool side does nothing', (tester) async {
       await tester.pumpWidget(_host(_playingSPMatch()));
 
-      final buttonsFinder = find.byType(ScoreButton);
-      final buttons = tester.widgetList<ScoreButton>(buttonsFinder);
-
       await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
 
-      expect(buttons.first.score, 0);
-      expect(buttons.last.score, 0);
+      final scores = _scores(tester);
+      expect(scores.first.data, '0');
+      expect(scores.last.data, '0');
     });
   });
 
