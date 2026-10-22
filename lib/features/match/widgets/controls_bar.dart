@@ -30,7 +30,7 @@ class ControlsBar extends StatelessWidget {
     final isPlaying = match.status == MatchStatus.playing;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -43,7 +43,6 @@ class ControlsBar extends StatelessWidget {
                 onPressed: notifier.canUndo ? notifier.undo : null,
                 disabledColor: Colors.transparent,
               ),
-              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.redo),
                 iconSize: _iconSize,
@@ -70,7 +69,6 @@ class ControlsBar extends StatelessWidget {
                 tooltip: 'Back to setup',
                 onPressed: onRestart,
               ),
-              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.exit_to_app),
                 iconSize: _iconSize,

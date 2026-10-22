@@ -132,7 +132,6 @@ class StraightPoolActions extends StatelessWidget {
           tooltip: 'End visit',
           onPressed: () => _endVisit(context, notifier),
         ),
-        const SizedBox(width: 4),
         TextButton(
           onPressed: () => _pickRemaining(context, notifier),
           style: TextButton.styleFrom(
@@ -144,7 +143,6 @@ class StraightPoolActions extends StatelessWidget {
             child: Text('${match.remaining}'),
           ),
         ),
-        const SizedBox(width: 4),
         IconButton(
           icon: const Icon(Icons.change_history),
           iconSize: _iconSize,

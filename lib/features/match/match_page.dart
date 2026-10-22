@@ -91,14 +91,17 @@ class _MatchView extends StatelessWidget {
         actions: const [MatchTimer()],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const Expanded(child: _ScoreArea()),
-            ControlsBar(
-              onRestart: () => _restart(context, match.status),
-              onExit: () => _exit(context, match.status),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              const Expanded(child: _ScoreArea()),
+              ControlsBar(
+                onRestart: () => _restart(context, match.status),
+                onExit: () => _exit(context, match.status),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -119,44 +122,41 @@ class _ScoreArea extends StatelessWidget {
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          for (var i = 0; i < match.sides.length; i++)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: SideColumn(
-                  side: match.sides[i],
-                  isWinner: isFinished && match.winnerIndex == i,
-                  isLoser: isFinished && match.winnerIndex != i,
-                  isBreaker: isPlaying && match.currentBreakerIndex == i,
-                  stats: isStraightPool && !isCreated
-                      ? StraightPoolStats(
-                          innings: match.innings[i].clamp(
-                            0,
-                            match.effectiveInningsLimit,
-                          ),
-                          highRun: match.highRuns[i],
-                          score: match.scores[i],
-                        )
-                      : null,
-                  child: isCreated
-                      ? BreakButton(
-                          onTap: () => notifier.selectBreaker(i),
-                        )
-                      : ScoreButton(
-                          score: match.scores[i],
-                          onTap: match.config.gameType == GameType.straightPool
-                              ? null
-                              : () => notifier.incrementScore(i),
+    return Row(
+      children: [
+        for (var i = 0; i < match.sides.length; i++)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: SideColumn(
+                side: match.sides[i],
+                isWinner: isFinished && match.winnerIndex == i,
+                isLoser: isFinished && match.winnerIndex != i,
+                isBreaker: isPlaying && match.currentBreakerIndex == i,
+                stats: isStraightPool && !isCreated
+                    ? StraightPoolStats(
+                        innings: match.innings[i].clamp(
+                          0,
+                          match.effectiveInningsLimit,
                         ),
-                ),
+                        highRun: match.highRuns[i],
+                        score: match.scores[i],
+                      )
+                    : null,
+                child: isCreated
+                    ? BreakButton(
+                        onTap: () => notifier.selectBreaker(i),
+                      )
+                    : ScoreButton(
+                        score: match.scores[i],
+                        onTap: match.config.gameType == GameType.straightPool
+                            ? null
+                            : () => notifier.incrementScore(i),
+                      ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
