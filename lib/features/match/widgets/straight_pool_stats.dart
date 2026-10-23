@@ -23,15 +23,24 @@ class StraightPoolStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.sizeOf(context);
+
+    final fontSize = (size.shortestSide / 35).clamp(12.0, 24.0);
+
     final style = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 12 * 1.5,
+      fontSize: fontSize,
     );
 
-    return Text(
-      'I: $innings   HR: $highRun   Ø: $_average', // Ø U+00D8
-      style: style,
-      textAlign: TextAlign.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: fontSize * 1.5,
+      children: [
+        Text('I: $innings', style: style),
+        Text('HR: $highRun', style: style),
+        Text('Ø: $_average', style: style), // Ø U+00D8
+      ],
     );
   }
 }
