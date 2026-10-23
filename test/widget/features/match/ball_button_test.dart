@@ -8,6 +8,7 @@ Future<void> _pump(
   WidgetTester tester, {
   VoidCallback? onTap,
   int value = 7,
+  double width = 60,
   bool selected = false,
 }) async {
   await tester.pumpWidget(
@@ -16,6 +17,7 @@ Future<void> _pump(
         value: value,
         onTap: onTap,
         selected: selected,
+        width: width,
       ),
     ),
   );
@@ -122,9 +124,30 @@ void main() {
       expect(_button(tester).style!.shape?.resolve({}), isA<CircleBorder>());
     });
 
-    testWidgets('has a fixed size of 56 by 56', (tester) async {
+    testWidgets('has a default minimum size of 60 by 60', (tester) async {
       await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.fixedSize?.resolve({}), const Size(56, 56));
+      expect(
+        _button(tester).style!.minimumSize?.resolve({}),
+        const Size(60, 60),
+      );
+    });
+
+    testWidgets('set minimum size of according to given width', (tester) async {
+      await _pump(tester, width: 48, onTap: () {});
+      expect(
+        _button(tester).style!.minimumSize?.resolve({}),
+        const Size(48, 48),
+      );
+    });
+
+    testWidgets('has a default font size of 20 (=60/3)', (tester) async {
+      await _pump(tester, onTap: () {});
+      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 20);
+    });
+
+    testWidgets('set font size of according to given width', (tester) async {
+      await _pump(tester, width: 48, onTap: () {});
+      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 48 / 3);
     });
   });
 }

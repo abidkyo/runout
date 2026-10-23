@@ -78,6 +78,12 @@ Visibility _turnVisibility(WidgetTester tester) {
   );
 }
 
+void _setViewport(WidgetTester tester, double width, double height) {
+  tester.view.physicalSize = Size(width, height);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
+
 // ---------------------------------------------------------------------------
 
 void main() {
@@ -105,6 +111,42 @@ void main() {
       await _openDialog(tester, onResult: (_) {});
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
+    });
+  });
+
+  group('ball button size', () {
+    testWidgets('has width 48 on narrow layout', (tester) async {
+      _setViewport(tester, 400, 600);
+      await _openDialog(tester, onResult: (_) {});
+
+      expect(_ball(tester, 2).width, 48);
+    });
+
+    testWidgets('has width 60 on wider layout', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+
+      expect(_ball(tester, 2).width, 60);
+    });
+
+    testWidgets('has padding of 2 on narrow layout', (tester) async {
+      _setViewport(tester, 400, 600);
+      await _openDialog(tester, onResult: (_) {});
+
+      final balls = find.byType(BallButton);
+      final a = tester.getRect(balls.at(11));
+      final b = tester.getRect(balls.at(12));
+
+      expect(b.left - a.right, 4);
+    });
+
+    testWidgets('has padding of 4 on wider layout', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+
+      final balls = find.byType(BallButton);
+      final a = tester.getRect(balls.at(11));
+      final b = tester.getRect(balls.at(12));
+
+      expect(b.left - a.right, 8);
     });
   });
 
@@ -380,10 +422,7 @@ void main() {
 
   group('overflow', () {
     testWidgets('does not overflow at a short viewport', (tester) async {
-      tester.view.physicalSize = const Size(800, 400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.reset);
-
+      _setViewport(tester, 800, 400);
       await _openDialog(tester, onResult: (_) {});
 
       expect(tester.takeException(), isNull);

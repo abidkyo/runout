@@ -6,6 +6,7 @@ class BallButton extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.selected = false,
+    this.width = 60,
     super.key,
   });
 
@@ -18,6 +19,9 @@ class BallButton extends StatelessWidget {
   /// Whether the ball is highlighted.
   final bool selected;
 
+  /// width/height of the button
+  final double width;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -28,9 +32,8 @@ class BallButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         shape: const CircleBorder(),
         side: selected ? BorderSide.none : null,
-        fixedSize: const Size(56, 56),
-        textStyle: Theme.of(context).textTheme.titleMedium
-            ?.copyWith(fontSize: 12 * 1.5),
+        minimumSize: Size(width, width),
+        textStyle: theme.textTheme.titleMedium?.copyWith(fontSize: width / 3),
         backgroundColor: selected ? theme.colorScheme.primary : null,
         foregroundColor: selected ? theme.colorScheme.onPrimary : null,
       ),

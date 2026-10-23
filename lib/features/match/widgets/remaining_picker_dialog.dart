@@ -42,6 +42,9 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final isNarrow = size.width < 425;
+
     final isBreakFoul = _foul == Foul.breakFoul;
     final result = (
       remaining: _selected,
@@ -56,15 +59,15 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 8),
           for (final row in _rows)
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final value in row)
                   Padding(
-                    padding: const EdgeInsets.all(4),
+                    padding: EdgeInsets.all(isNarrow ? 2 : 4),
                     child: BallButton(
+                      width: isNarrow ? 48 : 60,
                       value: value,
                       selected: !isBreakFoul && value <= _selected,
                       onTap: !isBreakFoul && value <= widget.remaining
