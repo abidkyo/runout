@@ -46,7 +46,7 @@ class _MatchView extends StatelessWidget {
         context,
         title: 'Leave match?',
         message:
-            'The match is still in progress.\n'
+            'The match is still in progress. '
             'Are you sure you want to leave?',
         confirmLabel: 'Leave',
         destructive: true,
@@ -62,7 +62,7 @@ class _MatchView extends StatelessWidget {
         context,
         title: 'Leave match?',
         message:
-            'The match is still in progress.\n'
+            'The match is still in progress. '
             'Are you sure you want to leave?',
         confirmLabel: 'Leave',
         destructive: true,

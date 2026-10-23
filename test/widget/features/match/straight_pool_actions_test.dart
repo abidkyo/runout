@@ -199,7 +199,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('Three fouls'), findsOneWidget);
+      expect(find.textContaining('Third fouls'), findsOneWidget);
       expect(notifier.notifyThreeFouls, isFalse);
     });
   });

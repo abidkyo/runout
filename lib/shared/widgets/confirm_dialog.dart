@@ -29,6 +29,11 @@ class ConfirmDialog extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return AlertDialog(
+      constraints: const BoxConstraints(
+        minWidth: 360,
+        maxWidth: 420,
+        minHeight: 180,
+      ),
       titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
       contentTextStyle: Theme.of(context).textTheme.bodyLarge,
       title: Text(title),

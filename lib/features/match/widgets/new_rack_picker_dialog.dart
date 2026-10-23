@@ -11,6 +11,7 @@ class NewRackPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      constraints: const BoxConstraints(minWidth: 360, minHeight: 180),
       title: const Text('How many balls left?'),
       titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
       content: Row(

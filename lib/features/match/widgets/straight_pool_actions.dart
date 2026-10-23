@@ -38,7 +38,7 @@ class StraightPoolActions extends StatelessWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Three fouls — 15 point penalty, re-rack'),
+            content: Text('Third fouls — 15 point penalty, re-rack'),
             showCloseIcon: true,
           ),
         );
@@ -101,7 +101,7 @@ class StraightPoolActions extends StatelessWidget {
       context,
       title: 'Target reached.',
       message:
-          'The target score is reached.\n'
+          'The target score is reached. '
           'Do you want to continue playing?',
       confirmLabel: 'Continue',
       cancelLabel: 'End',
