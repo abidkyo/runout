@@ -86,16 +86,18 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
               if (foul != Foul.breakFoul) _keepsTurn = false;
             }),
           ),
-          const SizedBox(height: 16),
           Visibility(
             key: const ValueKey('turn-selector-visibility'),
             visible: isBreakFoul,
-            maintainSize: true,
-            maintainAnimation: true,
-            maintainState: true,
-            child: _TurnSelector(
-              keepsTurn: _keepsTurn,
-              onChanged: (value) => setState(() => _keepsTurn = value),
+            maintainSize: widget.showBreakFoul,
+            maintainAnimation: widget.showBreakFoul,
+            maintainState: widget.showBreakFoul,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: _TurnSelector(
+                keepsTurn: _keepsTurn,
+                onChanged: (value) => setState(() => _keepsTurn = value),
+              ),
             ),
           ),
         ],
@@ -130,23 +132,31 @@ class _FoulSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<Foul>(
-      showSelectedIcon: false,
-      style: SegmentedButton.styleFrom(padding: const EdgeInsets.all(12)),
-      segments: [
-        ButtonSegment(value: Foul.none, label: Text(Foul.none.displayName)),
-        ButtonSegment(
-          value: Foul.standard,
-          label: Text(Foul.standard.displayName),
+    return SizedBox(
+      width: 360,
+      child: SegmentedButton<Foul>(
+        showSelectedIcon: false,
+        style: SegmentedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        if (showBreakFoul)
+        segments: [
           ButtonSegment(
-            value: Foul.breakFoul,
-            label: Text(Foul.breakFoul.displayName),
+            value: Foul.none,
+            label: Text(Foul.none.displayName),
           ),
-      ],
-      selected: {value},
-      onSelectionChanged: (s) => onChanged(s.first),
+          ButtonSegment(
+            value: Foul.standard,
+            label: Text(Foul.standard.displayName),
+          ),
+          if (showBreakFoul)
+            ButtonSegment(
+              value: Foul.breakFoul,
+              label: Text(Foul.breakFoul.displayName),
+            ),
+        ],
+        selected: {value},
+        onSelectionChanged: (s) => onChanged(s.first),
+      ),
     );
   }
 }
@@ -160,15 +170,20 @@ class _TurnSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<bool>(
-      showSelectedIcon: false,
-      style: SegmentedButton.styleFrom(padding: const EdgeInsets.all(12)),
-      segments: const [
-        ButtonSegment(value: true, label: Text('Re-break')),
-        ButtonSegment(value: false, label: Text('Continue')),
-      ],
-      selected: {keepsTurn},
-      onSelectionChanged: (s) => onChanged(s.first),
+    return SizedBox(
+      width: 240,
+      child: SegmentedButton<bool>(
+        showSelectedIcon: false,
+        style: SegmentedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        segments: const [
+          ButtonSegment(value: true, label: Text('Re-break')),
+          ButtonSegment(value: false, label: Text('Continue')),
+        ],
+        selected: {keepsTurn},
+        onSelectionChanged: (s) => onChanged(s.first),
+      ),
     );
   }
 }
