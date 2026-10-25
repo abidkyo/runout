@@ -5,11 +5,11 @@ import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
-import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
+import 'package:runout/features/match/widgets/match_title.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -72,12 +72,6 @@ class _MatchView extends StatelessWidget {
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  String _appBarTitle(MatchConfig config) {
-    final base = '${config.gameType.displayName} — Race to ${config.raceTo}';
-    if (config.gameType != GameType.straightPool) return base;
-    return '$base / ${config.inningsLimit} innings';
-  }
-
   @override
   Widget build(BuildContext context) {
     final match = context.watch<MatchNotifier>().match;
@@ -85,7 +79,7 @@ class _MatchView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_appBarTitle(config)),
+        title: MatchTitle(config: config),
         titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
         centerTitle: true,
         automaticallyImplyLeading: false,

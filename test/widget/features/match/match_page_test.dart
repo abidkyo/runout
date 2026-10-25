@@ -6,6 +6,7 @@ import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_timer.dart';
+import 'package:runout/features/match/widgets/match_title.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -93,31 +94,10 @@ Iterable<AutoSizeText> _scores(WidgetTester tester) {
 void main() {
   group('rendering', () {
     group('created', () {
-      testWidgets('renders the non-straight pool title', (tester) async {
-        final match = makeMatch();
-        await tester.pumpWidget(_host(match));
+      testWidgets('renders the match title', (tester) async {
+        await tester.pumpWidget(_host(makeMatch()));
 
-        expect(
-          find.text(
-            '${match.config.gameType.displayName} — '
-            'Race to ${match.config.raceTo}',
-          ),
-          findsOneWidget,
-        );
-      });
-
-      testWidgets('renders the straight pool title', (tester) async {
-        final match = makeStraightPoolMatch(inningsLimit: 25, raceTo: 75);
-        await tester.pumpWidget(_host(match));
-
-        expect(
-          find.text(
-            '${match.config.gameType.displayName} — '
-            'Race to ${match.config.raceTo} '
-            '/ ${match.config.inningsLimit} innings',
-          ),
-          findsOneWidget,
-        );
+        expect(find.byType(MatchTitle), findsOneWidget);
       });
 
       testWidgets('renders one side column per side', (tester) async {
