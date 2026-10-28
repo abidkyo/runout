@@ -29,7 +29,7 @@ class Match {
     required this.highRuns,
     required this.foulCounters,
     required this.status,
-    this.remaining = 15,
+    this.remaining = ballsPerRack,
     this.currentRun = 0,
     this.isOpeningBreak = true,
     this.effectiveInningsLimit = 0,
@@ -88,6 +88,9 @@ class Match {
     );
   }
 
+  /// Balls on the table at the start of a rack.
+  static const int ballsPerRack = 15;
+
   /// Stable unique identifier.
   final String id;
 
@@ -115,7 +118,8 @@ class Match {
   /// Current lifecycle state.
   final MatchStatus status;
 
-  /// Balls remaining on the table. Straight pool only; starts at 15.
+  /// Balls remaining on the table. Straight pool only; starts at
+  /// [Match.ballsPerRack].
   final int remaining;
 
   /// Points accumulated in the current visit. Reset to zero when the

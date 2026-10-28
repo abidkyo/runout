@@ -10,7 +10,8 @@ Static-only holders (`Class._()`):
 - `MatchLimits` — `minRaceTo 1`, `maxRaceTo 999`, `minInnings 1`,
   `maxInnings 99`. Setup setters clamp against these; add a new pair here
   rather than inline literals.
-- `MatchDefaults` — `inningsExtension 5`, `threeFoulsPenalty 15`.
+- `MatchDefaults` — `raceTo 5`, `straightPoolRaceTo 75`, `inningsLimit 25`,
+  `inningsExtension 5`, `threeFoulsPenalty 15`.
 - `LayoutBreakpoints` — `compact 600`, `wide 800`. Compared against
   `LayoutBuilder` constraints, not screen size.
 
@@ -65,7 +66,7 @@ score and `sides` is not `List<List<Player>>`.
 - `id`, `config`, `sides` (≥2, order = index), plus parallel lists `scores`,
   `innings`, `highRuns`, `foulCounters`. List lengths are asserted to equal
   `sides.length`.
-- Straight pool only: `remaining` (15), `currentRun` (0),
+- Straight pool only: `remaining` (`Match.ballsPerRack` = 15), `currentRun` (0),
   `effectiveInningsLimit` (starts at `config.inningsLimit ?? 0`, grows by 5
   on a tied limit), `isOpeningBreak` (true).
 - Lifecycle: `status`, `startedAt?`, `endedAt?`, `currentBreakerIndex?`,

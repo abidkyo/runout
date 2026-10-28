@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
@@ -25,7 +26,10 @@ class StraightPoolActions extends StatelessWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text('Tied — 5 more innings (total $limit innings)'),
+            content: Text(
+              'Tied — ${MatchDefaults.inningsExtension} more innings '
+              '(total $limit innings)',
+            ),
             showCloseIcon: true,
           ),
         );
@@ -38,7 +42,10 @@ class StraightPoolActions extends StatelessWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Third fouls — 15 point penalty, re-rack'),
+            content: Text(
+              'Third fouls — ${MatchDefaults.threeFoulsPenalty} point '
+              'penalty, re-rack',
+            ),
             showCloseIcon: true,
           ),
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/core/constants/match_limits.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/domain/enums/game_type.dart';
@@ -22,8 +23,8 @@ class MatchSetupNotifier extends ChangeNotifier {
 
   GameType _gameType = GameType.eightBall;
   BreakFormat _breakFormat = BreakFormat.winnerBreak;
-  int _raceTo = 5;
-  int _innings = 25;
+  int _raceTo = MatchDefaults.raceTo;
+  int _innings = MatchDefaults.inningsLimit;
   final List<List<Player?>> _players;
 
   MatchMode get mode => _mode;
@@ -38,10 +39,10 @@ class MatchSetupNotifier extends ChangeNotifier {
   set gameType(GameType value) {
     if (_gameType == value) return;
     if (value == GameType.straightPool) {
-      _raceTo = 75;
+      _raceTo = MatchDefaults.straightPoolRaceTo;
       _breakFormat = BreakFormat.alternateBreak;
     } else if (_gameType == GameType.straightPool) {
-      _raceTo = 5;
+      _raceTo = MatchDefaults.raceTo;
     }
     _gameType = value;
     notifyListeners();

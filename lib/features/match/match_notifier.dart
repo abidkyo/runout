@@ -144,7 +144,7 @@ class MatchNotifier extends ChangeNotifier {
     incrementScore(
       _match.currentBreakerIndex ?? 0,
       points: points,
-      remaining: 15,
+      remaining: Match.ballsPerRack,
       keepsTurn: true,
     );
   }
