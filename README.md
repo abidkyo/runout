@@ -1,6 +1,7 @@
 # Runout
 
-A billiard scoring app built with Flutter.
+A billiard scoring app built with Flutter. Runs on Android, iOS, web,
+Linux, macOS, and Windows.
 
 ## Overview
 
@@ -50,19 +51,29 @@ flutter run
 flutter build apk        # Android
 flutter build ios        # iOS
 flutter build web        # Web
+flutter build linux      # Linux
+flutter build macos      # macOS
+flutter build windows    # Windows
 ```
 
 ## Project Structure
 
 ```text
 lib/
-├── core/        # constants, theme, utils, errors
-├── data/        # local DB, remote sync, repositories
-├── domain/      # models, enums, scoring rules
+├── core/        # constants, theme
+├── data/        # repositories
+├── domain/      # models, enums
 ├── features/    # screens and their widgets/providers
-└── shared/      # reusable widgets and providers
+└── shared/      # reusable widgets
+docs/specs/      # architecture, domain, scoring, UI, conventions, testing
 ```
+
+## Documentation
+
+- [`AGENTS.md`](AGENTS.md) — rules, commands, and the spec index.
+- [`docs/specs/`](docs/specs/) — specifications.
 
 ## Status
 
-Early development.
+Early development. Roadmap and open questions:
+[`docs/specs/product.md`](docs/specs/product.md).
