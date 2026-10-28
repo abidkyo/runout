@@ -90,7 +90,8 @@ They are mutually exclusive because a third foul forces `keepsTurn`.
 **Continue after target:** after `newRack`, `askToContinue` shows
 `ConfirmDialog('Target reached.', ..., 'Continue' / 'End')`. `End` undoes the
 kept-turn score and re-applies it as a visit-ending score. `Continue` does
-nothing. The prompt can appear again later.
+nothing. Barrier dismissal is disabled here, so an outside tap cannot choose
+`End`. The prompt can appear again later.
 
 ## MatchTimer
 
@@ -133,7 +134,8 @@ immediately, barrier dismiss pops null.
 `ConfirmDialog` is shared: `title`, `message`, required `confirmLabel`,
 `cancelLabel` (default `'Cancel'`), and `destructive` for error-colored
 confirm text. `showConfirmDialog` owns `showDialog` and maps barrier/null to
-`false`; the widget stays navigation-free.
+`false`; callers can disable barrier dismissal (the target prompt does). The
+widget stays navigation-free.
 
 `BallButton` is the shared circular ball control. `width` drives size and
 font; `selected` uses primary colors and no border.

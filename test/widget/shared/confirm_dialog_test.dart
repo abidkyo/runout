@@ -250,5 +250,37 @@ void main() {
 
       expect(result, isFalse);
     });
+
+    testWidgets('stays open when barrier dismiss is disabled', (
+      tester,
+    ) async {
+      bool? result;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                result = await showConfirmDialog(
+                  context,
+                  title: 'Target reached.',
+                  message: 'Continue?',
+                  confirmLabel: 'Continue',
+                  barrierDismissible: false,
+                );
+              },
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(result, isNull);
+      expect(find.byType(ConfirmDialog), findsOneWidget);
+    });
   });
 }

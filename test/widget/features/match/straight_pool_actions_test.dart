@@ -285,6 +285,19 @@ void main() {
       expect(notifier.match.winnerIndex, isNull);
     });
 
+    testWidgets('barrier tap keeps the prompt open', (tester) async {
+      notifier.newRack(1);
+      await tester.pumpWidget(_host(notifier));
+
+      await tester.tap(find.byIcon(Icons.change_history));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ConfirmDialog), findsOneWidget);
+      expect(notifier.match.status, MatchStatus.playing);
+    });
+
     testWidgets('End finishes the match with the breaker as winner', (
       tester,
     ) async {

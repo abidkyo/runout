@@ -112,6 +112,7 @@ class StraightPoolActions extends StatelessWidget {
           'Do you want to continue playing?',
       confirmLabel: 'Continue',
       cancelLabel: 'End',
+      barrierDismissible: false,
     );
 
     if (!shouldContinue) {

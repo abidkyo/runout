@@ -59,7 +59,7 @@ class ConfirmDialog extends StatelessWidget {
 
 /// Shows a [ConfirmDialog] and returns whether the user confirmed.
 ///
-/// Barrier dismiss resolves to `false`.
+/// [barrierDismissible] defaults to true.
 Future<bool> showConfirmDialog(
   BuildContext context, {
   required String title,
@@ -67,9 +67,11 @@ Future<bool> showConfirmDialog(
   required String confirmLabel,
   String cancelLabel = 'Cancel',
   bool destructive = false,
+  bool barrierDismissible = true,
 }) async {
   final result = await showDialog<bool>(
     context: context,
+    barrierDismissible: barrierDismissible,
     builder: (_) => ConfirmDialog(
       title: title,
       message: message,
