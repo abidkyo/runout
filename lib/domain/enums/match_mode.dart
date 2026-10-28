@@ -1,5 +1,3 @@
-import 'package:material_ui/material_ui.dart';
-
 /// The format of a match in terms of player count and pairing.
 enum MatchMode {
   /// One player against one player.
@@ -20,13 +18,6 @@ enum MatchMode {
     .doubles => 'Doubles',
     .threePlayer => 'Three Players',
     .tournament => 'Tournament',
-  };
-
-  IconData get icon => switch (this) {
-    .singles => Icons.person,
-    .doubles => Icons.people,
-    .threePlayer => Icons.groups,
-    .tournament => Icons.emoji_events,
   };
 
   /// Number of sides in a match of this mode.

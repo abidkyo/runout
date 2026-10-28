@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/home/home_page.dart';
-import 'package:runout/features/home/mode_card.dart';
+import 'package:runout/features/home/widgets/mode_card.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 
 // ---------------------------------------------------------------------------

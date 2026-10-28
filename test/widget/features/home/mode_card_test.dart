@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
-import 'package:runout/features/home/mode_card.dart';
+import 'package:runout/features/home/widgets/mode_card.dart';
 
 // ---------------------------------------------------------------------------
 

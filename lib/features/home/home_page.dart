@@ -2,8 +2,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/enums/match_mode.dart';
-import 'package:runout/features/home/mode_card.dart';
+import 'package:runout/features/home/widgets/mode_card.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
+
+// ---------------------------------------------------------------------------
 
 /// Entry screen. Lets the user pick a match mode.
 class HomePage extends StatelessWidget {
@@ -60,4 +62,15 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+
+extension _MatchModeIcon on MatchMode {
+  IconData get icon => switch (this) {
+    .singles => Icons.person,
+    .doubles => Icons.people,
+    .threePlayer => Icons.groups,
+    .tournament => Icons.emoji_events,
+  };
 }
