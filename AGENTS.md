@@ -38,6 +38,7 @@ Baseline before claiming done: `dart format . && flutter analyze && flutter test
 
 ## Skills
 
+- `.agents/skills/commit` — load before committing.
 - `$HOME/.agents/skills/` — load the matching Flutter skill before Flutter-specific work.
 
 ## Hard rules
