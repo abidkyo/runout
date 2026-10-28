@@ -12,11 +12,14 @@ renders `_MatchView`.
   the actions.
 - Body: `SafeArea` → `Padding(8)` → `Expanded(_ScoreArea)` + `ControlsBar`.
   No scroll.
-- Restart and exit confirm when `status == playing` with
-  `'Leave match?'` / `'The match is still in progress. Are you sure you want
-  to leave?'` / `'Leave'`, destructive. Restart pops to setup; exit pops to
-  the first route (home). `created` and `finished` skip the prompt. Both
-  helpers check `context.mounted` after the await.
+- Back to setup and exit to home confirm while `status == playing`, both
+  destructive:
+  - titles: `'Back to setup?'` / `'Exit to home?'`.
+  - message: `'The match is still in progress. Leaving will discard the
+    current match.'`
+  - confirm: `'Leave'`.
+  Back to setup pops to setup; exit pops to the first route (home). `created`
+  and `finished` skip the prompt.
 
 ## _ScoreArea
 

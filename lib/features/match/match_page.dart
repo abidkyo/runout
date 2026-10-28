@@ -40,29 +40,29 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
-  Future<bool> _confirmLeave(BuildContext context) {
+  Future<bool> _confirmLeave(BuildContext context, {required String title}) {
     final status = context.read<MatchNotifier>().match.status;
     if (status != MatchStatus.playing) return Future.value(true);
 
     return showConfirmDialog(
       context,
-      title: 'Leave match?',
+      title: title,
       message:
           'The match is still in progress. '
-          'Are you sure you want to leave?',
+          'Leaving will discard the current match.',
       confirmLabel: 'Leave',
       destructive: true,
     );
   }
 
   Future<void> _backToSetup(BuildContext context) async {
-    final leave = await _confirmLeave(context);
+    final leave = await _confirmLeave(context, title: 'Back to setup?');
     if (!leave || !context.mounted) return;
     Navigator.of(context).pop();
   }
 
   Future<void> _exitToHome(BuildContext context) async {
-    final leave = await _confirmLeave(context);
+    final leave = await _confirmLeave(context, title: 'Exit to home?');
     if (!leave || !context.mounted) return;
     Navigator.of(context).popUntil((route) => route.isFirst);
   }

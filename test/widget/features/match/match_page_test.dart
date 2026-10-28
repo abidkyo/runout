@@ -324,7 +324,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.replay));
       await tester.pumpAndSettle();
-      expect(find.byType(ConfirmDialog), findsOneWidget);
+      expect(find.text('Back to setup?'), findsOneWidget);
 
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
@@ -340,6 +340,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.replay));
       await tester.pumpAndSettle();
+      expect(find.text('Back to setup?'), findsOneWidget);
 
       await tester.tap(find.text('Leave'));
       await tester.pumpAndSettle();
@@ -356,6 +357,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.exit_to_app));
       await tester.pumpAndSettle();
+      expect(find.text('Exit to home?'), findsOneWidget);
 
       await tester.tap(find.text('Leave'));
       await tester.pumpAndSettle();
