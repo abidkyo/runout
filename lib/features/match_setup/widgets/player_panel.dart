@@ -7,11 +7,13 @@ import 'package:runout/features/match_setup/widgets/player_slot.dart';
 
 /// Player area of the setup page: one labelled block per side.
 ///
-/// Doubles always use the wide layout, regardless of available width.
-/// Otherwise the layout follows [LayoutBreakpoints.compact]:
+/// All modes follow [LayoutBreakpoints.compact]:
 ///
 /// - Wide: the sides sit side by side.
 /// - Compact: the sides stack vertically.
+///
+/// Doubles has no special case; its two slots stay vertically stacked inside
+/// each side block.
 class PlayerPanel extends StatelessWidget {
   const new({
     required this.mode,

@@ -325,9 +325,6 @@ class MatchNotifier extends ChangeNotifier {
   }
 
   /// Computes who breaks next based on [BreakFormat].
-  ///
-  /// Returns the current breaker unchanged for straight pool, since
-  /// break rotation is not defined there yet.
   int _nextBreaker({required int scoringSide}) {
     switch (_match.config.breakFormat) {
       case BreakFormat.winnerBreak:

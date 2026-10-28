@@ -106,10 +106,10 @@ class Match {
   /// Highest single-visit score per side, indexed parallel to [sides].
   final List<int> highRuns;
 
-  /// Consecutive-foul count per side, indexed parallel to [sides].
+  /// Consecutive standard-foul count per side, indexed parallel to [sides].
   ///
-  /// Straight pool only; stays all-zeros for 8/9/10-ball. Incremented on
-  /// each foul, reset to zero on a clean visit or after the third foul.
+  /// Straight pool only; stays all-zeros for 8/9/10-ball. A `standard` foul
+  /// increments it; `none`, `breakFoul`, and the third-foul penalty reset it.
   final List<int> foulCounters;
 
   /// Current lifecycle state.
@@ -126,11 +126,12 @@ class Match {
   /// pool and grows by 5 on each tied innings limit. Zero for other games.
   final int effectiveInningsLimit;
 
-  /// Whether the next shot is an opening break. Starts true; cleared after the
-  /// first visit scores or ends; set again by the three-foul penalty (re-rack).
+  /// Whether the next shot is an opening break. Starts true. Cleared by a
+  /// scoring call except a break foul that keeps the turn; set again by the
+  /// three-foul re-rack.
   final bool isOpeningBreak;
 
-  /// When the match started. Null until [status] is [MatchStatus.playing].
+  /// When the match started. Null before play starts.
   final DateTime? startedAt;
 
   /// When the match ended. Null until [status] is [MatchStatus.finished].
