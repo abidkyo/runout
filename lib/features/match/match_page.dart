@@ -40,35 +40,29 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
+  Future<bool> _confirmLeave(BuildContext context, MatchStatus status) {
+    if (status != MatchStatus.playing) return Future.value(true);
+
+    return showConfirmDialog(
+      context,
+      title: 'Leave match?',
+      message:
+          'The match is still in progress. '
+          'Are you sure you want to leave?',
+      confirmLabel: 'Leave',
+      destructive: true,
+    );
+  }
+
   Future<void> _restart(BuildContext context, MatchStatus status) async {
-    if (status == MatchStatus.playing) {
-      final leave = await showConfirmDialog(
-        context,
-        title: 'Leave match?',
-        message:
-            'The match is still in progress. '
-            'Are you sure you want to leave?',
-        confirmLabel: 'Leave',
-        destructive: true,
-      );
-      if (!leave || !context.mounted) return;
-    }
+    final leave = await _confirmLeave(context, status);
+    if (!leave || !context.mounted) return;
     Navigator.of(context).pop();
   }
 
   Future<void> _exit(BuildContext context, MatchStatus status) async {
-    if (status == MatchStatus.playing) {
-      final leave = await showConfirmDialog(
-        context,
-        title: 'Leave match?',
-        message:
-            'The match is still in progress. '
-            'Are you sure you want to leave?',
-        confirmLabel: 'Leave',
-        destructive: true,
-      );
-      if (!leave || !context.mounted) return;
-    }
+    final leave = await _confirmLeave(context, status);
+    if (!leave || !context.mounted) return;
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
