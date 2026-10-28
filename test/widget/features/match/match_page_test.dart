@@ -293,7 +293,9 @@ void main() {
   });
 
   group('leaving', () {
-    testWidgets('restart from created pops without a dialog', (tester) async {
+    testWidgets('back to setup from created pops without a dialog', (
+      tester,
+    ) async {
       await _pumpStackedMatchPage(tester, makeMatch());
 
       await tester.tap(find.byIcon(Icons.replay));
@@ -315,7 +317,7 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
-    testWidgets('restart while playing then cancels out of the dialog', (
+    testWidgets('back to setup while playing then cancels out of the dialog', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
@@ -331,7 +333,7 @@ void main() {
       expect(find.byType(MatchPage), findsOneWidget);
     });
 
-    testWidgets('restart while playing then confirms and pops one level', (
+    testWidgets('back to setup while playing then confirms and pops', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());

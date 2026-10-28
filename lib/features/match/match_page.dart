@@ -40,7 +40,8 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
-  Future<bool> _confirmLeave(BuildContext context, MatchStatus status) {
+  Future<bool> _confirmLeave(BuildContext context) {
+    final status = context.read<MatchNotifier>().match.status;
     if (status != MatchStatus.playing) return Future.value(true);
 
     return showConfirmDialog(
@@ -54,14 +55,14 @@ class _MatchView extends StatelessWidget {
     );
   }
 
-  Future<void> _restart(BuildContext context, MatchStatus status) async {
-    final leave = await _confirmLeave(context, status);
+  Future<void> _backToSetup(BuildContext context) async {
+    final leave = await _confirmLeave(context);
     if (!leave || !context.mounted) return;
     Navigator.of(context).pop();
   }
 
-  Future<void> _exit(BuildContext context, MatchStatus status) async {
-    final leave = await _confirmLeave(context, status);
+  Future<void> _exitToHome(BuildContext context) async {
+    final leave = await _confirmLeave(context);
     if (!leave || !context.mounted) return;
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
@@ -86,8 +87,8 @@ class _MatchView extends StatelessWidget {
             children: [
               const Expanded(child: _ScoreArea()),
               ControlsBar(
-                onRestart: () => _restart(context, match.status),
-                onExit: () => _exit(context, match.status),
+                onRestart: () => _backToSetup(context),
+                onExit: () => _exitToHome(context),
               ),
             ],
           ),
