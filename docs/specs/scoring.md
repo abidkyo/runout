@@ -8,8 +8,8 @@ one-shot flags. File: `lib/features/match/match_notifier.dart`.
 - `match` — current immutable `Match`; `currentBreakerIndex` shortcut.
 - `canUndo` / `canRedo` — stack non-empty.
 - `selectBreaker(i)` — `created` only. Starts the match, sets `startedAt` and
-  the breaker. Straight pool counts the breaker's first inning. Assert-only
-  guards, then proceeds.
+  the breaker. Straight pool counts the breaker's first inning. Asserts and
+  early-returns for wrong status or index.
 - `incrementScore(i, {points = 1, remaining, keepsTurn = false,
   foul = Foul.none})` — main transition. One call = one visit in straight
   pool.
@@ -87,8 +87,8 @@ re-break; splitting would duplicate win/innings logic.
 - A third foul also re-racks to 15, sets `isOpeningBreak`, and sets
   `notifyThreeFouls`.
 - `breakFoul` gets `keepsTurn` from the dialog (Re-break/Continue). No points
-  can be scored: the UI disables the balls and the notifier asserts
-  `points == 0`.
+  can be scored: the UI disables the balls, and the notifier asserts and
+  returns if `points != 0`.
 - `isOpeningBreak` starts true and clears after any scoring call except a
   `breakFoul` that keeps the turn. It gates the break-foul option.
 

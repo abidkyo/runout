@@ -55,10 +55,13 @@ class MatchNotifier extends ChangeNotifier {
       _match.status == MatchStatus.created,
       'Breaker can only be selected before the match starts.',
     );
+    if (_match.status != MatchStatus.created) return;
+
     assert(
       sideIndex >= 0 && sideIndex < _match.sides.length,
       'sideIndex out of range.',
     );
+    if (sideIndex < 0 || sideIndex >= _match.sides.length) return;
 
     final innings = List<int>.of(_match.innings);
     if (_match.config.gameType == GameType.straightPool) {
@@ -201,6 +204,7 @@ class MatchNotifier extends ChangeNotifier {
           points == 0,
           'In straight pool, cannot score points upon break foul.',
         );
+        if (points != 0) return;
       }
     }
 
