@@ -24,30 +24,18 @@ enum MatchMode {
   ///
   /// Returns 0 for [MatchMode.tournament], since tournament matches
   /// are configured by the manager app, not the setup page.
-  int get sideCount {
-    switch (this) {
-      case MatchMode.singles:
-      case MatchMode.doubles:
-        return 2;
-      case MatchMode.threePlayer:
-        return 3;
-      case MatchMode.tournament:
-        return 0;
-    }
-  }
+  int get sideCount => switch (this) {
+    .singles || .doubles => 2,
+    .threePlayer => 3,
+    .tournament => 0,
+  };
 
   /// Number of players per side in this mode.
   ///
   /// Returns 0 for [MatchMode.tournament].
-  int get playersPerSide {
-    switch (this) {
-      case MatchMode.singles:
-      case MatchMode.threePlayer:
-        return 1;
-      case MatchMode.doubles:
-        return 2;
-      case MatchMode.tournament:
-        return 0;
-    }
-  }
+  int get playersPerSide => switch (this) {
+    .singles || .threePlayer => 1,
+    .doubles => 2,
+    .tournament => 0,
+  };
 }
