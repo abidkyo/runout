@@ -34,7 +34,7 @@ class BallButton extends StatelessWidget {
         side: selected ? BorderSide.none : null,
         minimumSize: Size(width, width),
         textStyle: context.textTheme.ballLabel.copyWith(
-          fontSize: width / 3,
+          fontSize: width * 0.3,
         ),
         backgroundColor: selected ? context.colors.primary : null,
         foregroundColor: selected ? context.colors.onPrimary : null,

@@ -140,14 +140,14 @@ void main() {
       );
     });
 
-    testWidgets('has a default font size of 20 (=60/3)', (tester) async {
+    testWidgets('has a default font size of 18 (=60*0.3)', (tester) async {
       await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 20);
+      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 18);
     });
 
     testWidgets('set font size of according to given width', (tester) async {
       await _pump(tester, width: 48, onTap: () {});
-      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 48 / 3);
+      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 48 * 0.3);
     });
   });
 }
