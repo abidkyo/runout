@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// A two-button confirmation dialog.
 ///
@@ -26,16 +27,14 @@ class ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return AlertDialog(
       constraints: const BoxConstraints(
         minWidth: 360,
         maxWidth: 420,
         minHeight: 180,
       ),
-      titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
-      contentTextStyle: Theme.of(context).textTheme.bodyLarge,
+      titleTextStyle: context.textTheme.dialogTitle,
+      contentTextStyle: context.textTheme.dialogBody,
       title: Text(title),
       content: Text(message),
       actions: [
@@ -48,7 +47,7 @@ class ConfirmDialog extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(true),
           style: TextButton.styleFrom(
             padding: const EdgeInsets.all(12),
-            foregroundColor: destructive ? colorScheme.error : null,
+            foregroundColor: destructive ? context.colors.error : null,
           ),
           child: Text(confirmLabel),
         ),

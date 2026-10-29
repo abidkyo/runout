@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/player.dart';
 
 /// A single fillable player slot on the setup page.
@@ -42,19 +43,18 @@ class _PlayerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           player.clubName ?? '',
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+          style: context.textTheme.playerClub.copyWith(
+            color: context.colors.onSurfaceVariant,
           ),
         ),
         Text(
           player.fullName,
-          style: theme.textTheme.titleLargeSolid,
+          style: context.textTheme.playerName,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -70,7 +70,6 @@ class _EmptySlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -79,12 +78,12 @@ class _EmptySlot extends StatelessWidget {
         Icon(
           Icons.add,
           size: 20,
-          color: theme.colorScheme.primary,
+          color: context.colors.primary,
         ),
         Text(
           'Pick player',
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.primary,
+          style: context.textTheme.prompt.copyWith(
+            color: context.colors.primary,
           ),
         ),
       ],

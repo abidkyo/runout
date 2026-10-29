@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// A large tappable card representing a match mode on the home page.
 class ModeCard extends StatelessWidget {
@@ -21,8 +22,6 @@ class ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Semantics(
       button: true,
       child: Card(
@@ -36,12 +35,12 @@ class ModeCard extends StatelessWidget {
                 Icon(
                   icon,
                   size: 64,
-                  color: theme.colorScheme.primary,
+                  color: context.colors.primary,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   label,
-                  style: theme.textTheme.titleLargeSolid,
+                  style: context.textTheme.modeTitle,
                   textAlign: TextAlign.center,
                 ),
               ],

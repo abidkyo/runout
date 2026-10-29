@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 
 /// Displays the elapsed time of the current match.
@@ -16,9 +18,7 @@ class MatchTimer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Text(
         formatted,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          fontFeatures: const [FontFeature.tabularFigures()],
-        ),
+        style: context.textTheme.timer,
       ),
     );
   }

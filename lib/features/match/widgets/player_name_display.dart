@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/match_side.dart';
 
 /// Displays the players of a side, with club shown above the name.
@@ -34,7 +36,6 @@ class _PlayerLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
 
     final nameSize = (size.shortestSide / 25).clamp(18.0, 36.0);
@@ -46,8 +47,8 @@ class _PlayerLine extends StatelessWidget {
         if (showClub)
           Text(
             club ?? '',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            style: context.textTheme.playerClub.copyWith(
+              color: context.colors.onSurfaceVariant,
               fontSize: clubSize,
             ),
             maxLines: 1,
@@ -56,9 +57,7 @@ class _PlayerLine extends StatelessWidget {
           ),
         Text(
           name,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontSize: nameSize,
-          ),
+          style: context.textTheme.playerName.copyWith(fontSize: nameSize),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,

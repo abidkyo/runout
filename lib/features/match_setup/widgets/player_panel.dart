@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/player_slot.dart';
@@ -79,7 +81,6 @@ class _SideBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final players = context.watch<MatchSetupNotifier>().players[sideIndex];
 
     return Padding(
@@ -89,8 +90,8 @@ class _SideBlock extends StatelessWidget {
         children: [
           Text(
             _label,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            style: context.textTheme.sectionLabel.copyWith(
+              color: context.colors.onSurfaceVariant,
             ),
           ),
           Column(

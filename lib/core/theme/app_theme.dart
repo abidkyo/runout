@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
 
 class AppTheme {
   // Private constructor to prevent instantiation.
@@ -7,18 +8,21 @@ class AppTheme {
 
   static const Color _seed = Colors.blue;
 
-  static ThemeData get light => ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(seedColor: _seed),
-    appBarTheme: const AppBarTheme(centerTitle: true),
-  );
+  static ThemeData get light => _theme(Brightness.light);
 
-  static ThemeData get dark => ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
+  static ThemeData get dark => _theme(Brightness.dark);
+
+  static ThemeData _theme(Brightness brightness) {
+    final colorScheme = ColorScheme.fromSeed(
       seedColor: _seed,
-      brightness: Brightness.dark,
-    ),
-    appBarTheme: const AppBarTheme(centerTitle: true),
-  );
+      brightness: brightness,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      fontFamily: AppTextTheme.fontFamily,
+      appBarTheme: const AppBarTheme(centerTitle: true),
+    );
+  }
 }

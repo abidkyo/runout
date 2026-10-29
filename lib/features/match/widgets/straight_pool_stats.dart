@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// One side's straight-pool stats: innings, high run, average.
 ///
@@ -22,13 +24,12 @@ class StraightPoolStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
 
     final fontSize = (size.shortestSide / 35).clamp(12.0, 24.0);
 
-    final style = theme.textTheme.bodyMedium?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
+    final style = context.textTheme.stats.copyWith(
+      color: context.colors.onSurfaceVariant,
       fontSize: fontSize,
     );
 

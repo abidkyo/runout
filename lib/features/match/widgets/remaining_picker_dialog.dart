@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
 
@@ -55,7 +56,7 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
     return AlertDialog(
       scrollable: true,
       title: const Text('How many balls left?'),
-      titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
+      titleTextStyle: context.textTheme.dialogTitle,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

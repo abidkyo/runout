@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// A wide numeric stepper with ±1 and ±10 controls and long-press repeat.
 class NumberStepper extends StatefulWidget {
@@ -95,7 +97,7 @@ class _NumberStepperState extends State<NumberStepper> {
             child: Text(
               labels.join(' '),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: context.textTheme.stepperValue,
             ),
           ),
           _StepButton(

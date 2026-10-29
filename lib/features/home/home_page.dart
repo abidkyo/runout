@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/home/widgets/mode_card.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
@@ -24,7 +25,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Runout'),
-        titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
+        titleTextStyle: context.textTheme.screenTitle,
       ),
       body: SafeArea(
         child: Center(

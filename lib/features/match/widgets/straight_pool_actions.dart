@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
 import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
@@ -144,7 +145,7 @@ class StraightPoolActions extends StatelessWidget {
         TextButton(
           onPressed: () => _pickRemaining(context, notifier),
           style: TextButton.styleFrom(
-            textStyle: Theme.of(context).textTheme.titleLargeSolid,
+            textStyle: context.textTheme.remainingLabel,
           ),
           child: Tooltip(
             message: 'Balls remaining',

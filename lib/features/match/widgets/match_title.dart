@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match_config.dart';
 
@@ -38,7 +37,6 @@ class MatchTitle extends StatelessWidget {
       builder: (context, constraints) {
         return Text(
           _title(constraints.maxWidth),
-          style: Theme.of(context).textTheme.titleLargeSolid,
         );
       },
     );

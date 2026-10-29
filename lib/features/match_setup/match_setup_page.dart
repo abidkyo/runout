@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/player.dart';
@@ -81,7 +82,7 @@ class _MatchSetupView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('${mode.displayName} Match'),
-        titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
+        titleTextStyle: context.textTheme.screenTitle,
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(

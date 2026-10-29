@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
@@ -75,7 +76,7 @@ class _MatchView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: MatchTitle(config: config),
-        titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
+        titleTextStyle: context.textTheme.screenTitle,
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: const [MatchTimer()],
@@ -103,8 +104,6 @@ class _ScoreArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
 
@@ -146,17 +145,15 @@ class _ScoreArea extends StatelessWidget {
                             ? Text(
                                 key: const ValueKey('break-text'),
                                 'Who breaks?',
-                                style: theme.textTheme.titleLargeSolid.copyWith(
-                                  color: theme.colorScheme.primary,
+                                style: context.textTheme.prompt.copyWith(
+                                  color: context.colors.primary,
                                 ),
                               )
                             : AutoSizeText(
                                 key: const ValueKey('score-text'),
                                 '${match.scores[i]}',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontSize: 12 * 24,
-                                ),
-                                minFontSize: 12 * 2,
+                                style: context.textTheme.score,
+                                minFontSize: AppTextTheme.scoreMinFontSize,
                                 maxLines: 1,
                               ),
                       ),

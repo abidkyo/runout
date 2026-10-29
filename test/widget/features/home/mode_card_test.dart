@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/features/home/widgets/mode_card.dart';
 
 // ---------------------------------------------------------------------------
@@ -58,12 +59,12 @@ void main() {
       expect(icon.size, 64);
     });
 
-    testWidgets('label uses the solid title style', (tester) async {
+    testWidgets('label uses the mode title style', (tester) async {
       await _pump(tester);
 
       final text = tester.widget<Text>(find.text('Singles'));
       final context = tester.element(find.byType(ModeCard));
-      expect(text.style, Theme.of(context).textTheme.titleLargeSolid);
+      expect(text.style, context.textTheme.modeTitle);
     });
   });
 

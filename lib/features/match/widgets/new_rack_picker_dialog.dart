@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
 
 /// Dialog for picking the rack-end remaining count: 0 or 1.
@@ -13,7 +14,7 @@ class NewRackPickerDialog extends StatelessWidget {
     return AlertDialog(
       constraints: const BoxConstraints(minWidth: 360, minHeight: 180),
       title: const Text('How many balls left?'),
-      titleTextStyle: Theme.of(context).textTheme.titleLargeSolid,
+      titleTextStyle: context.textTheme.dialogTitle,
       content: Row(
         mainAxisSize: .min,
         mainAxisAlignment: .center,

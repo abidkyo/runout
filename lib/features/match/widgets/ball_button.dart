@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// A circular ball button used in match dialogs.
 class BallButton extends StatelessWidget {
@@ -24,8 +26,6 @@ class BallButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return OutlinedButton(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
@@ -33,9 +33,11 @@ class BallButton extends StatelessWidget {
         shape: const CircleBorder(),
         side: selected ? BorderSide.none : null,
         minimumSize: Size(width, width),
-        textStyle: theme.textTheme.titleMedium?.copyWith(fontSize: width / 3),
-        backgroundColor: selected ? theme.colorScheme.primary : null,
-        foregroundColor: selected ? theme.colorScheme.onPrimary : null,
+        textStyle: context.textTheme.ballLabel.copyWith(
+          fontSize: width / 3,
+        ),
+        backgroundColor: selected ? context.colors.primary : null,
+        foregroundColor: selected ? context.colors.onPrimary : null,
       ),
       child: Text('$value'),
     );

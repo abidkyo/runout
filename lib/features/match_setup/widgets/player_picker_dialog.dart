@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/player.dart';
 
 /// Dialog for picking a player from a list, with name search and a club filter.
@@ -58,7 +60,7 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Pick Player'),
-      titleTextStyle: Theme.of(context).textTheme.titleMedium,
+      titleTextStyle: context.textTheme.dialogTitle,
       content: SizedBox(
         width: 600,
         height: 480,
@@ -104,15 +106,13 @@ class _ClubDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return DropdownMenu<String?>(
       expandedInsets: .zero,
       enableFilter: true,
       requestFocusOnTap: true,
-      label: Text('Club', style: textTheme.labelMedium),
+      label: Text('Club', style: context.textTheme.fieldLabel),
       initialSelection: selectedClub,
-      textStyle: textTheme.labelLarge,
+      textStyle: context.textTheme.fieldValue,
       dropdownMenuEntries: [
         const DropdownMenuEntry<String?>(
           value: null,
@@ -141,18 +141,13 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return TextField(
       key: const ValueKey('player-search'),
       controller: controller,
-      style: theme.textTheme.titleMedium,
-      decoration: InputDecoration(
+      style: context.textTheme.fieldText,
+      decoration: const InputDecoration(
         hintText: 'Search',
-        prefixIcon: const Icon(Icons.search),
-        hintStyle: theme.textTheme.titleMedium?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        prefixIcon: Icon(Icons.search),
       ),
       onChanged: onQueryChanged,
     );
@@ -185,14 +180,15 @@ class _PlayerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return ListTile(
       leading: SizedBox(
         width: 32,
-        child: Text(player.countryCode ?? '', style: textTheme.labelMedium),
+        child: Text(
+          player.countryCode ?? '',
+          style: context.textTheme.fieldLabel,
+        ),
       ),
-      title: Text(player.fullName, style: textTheme.titleMedium),
+      title: Text(player.fullName, style: context.textTheme.fieldText),
       onTap: () => Navigator.of(context).pop(player),
     );
   }
