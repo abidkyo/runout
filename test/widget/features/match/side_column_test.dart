@@ -19,7 +19,7 @@ void main() {
       );
     });
 
-    testWidgets('fills the card with primaryContainer when winner', (
+    testWidgets('fills the card with secondaryContainer when winner', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -28,7 +28,7 @@ void main() {
 
       final card = tester.widget<Card>(find.byType(Card));
       final context = tester.element(find.byType(Card));
-      expect(card.color, Theme.of(context).colorScheme.primaryContainer);
+      expect(card.color, Theme.of(context).colorScheme.secondaryContainer);
     });
 
     testWidgets('does not fill the card when not winner', (tester) async {

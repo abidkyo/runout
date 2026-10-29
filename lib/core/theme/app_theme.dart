@@ -6,7 +6,11 @@ class AppTheme {
   // AppTheme is a static-only holder for theme definitions.
   new _();
 
-  static const Color _seed = Colors.blue;
+  // Billiard green felt.
+  static const Color _seed = Color(0xFF0E7A5F);
+
+  // Billiard blue felt.
+  // static const Color _seed = Color(0xFF1F5F8B);
 
   static ThemeData get light => _theme(Brightness.light);
 

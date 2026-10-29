@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
@@ -29,7 +30,7 @@ class StraightPoolStats extends StatelessWidget {
     final fontSize = (size.shortestSide / 35).clamp(12.0, 24.0);
 
     final style = context.textTheme.stats.copyWith(
-      color: context.colors.onSurfaceVariant,
+      color: context.colors.stats,
       fontSize: fontSize,
     );
 

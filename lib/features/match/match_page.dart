@@ -2,6 +2,7 @@ import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
@@ -76,7 +77,9 @@ class _MatchView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: MatchTitle(config: config),
-        titleTextStyle: context.textTheme.screenTitle,
+        titleTextStyle: context.textTheme.screenTitle.copyWith(
+          color: context.colors.screenTitle,
+        ),
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: const [MatchTimer()],
@@ -146,7 +149,7 @@ class _ScoreArea extends StatelessWidget {
                                 key: const ValueKey('break-text'),
                                 'Who breaks?',
                                 style: context.textTheme.prompt.copyWith(
-                                  color: context.colors.primary,
+                                  color: context.colors.prompt,
                                 ),
                               )
                             : AutoSizeText(

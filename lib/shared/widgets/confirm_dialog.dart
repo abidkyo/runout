@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
@@ -34,7 +35,9 @@ class ConfirmDialog extends StatelessWidget {
         minHeight: 180,
       ),
       titleTextStyle: context.textTheme.dialogTitle,
-      contentTextStyle: context.textTheme.dialogBody,
+      contentTextStyle: context.textTheme.dialogBody.copyWith(
+        color: context.colors.dialogBody,
+      ),
       title: Text(title),
       content: Text(message),
       actions: [

@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
 /// One side's column on the match page, presented as a single tappable card.
 ///
@@ -32,7 +34,6 @@ class SideColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final stateLabel = isWinner
         ? 'Winner'
         : isBreaker
@@ -48,14 +49,14 @@ class SideColumn extends StatelessWidget {
       child: Card(
         clipBehavior: Clip.antiAlias,
         margin: EdgeInsets.zero,
-        color: isWinner ? theme.colorScheme.primaryContainer : null,
+        color: isWinner ? context.colors.sidesFill : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           // Always width 4, transparent when neither breaker nor winner, so the
           // card's content box stays the same size with/without border.
           side: BorderSide(
             color: isBreaker || isWinner
-                ? theme.colorScheme.primary
+                ? context.colors.sidesBorder
                 : Colors.transparent,
             width: 4,
           ),

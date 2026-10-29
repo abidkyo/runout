@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -82,7 +83,9 @@ class _MatchSetupView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('${mode.displayName} Match'),
-        titleTextStyle: context.textTheme.screenTitle,
+        titleTextStyle: context.textTheme.screenTitle.copyWith(
+          color: context.colors.screenTitle,
+        ),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(

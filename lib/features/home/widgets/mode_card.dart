@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
@@ -35,7 +36,7 @@ class ModeCard extends StatelessWidget {
                 Icon(
                   icon,
                   size: 64,
-                  color: context.colors.primary,
+                  color: context.colors.modeIcon,
                 ),
                 const SizedBox(height: 12),
                 Text(

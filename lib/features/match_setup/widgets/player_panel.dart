@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/match_mode.dart';
@@ -91,7 +92,7 @@ class _SideBlock extends StatelessWidget {
           Text(
             _label,
             style: context.textTheme.sectionLabel.copyWith(
-              color: context.colors.onSurfaceVariant,
+              color: context.colors.sectionLabel,
             ),
           ),
           Column(

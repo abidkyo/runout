@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/match_side.dart';
@@ -48,7 +49,7 @@ class _PlayerLine extends StatelessWidget {
           Text(
             club ?? '',
             style: context.textTheme.playerClub.copyWith(
-              color: context.colors.onSurfaceVariant,
+              color: context.colors.playerClub,
               fontSize: clubSize,
             ),
             maxLines: 1,
@@ -57,7 +58,10 @@ class _PlayerLine extends StatelessWidget {
           ),
         Text(
           name,
-          style: context.textTheme.playerName.copyWith(fontSize: nameSize),
+          style: context.textTheme.playerName.copyWith(
+            color: context.colors.playerName,
+            fontSize: nameSize,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,

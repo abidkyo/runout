@@ -4,6 +4,24 @@ Owns: the Inter font, `AppTextTheme` styles, and the `ThemeExtension`
 shortcuts. Typography and semantic colors are separate; use `context.colors`
 at call sites.
 
+## Color scheme
+
+- Seed: `#0E7A5F` (billiard felt green), generated with
+  `ColorScheme.fromSeed` for light and dark.
+- Variant: `DynamicSchemeVariant.tonalSpot`. Fidelity is not used because it
+  makes `primaryContainer` the dark seed, which gives the winner card
+  dark-on-dark content; tonalSpot keeps the container light in light mode.
+- Alternative blue felt seed: `#1F5F8B` (kept commented in `AppTheme`).
+- Text colors use `context.colors` roles:
+  - `primary`: screen titles, prompts, remaining count, player names.
+  - `secondary`: player clubs.
+  - `onSurface`: score, field text.
+  - `onSurfaceVariant`: labels, stats, timer, dialog body.
+  - selected ball label: `onPrimary`; unselected ball label: `primary`.
+- Button foregrounds (`TextButton`, `OutlinedButton`) already come from the
+  button style; don't duplicate them in `textStyle`.
+- The winner side card uses `primaryContainer`.
+
 ## Font
 
 - `assets/fonts/Inter-VariableFont_opsz,wght.ttf`, registered as family

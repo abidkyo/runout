@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/player.dart';
@@ -110,7 +111,12 @@ class _ClubDropdown extends StatelessWidget {
       expandedInsets: .zero,
       enableFilter: true,
       requestFocusOnTap: true,
-      label: Text('Club', style: context.textTheme.fieldLabel),
+      label: Text(
+        'Club',
+        style: context.textTheme.fieldLabel.copyWith(
+          color: context.colors.fieldLabel,
+        ),
+      ),
       initialSelection: selectedClub,
       textStyle: context.textTheme.fieldValue,
       dropdownMenuEntries: [
@@ -185,7 +191,9 @@ class _PlayerRow extends StatelessWidget {
         width: 32,
         child: Text(
           player.countryCode ?? '',
-          style: context.textTheme.fieldLabel,
+          style: context.textTheme.fieldLabel.copyWith(
+            color: context.colors.fieldLabel,
+          ),
         ),
       ),
       title: Text(player.fullName, style: context.textTheme.fieldText),

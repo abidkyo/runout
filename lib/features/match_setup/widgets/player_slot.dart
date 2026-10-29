@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/player.dart';
@@ -49,12 +50,14 @@ class _PlayerDisplay extends StatelessWidget {
         Text(
           player.clubName ?? '',
           style: context.textTheme.playerClub.copyWith(
-            color: context.colors.onSurfaceVariant,
+            color: context.colors.playerClub,
           ),
         ),
         Text(
           player.fullName,
-          style: context.textTheme.playerName,
+          style: context.textTheme.playerName.copyWith(
+            color: context.colors.playerName,
+          ),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -78,12 +81,12 @@ class _EmptySlot extends StatelessWidget {
         Icon(
           Icons.add,
           size: 20,
-          color: context.colors.primary,
+          color: context.colors.prompt,
         ),
         Text(
           'Pick player',
           style: context.textTheme.prompt.copyWith(
-            color: context.colors.primary,
+            color: context.colors.prompt,
           ),
         ),
       ],
