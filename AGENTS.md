@@ -19,6 +19,7 @@ Linux, macOS, and Windows.
 | Home, setup page, config panel, player picker | `docs/specs/setup.md` |
 | Match screen, cards, dialogs, timer, title | `docs/specs/match-ui.md` |
 | Style, naming, errors, semantics | `docs/specs/conventions.md` |
+| Fonts, text styles, theme colors | `docs/specs/theme.md` |
 | Tests, factories, finders, viewports | `docs/specs/testing.md` |
 | Multi-area change | the 2–3 rows it touches; never all |
 

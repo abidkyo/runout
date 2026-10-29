@@ -63,11 +63,17 @@ Order inside a file:
 ## Theme and text
 
 - Material 3, blue seed; light theme is used.
-- `AppTextTheme.titleLargeSolid` is the app text style helper. Extensions do
-  not resolve transitively — import `app_text_theme.dart` at call sites.
+- Typography comes from `AppTextTheme` getters via `context.textTheme`;
+  colors come from `context.colors`. Both are defined in `theme.md`.
+- Import `app_text_theme.dart` where the getters are used; extensions do not
+  resolve transitively.
+- Don't add raw `TextStyle` values in widgets; add a getter or use a
+  layout-driven `copyWith(fontSize: ...)` for dynamic sizes.
+- Inter is the app-wide default font. `AppTextTheme` uses `FontWeight`;
+  don't set `fontFamily` in widgets.
 - Text scale is one `MediaQuery` override in `app.dart`
   (`TextScaler.linear(1.5)`); don't re-apply it in widgets.
-- Colors come from `colorScheme`; use `withValues(alpha: ...)` for opacity.
+- Use `withValues(alpha: ...)` for opacity.
 
 ## State and errors
 

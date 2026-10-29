@@ -10,7 +10,7 @@ lib/
 ├── app.dart                      # RunoutApp: MaterialApp, theme, text scale
 ├── core/                         # cross-cutting, no feature knowledge
 │   ├── constants/                # LayoutBreakpoints, MatchDefaults, MatchLimits
-│   ├── theme/                    # AppTheme, AppTextTheme extension
+│   ├── theme/                    # AppTheme, AppTextTheme, ThemeExtension
 │   ├── errors/                   # reserved (empty)
 │   └── utils/                    # reserved (empty)
 ├── data/
