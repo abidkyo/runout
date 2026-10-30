@@ -14,13 +14,9 @@ Linux, macOS, and Windows.
 | --- | --- |
 | Scope, status, roadmap, open questions | `docs/specs/product.md` |
 | Layers, folders, providers, app shell | `docs/specs/architecture.md` |
-| Models, enums, constants, `Match` fields | `docs/specs/domain.md` |
-| Scoring, breaks, undo/redo, straight pool, fouls | `docs/specs/scoring.md` |
-| Home, setup page, config panel, player picker | `docs/specs/setup.md` |
-| Match screen, cards, dialogs, timer, title | `docs/specs/match-ui.md` |
-| Style, naming, errors, semantics | `docs/specs/conventions.md` |
-| Fonts, text styles, theme colors | `docs/specs/theme.md` |
-| Tests, factories, finders, viewports | `docs/specs/testing.md` |
+| Domain invariants, scoring decisions | `docs/specs/domain.md` |
+| Setup and match UI/UX decisions | `docs/specs/ui.md` |
+| Naming, errors, semantics, tests | `docs/specs/conventions.md` |
 | Multi-area change | the 2–3 rows it touches; never all |
 
 ## Commands

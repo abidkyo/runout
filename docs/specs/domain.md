@@ -1,86 +1,38 @@
-# Domain — models, enums, constants
+# Domain
 
-Owns: pure data and its invariants. Behavior: `scoring.md`; setup state:
-`setup.md`.
+## Model decisions
 
-## Constants
+- `MatchSide` exists so doubles share one score and `sides` is not
+  `List<List<Player>>`. It has no id; position in `Match.sides` is the
+  reference.
+- `MatchStatus` lives in `match.dart`; it is not reused elsewhere.
+- `copyWith` uses plain `??`: null means "keep current", so it cannot clear a
+  nullable field. Transitions rely on the current value already being right.
+- Lifecycle invariants are convention-only, not asserted:
+  - `created`: timestamps, breaker, winner null.
+  - `playing`: `startedAt` and `currentBreakerIndex` set; `endedAt` and
+    `winnerIndex` null.
+  - `finished`: `endedAt` and `winnerIndex` set.
 
-Static-only holders (`Class._()`):
+## Scoring decisions
 
-- `MatchLimits` — `minRaceTo 1`, `maxRaceTo 999`, `minInnings 1`,
-  `maxInnings 99`. Setup setters clamp against these; add a new pair here
-  rather than inline literals.
-- `MatchDefaults` — `raceTo 5`, `straightPoolRaceTo 75`, `inningsLimit 25`,
-  `inningsExtension 5`, `threeFoulsPenalty 15`.
-- `LayoutBreakpoints` — `compact 600`, `wide 800`. Compared against
-  `LayoutBuilder` constraints, not screen size.
-
-## Enums
-
-One enum per file in `domain/enums/`; values are lowerCamelCase.
-
-**`MatchMode`** — `singles`, `doubles`, `threePlayer`, `tournament`.
-
-- `sideCount`: 2, 2, 3, 0.
-- `playersPerSide`: 1, 2, 1, 0.
-- `displayName` for UI labels. Home icons are mapped in the home feature.
-
-**`GameType`** — `eightBall`, `nineBall`, `tenBall`, `straightPool`.
-
-- `displayName`: `'8 Ball'`, `'9 Ball'`, `'10 Ball'`, `'Straight Pool'`.
-- `shortName`: same except `'14.1'` for straight pool. Two getters so a
-  future divergence costs nothing.
-
-**`BreakFormat`** — `winnerBreak`, `alternateBreak`. Decides who breaks the
-**next rack**. Straight pool uses `alternateBreak`, enforced in
-`MatchConfig`.
-
-**`Foul`** — `none`, `standard`, `breakFoul`. `displayName`:
-`'No Foul'`, `'Foul'`, `'Break Foul'`. `value`: 0, 1, 2, subtracted from the
-score.
-
-## Models
-
-One model per file in `domain/models/`. All are `@immutable`; no
-`==`/`hashCode` overrides and no serialization yet.
-
-**`Player`** — `id` (UUID string), `firstName`, `lastName`,
-`countryCode?` (ISO alpha-2), `clubName?`. Getter `fullName`.
-
-**`MatchSide`** — `List<Player> players`, length 1–2, asserted non-empty. No
-`id`: position in `Match.sides` is the reference. Exists so doubles share a
-score and `sides` is not `List<List<Player>>`.
-
-**`MatchConfig`** — `matchMode`, `gameType`, `raceTo`, `breakFormat`
-(required), `inningsLimit?`.
-
-- `raceTo` is the target for every game type.
-- `inningsLimit` is required for straight pool and forbidden otherwise.
-- `breakFormat` must be `alternateBreak` for straight pool.
-- One constructor assert enforces the straight-pool combination.
-
-**`Match`** — immutable match state.
-
-- `MatchStatus { created, playing, finished }` lives in `match.dart` rather
-  than its own file.
-- `id`, `config`, `sides` (≥2, order = index), plus parallel lists `scores`,
-  `innings`, `highRuns`, `foulCounters`. List lengths are asserted to equal
-  `sides.length`.
-- Straight pool only: `remaining` (`Match.ballsPerRack` = 15), `currentRun` (0),
-  `effectiveInningsLimit` (starts at `config.inningsLimit ?? 0`, grows by 5
-  on a tied limit), `isOpeningBreak` (true).
-- Lifecycle: `status`, `startedAt?`, `endedAt?`, `currentBreakerIndex?`,
-  `winnerIndex?`.
-- `innings` = visits per side; `highRuns` = best single visit; `foulCounters`
-  = consecutive standard fouls. Rotation games leave all three zero.
-- `Match.create(id:, config:, sides:)` allocates the parallel lists, seeds
-  `effectiveInningsLimit`, and sets status `created`.
-- `copyWith` uses plain `??`: **null means "keep current"**, so it cannot
-  clear nullable fields. Transitions rely on this.
-
-Lifecycle invariants are convention-only (not asserted):
-
-- `created`: timestamps, breaker, and winner null.
-- `playing`: `startedAt` and `currentBreakerIndex` set; `endedAt` and
-  `winnerIndex` null.
-- `finished`: `endedAt` and `winnerIndex` set.
+- One `incrementScore` call is one straight-pool visit. Innings are counted
+  **before** the visit, so `innings[i]` can be one ahead of completed visits;
+  the UI clamps the display.
+- Score win takes priority over the innings limit. On a kept turn, reaching
+  the target asks instead of finishing.
+- An innings tie extends the limit by 5; a unique high score wins.
+- `currentRun` accumulates raw points (fouls are not subtracted), and
+  `highRuns` is raised live. Average is derived, never stored.
+- Fouls live in `incrementScore` because a foul always ends a visit or forces
+  a re-break. A third standard foul forces the turn and re-racks. A break foul
+  cannot carry points.
+- `isOpeningBreak` gates the break-foul option; it clears after a scoring
+  call except a break foul that keeps the turn.
+- `incrementScore` is single-exit: compute, push history, one notify.
+  `winnerIndex != null` is the finished signal.
+- `notifyExtension`, `notifyThreeFouls`, and `askToContinue` are one-shot
+  flags reset by the next `incrementScore`. They are not snapshotted, so
+  `undo()` does not clear them.
+- Extension and three-foul notifications are mutually exclusive: a third
+  foul forces `keepsTurn`, skipping the innings branch.

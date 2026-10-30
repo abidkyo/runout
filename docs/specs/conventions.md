@@ -1,7 +1,11 @@
-# Conventions — code, style, errors, semantics
+# Conventions
 
-Owns: how code is written. Layers: `architecture.md`; tests: `testing.md`;
-short checklist: `AGENTS.md`.
+## Files
+
+- Separate code sections with
+  `// ---------------------------------------------------------------------------`.
+- App configuration enums live with their config in `core/constants/`.
+- Test files mirror `lib/` by feature; the `widgets/` subfolder is not mirrored.
 
 ## File layout
 
@@ -13,73 +17,31 @@ Order inside a file:
 4. private subwidgets,
 5. helpers (extensions, top-level functions).
 
-- One model per file in `domain/models/`; one enum per file in
-  `domain/enums/`. Configuration enums live with their config in
-  `core/constants/`.
-- Public widgets live in the feature's `widgets/`; private `_Name` widgets
-  stay in the using file.
-- Separate file sections with
-  `// ---------------------------------------------------------------------------`
-  after imports and between declarations.
-- Files are `snake_case.dart`.
+## Theme
 
-## Style
-
-- ≤80 columns; trailing comma on multi-line constructs.
-- `const` on constructors, widgets, and list literals where possible.
-- Constructor shorthand: `const new(...)`, `new _();`; don't repeat the type.
-- Static-only holders use a private constructor.
-- Enum-derived getters use `switch` expressions.
-- Imports: `dart:` first, then `package:`. All `lib/` imports are
-  `package:runout/...`; relative imports are test-only.
-- Lints: `very_good_analysis` with strict casts, inference, and raw types.
-  Public API docs and Flutter-style TODOs are off.
+- `context.textTheme` / `context.colors` come from `theme_extension.dart`.
+- Custom text styles are defined in `AppTextTheme`.
+- Colors used are defined in `AppColorScheme`.
 
 ## Naming
 
 | Thing | Form |
 | --- | --- |
 | Notifier | `XNotifier` |
-| Provider | `ChangeNotifierProvider` (or `Provider` for repos) |
 | Private widget | `_WidgetName` in the same file |
 | Public widget | own file in `widgets/` |
 | Dialog | `XDialog` in `widgets/` (shared → `shared/widgets/`) |
-| Enum value | `lowerCamelCase` |
-| Constant | `lowerCamelCase` |
-| Boolean | `isX`, `hasX`, `canX` — never a bare noun |
+| Constant / enum value | `lowerCamelCase` |
+| Boolean | `isX`, `hasX`, `canX` |
 | Test file | `<subject>_test.dart` |
 
 ## Widgets and layout
 
 - Never return a widget from a method; extract a widget class.
-- Empty states belong to the screen/widget that displays the list.
-- When a component takes `children`, the call site owns spacing.
-- `Card.margin` stays zero; spacing is explicit `Padding`.
-- Prefer Material buttons when the thing is a button. Use `InkWell` only for a
-  whole custom-shaped surface or gestures buttons don't expose.
-- Style buttons with `XButton.styleFrom(...)`, not `ButtonStyle` +
-  `WidgetStatePropertyAll`.
 
-## Theme and text
+## Errors
 
-- Material 3, blue seed; light theme is used.
-- Typography comes from `AppTextTheme` getters via `context.textTheme`;
-  colors come from `context.colors`. Both are defined in `theme.md`.
-- Import `app_text_theme.dart` where the getters are used; extensions do not
-  resolve transitively.
-- Don't add raw `TextStyle` values in widgets; add a getter or use a
-  layout-driven `copyWith(fontSize: ...)` for dynamic sizes.
-- Inter is the app-wide default font. `AppTextTheme` uses `FontWeight`;
-  don't set `fontFamily` in widgets.
-- Text scale is one `MediaQuery` override in `app.dart`
-  (`TextScaler.linear(1.5)`); don't re-apply it in widgets.
-- Use `withValues(alpha: ...)` for opacity.
-
-## State and errors
-
-- Setters early-return when the value is unchanged.
-- One-shot events are public `bool`s the UI resets after reading.
-- Error signaling by reachability:
+Choose by reachability:
 
 | Mechanism | Use for | Example |
 | --- | --- | --- |
@@ -87,20 +49,35 @@ Order inside a file:
 | `assert` + early return | only incorrect code can produce it | bad index, negative points |
 | silent early return | normal precondition not met | `incrementScore` while not playing |
 
-Never throw in release paths; guards return early. Tests verify the asserts.
+Never throw in release paths; tests verify asserts, not release returns.
 
 ## Semantics
 
-- Material buttons get the button role and label for free.
-- Custom state-bearing surfaces need an explicit `Semantics` wrapper;
-  `InkWell` provides the tap but not `button: true`.
-- Labels describe state only (`Winner`/`Breaking`/`Loser`), not content that a
-  child already shows.
-- `ModeCard` and `SideColumn` are the existing examples.
+- Custom state-bearing surfaces need an explicit `Semantics` wrapper.
+- Labels describe state only, never content a child already shows.
 
 ## Comments
 
-- Explain why or a non-obvious contract; don't restate code. Public
-  classes/members get a short doc comment.
-- No commented-out code or changelog comments.
-- Update or delete a stale comment in the same change.
+Explain why or a non-obvious contract, not what the code does. Update or delete
+stale comments in the same change; no commented-out code or changelogs.
+
+## Testing
+
+- Unit tests cover domain and notifiers. Use `fake_async` for timers; dispose
+  notifiers that own timers or listeners.
+- `test/unit/helpers/factories.dart` provides builders. Use a factory when its
+  defaults are the point; otherwise construct the object directly.
+- Widget tests pump the smallest widget owning the contract. For width
+  contracts, wrap in `Center(SizedBox(width: X))` and test at the threshold and
+  threshold + 1.
+- Stateful widgets use a `_Host` that owns the value and rebuilds on change.
+- Assert behavior and user-visible outcomes. Add keys only when a finder is
+  otherwise ambiguous.
+- `DropdownMenu`: tap the menu itself; use
+  `find.widgetWithText(MenuItemButton, '<label>')` for entries.
+- Avoid `find.text('')`; empty `EditableText` internals also render text.
+- Semantics: use `tester.ensureSemantics()` and assert state labels.
+- Responsive tests set `physicalSize` with `devicePixelRatio = 1` and reset in
+  `addTearDown`. Dialogs tapping below the fold need a taller viewport or
+  `ensureVisible`.
+- No mocking package; prefer real objects, factories, and hosts.
