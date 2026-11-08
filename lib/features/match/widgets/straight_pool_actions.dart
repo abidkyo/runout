@@ -6,6 +6,7 @@ import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
 import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
+import 'package:runout/shared/widgets/app_snack_bar.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// Straight-pool controls: End visit, remaining count, New rack.
@@ -23,33 +24,21 @@ class StraightPoolActions extends StatelessWidget {
     if (notifier.notifyExtension) {
       notifier.notifyExtension = false;
       final limit = notifier.match.effectiveInningsLimit;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              'Tied — ${MatchDefaults.inningsExtension} more innings '
-              '(total $limit innings)',
-            ),
-            showCloseIcon: true,
-          ),
-        );
+      showAppSnackBar(
+        context,
+        'Tied — ${MatchDefaults.inningsExtension} more innings '
+        '(total $limit innings)',
+      );
       return;
     }
 
     if (notifier.notifyThreeFouls) {
       notifier.notifyThreeFouls = false;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Third fouls — ${MatchDefaults.threeFoulsPenalty} point '
-              'penalty, re-rack',
-            ),
-            showCloseIcon: true,
-          ),
-        );
+      showAppSnackBar(
+        context,
+        'Third fouls — ${MatchDefaults.threeFoulsPenalty} point '
+        'penalty, re-rack',
+      );
       return;
     }
   }

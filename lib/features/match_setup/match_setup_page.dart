@@ -12,6 +12,7 @@ import 'package:runout/features/match_setup/widgets/match_config_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/widgets/setup_actions.dart';
+import 'package:runout/shared/widgets/app_snack_bar.dart';
 
 /// Setup page. Lets the user pick players and match settings.
 class MatchSetupPage extends StatelessWidget {
@@ -62,11 +63,7 @@ class _MatchSetupView extends StatelessWidget {
     final error = notifier.validatePlayers();
 
     if (error != null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(error), showCloseIcon: true),
-        );
+      showAppSnackBar(context, error);
       return;
     }
 

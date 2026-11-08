@@ -51,6 +51,12 @@ Choose by reachability:
 
 Never throw in release paths; tests verify asserts, not release returns.
 
+## Feedback
+
+- Use `showAppSnackBar` for one-off messages.
+- Dialog-local failures stay inline. A snackbar behind a modal barrier is
+  invisible.
+
 ## Semantics
 
 - Custom state-bearing surfaces need an explicit `Semantics` wrapper.
