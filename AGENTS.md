@@ -1,73 +1,92 @@
 # Runout — Agent Guide
 
-Billiard scoring app. Flutter, Provider-only. Targets Android, iOS, web,
-Linux, macOS, and Windows.
+A cross-platform billiard scoring app built with Flutter.
+Provider is the only state-management solution.
+Web is the primary development target.
 
-## Read this first
+Maintain compatibility with Android, iOS, Linux, macOS, and Windows.
 
-- Specs are the source of truth. If code and spec disagree, stop and ask — don't pick one silently.
-- Don't read every spec. Read only the rows matching the task.
-- Don't read `lib/` end to end. Use glob/grep, then read the files named by the spec.
-- Answer terse: no preamble, no recap, no code unless asked.
+## Read This First
 
-| Task touches | Read |
-| --- | --- |
-| Scope, status, roadmap, open questions | `docs/specs/product.md` |
+- Specifications are the source of truth. If code and specs disagree, stop and ask rather than choosing silently.
+- Read only the specifications relevant to the task.
+- Don't read `lib/` end to end. Use glob/grep to locate relevant files.
+- Keep responses concise. No preamble, recap, or code unless requested.
+
+| Task | Read |
+|---|---|
+| Scope, status, roadmap | `docs/specs/product.md` |
 | Layers, folders, providers, app shell | `docs/specs/architecture.md` |
-| Domain invariants, scoring decisions | `docs/specs/domain.md` |
-| Setup and match UI/UX decisions | `docs/specs/ui.md` |
-| Naming, errors, semantics, tests | `docs/specs/conventions.md` |
-| Multi-area change | the 2–3 rows it touches; never all |
+| Domain rules and scoring | `docs/specs/domain.md` |
+| Setup and match UI/UX | `docs/specs/ui.md` |
+| Naming, errors, tests | `docs/specs/conventions.md` |
 
-## Commands
+For changes spanning multiple areas, read only the relevant specifications.
+
+## Architecture & Coding Rules
+
+- Follow the existing architecture and project conventions.
+- Keep business logic separate from UI.
+- Respect layer boundaries:
+  - `features/` → `domain/`, `data/`, `shared/`, `core/`
+  - `data/` → `domain/`, `core/`
+  - `domain/` → pure Dart; no Flutter or app dependencies
+  - `shared/` → `core/`, `domain/`
+  - Never import `features/` from `data/` or `shared/`.
+- Use Provider exclusively for state management. No Riverpod or Bloc.
+- Notifiers extend `ChangeNotifier`. Register providers at feature level.
+- Use `context.watch`, `context.read`, `Consumer`, or `Selector`.
+- Extract reusable widgets into widget classes. Don't return widgets from methods.
+- Keep feature widgets under `features/<feature>/widgets/`.
+- Use `package:runout/...` imports, never relative imports.
+- Keep one model per file in `domain/models/` and one enum per file in `domain/enums/`.
+
+## Dart & Flutter Conventions
+
+- Follow Dart and Flutter best practices.
+- Prefer `const` wherever possible.
+- Keep line length at or below 80 characters.
+- Use trailing commas for multiline constructs.
+- Boolean variables and getters use auxiliary verbs (`isX`, `hasX`, `canX`).
+- Notifier setters should return early when the value hasn't changed.
+- Use `clock.now()` instead of `DateTime.now()` for testability.
+- Handle empty states inside the screen displaying them.
+- Avoid unnecessary abstractions and dependencies.
+- No new dependencies without asking.
+
+## Testing & Quality
+
+- Tests are part of completion. Add or update tests in the corresponding test directory.
+- Never delete tests just to make a build pass.
+- Run the following checks before considering a task complete:
 
 ```bash
-flutter pub get
 dart format .
 flutter analyze
 flutter test
-flutter test test/unit/features/match/match_notifier_test.dart
-flutter test --plain-name 'returns zero'
-flutter run -d chrome
 ```
 
-Baseline before claiming done: `dart format . && flutter analyze && flutter test`.
+- Test the relevant functionality, including edge cases.
+- Prioritize Web during development and testing while maintaining cross-platform compatibility.
+
+## Development Workflow
+
+1. Read the relevant specifications and source files.
+2. Make the smallest change that satisfies the task.
+3. Add or update corresponding tests.
+4. Run formatting, analysis, and tests.
+5. Update only the affected specification sections when necessary.
+6. Commit logical changes. The user reviews commits later.
 
 ## Skills
 
-- `.agents/skills/commit` — load before committing.
-- `$HOME/.agents/skills/` — load the matching Flutter skill before Flutter-specific work.
+- Load `.agents/skills/commit` before committing.
+- Load the matching Flutter skill from `$HOME/.agents/skills/` before Flutter-specific work.
 
-## Hard rules
+## Specification Maintenance
 
-- **Layer imports.** `features/` → `domain/`, `data/`, `shared/`, `core/`. `data/` → `domain/`, `core/`. `domain/` imports nothing from the app (pure Dart, no Flutter). `shared/` → `core/`, `domain/`. Never import `features/` from `data/` or `shared/`.
-- **State management.** Provider only. No Riverpod, no Bloc. Notifiers are `ChangeNotifier`. Providers registered at the feature level, not globally. Use `context.watch` / `context.read` / `Consumer` / `Selector` — not `listen`.
-- **Widgets over methods.** Never return a widget from a method. Extract a widget class. Exception: trivial top-level placeholders during scaffolding.
-- **File structure.** Order within a file: types (enums, small file-local models), static content (constants), exported widget/class, private subwidgets, helpers (extensions, functions).
-- **Feature widgets.** Every feature keeps its widgets under `features/<feature>/widgets/`; pages and notifiers stay at the feature root.
-- **Variable naming.** Boolean variables and getters use auxiliary verbs (`isX`, `hasX`, `canX`). Never bare nouns for booleans.
-- **`const` everywhere possible.** Constructors, widgets, list literals.
-- **Line length.** ≤ 80 columns, trailing comma on multi-line constructs.
-- **Empty states** are handled inside the displaying screen, not delegated to a parent.
-- **Imports of `lib/` files use `package:runout/...`**, never relative.
-- **One model per file** in `domain/models/`. **One enum per file** in `domain/enums/`.
-- **Time:** use `clock.now()`, never `DateTime.now()` for easier testing.
-- **Error signaling:** `StateError` for reachable-by-correct-program invalid calls. `assert` + early return for invalid-by-incorrect-code calls (out-of-range index, negative points). Never throw in release paths.
-- **Setters** on notifiers early-return if the value is unchanged.
-- **Tests** are part of done: add/adjust the test in the mirror path. Never delete a test to make a build pass.
-- **No new dependencies** without asking.
-
-## Workflow
-
-1. Read the matching spec (table above) and the files it names.
-2. Make the smallest change that satisfies the task.
-3. Update the mirrored test.
-4. Run the baseline command.
-5. Update only the affected spec section, in the same change. Don't rewrite other specs, don't add a new spec file, don't paste spec content into the answer.
-6. Commit the logical change. The user reviews commits later.
-
-## Spec maintenance
-
-- One topic per file; decisions live next to the feature they explain, not in a separate decisions log.
-- Record contracts and rationale the code doesn't show. Don't restate code line by line.
-- `git log` is the changelog. Don't add a "recent changes" section.
+- Keep one topic per specification file.
+- Document important contracts, decisions, and rationale that aren't obvious from the code.
+- Don't duplicate code documentation in specifications.
+- Don't rewrite unrelated specifications.
+- Use `git log` as the project changelog.

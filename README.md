@@ -1,7 +1,10 @@
 # Runout
 
-Billiard scoring app built with Flutter. Runs on Android, iOS, web, Linux,
-macOS, and Windows. The client app scores matches; the manager app is deferred.
+A cross-platform billiard scoring application built with Flutter,
+supporting Android, iOS, Web, Linux, macOS, and Windows.
+
+Supports singles, doubles, and three-player matches
+across 8/9/10-Ball, and Straight Pool.
 
 ## Run
 
