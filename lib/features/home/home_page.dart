@@ -52,9 +52,7 @@ class HomePage extends StatelessWidget {
                         ModeCard(
                           icon: mode.icon,
                           label: mode.displayName,
-                          onTap: (mode == .tournament)
-                              ? () {}
-                              : () => _openSetup(context, mode),
+                          onTap: () => _openSetup(context, mode),
                         ),
                     ],
                   );
@@ -75,6 +73,5 @@ extension _MatchModeIcon on MatchMode {
     .singles => Icons.person,
     .doubles => Icons.people,
     .threePlayer => Icons.groups,
-    .tournament => Icons.emoji_events,
   };
 }

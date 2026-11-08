@@ -77,7 +77,6 @@ class _SideBlock extends StatelessWidget {
     MatchMode.singles => 'Player ${sideIndex + 1}',
     MatchMode.doubles => 'Team ${String.fromCharCode(sideIndex + 65)}',
     MatchMode.threePlayer => 'Player ${sideIndex + 1}',
-    MatchMode.tournament => throw UnimplementedError(),
   };
 
   @override

@@ -33,28 +33,26 @@ void main() {
       expect(find.text('Runout'), findsOneWidget);
     });
 
-    testWidgets('renders four mode cards', (tester) async {
+    testWidgets('renders three mode cards', (tester) async {
       await tester.pumpWidget(_host());
 
-      expect(find.byType(ModeCard), findsNWidgets(4));
+      expect(find.byType(ModeCard), findsNWidgets(3));
     });
 
-    testWidgets('renders the four mode labels', (tester) async {
+    testWidgets('renders the three mode labels', (tester) async {
       await tester.pumpWidget(_host());
 
       expect(find.text('Singles'), findsOneWidget);
       expect(find.text('Doubles'), findsOneWidget);
       expect(find.text('Three Players'), findsOneWidget);
-      expect(find.text('Tournament'), findsOneWidget);
     });
 
-    testWidgets('renders the four mode icons', (tester) async {
+    testWidgets('renders the three mode icons', (tester) async {
       await tester.pumpWidget(_host());
 
       expect(find.byIcon(Icons.person), findsOneWidget);
       expect(find.byIcon(Icons.people), findsOneWidget);
       expect(find.byIcon(Icons.groups), findsOneWidget);
-      expect(find.byIcon(Icons.emoji_events), findsOneWidget);
     });
 
     group('responsive', () {
@@ -117,14 +115,6 @@ void main() {
           expect(_getPage(tester).mode, MatchMode.threePlayer);
         },
       );
-
-      testWidgets('tapping Tournament does not navigate', (tester) async {
-        await tester.pumpWidget(_host());
-        await _tapCard(tester, 'Tournament');
-
-        expect(find.byType(MatchSetupPage), findsNothing);
-        expect(find.byType(HomePage), findsOneWidget);
-      });
     });
   });
 }
