@@ -45,8 +45,6 @@ test/
 ## Composition
 
 - `MaterialApp` with the light theme; no router or named routes.
-- Text scale is one `MediaQuery` override in `app.dart`; system scale is
-  intentionally ignored.
 - Targets all Flutter platforms. No platform-specific branches, conditional
   imports, or `dart:io`.
 
