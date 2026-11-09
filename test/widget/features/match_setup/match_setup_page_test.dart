@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/app.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
@@ -17,8 +18,10 @@ const p2 = 'Shane Van Boening';
 
 Future<void> _pumpSetupPage(WidgetTester tester, MatchMode mode) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: MatchSetupPage(mode: mode),
+    AppProviders(
+      child: MaterialApp(
+        home: MatchSetupPage(mode: mode),
+      ),
     ),
   );
 }
@@ -28,15 +31,17 @@ Future<void> _pumpStackedSetupPage(
   MatchMode mode,
 ) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: Builder(
-        builder: (context) => ElevatedButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => MatchSetupPage(mode: mode),
+    AppProviders(
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => MatchSetupPage(mode: mode),
+              ),
             ),
+            child: const Text('open'),
           ),
-          child: const Text('open'),
         ),
       ),
     ),

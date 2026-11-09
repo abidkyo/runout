@@ -22,13 +22,8 @@ class MatchSetupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<PlayerRepository>(create: (_) => PlayerRepository()),
-        ChangeNotifierProvider(
-          create: (_) => MatchSetupNotifier(mode: mode),
-        ),
-      ],
+    return ChangeNotifierProvider(
+      create: (_) => MatchSetupNotifier(mode: mode),
       child: _MatchSetupView(mode: mode),
     );
   }
