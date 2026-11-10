@@ -37,7 +37,9 @@ class HomeContent extends StatelessWidget {
       padding: EdgeInsets.all(padding),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
+          constraints: const BoxConstraints(
+            maxWidth: LayoutBreakpoints.contentMax,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 32,

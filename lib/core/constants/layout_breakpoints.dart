@@ -7,4 +7,7 @@ class LayoutBreakpoints {
 
   /// Below this width, wide side-by-side layouts stack vertically.
   static const double wide = 800;
+
+  /// Maximum width for page content on large screens.
+  static const double contentMax = 1200;
 }
