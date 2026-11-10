@@ -18,7 +18,6 @@ extension AppTextTheme on TextTheme {
       titleLarge!.copyWith(fontWeight: FontWeight.w500);
 
   TextStyle get screenTitle => titleLargeSolid;
-  TextStyle get modeTitle => titleLargeSolid;
 
   TextStyle get appTitle => titleLarge!.copyWith(
     fontWeight: FontWeight.bold,

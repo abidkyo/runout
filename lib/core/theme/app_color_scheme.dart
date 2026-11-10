@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 /// transitively.
 extension AppColorScheme on ColorScheme {
   Color get screenTitle => primary;
-  Color get modeIcon => primary;
 
   Color get appTitle => primary;
   Color get appSubtitle => onSurfaceVariant;
