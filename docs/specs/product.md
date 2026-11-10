@@ -32,7 +32,7 @@ Next:
 
 1. Persistence (local DB).
 2. Manager app, then sync (WebSocket likely).
-3. Player list.
+3. Player page.
 4. Tournament page.
 
 ## Open questions
@@ -40,8 +40,6 @@ Next:
 - Deliberate/serious fouls in straight pool (15-point penalty, referee
   discretion).
 - Persistence choice (Drift, Isar, or similar).
-- Home currently enters Singles only; doubles and three-player need a mode
-  picker.
 - History detail, delete, and export.
 - Player profile editing (rename, delete, country/club).
 - Language and localization scope.

@@ -4,8 +4,7 @@
 
 - The home shell uses a compact AppBar with the app name and slogan, plus a
   bottom `NavigationBar`; wide layouts use a sidebar.
-- The hero is the primary action. New Match opens Singles setup; doubles and
-  three-player are not reachable from Home yet.
+- The hero is the primary action. New Match opens setup in Singles mode.
 - In-progress matches are listed under “Continue Matches”; the section is
   hidden entirely when none are playing.
 - Recent finished matches are capped at 10. “See all” switches to the Matches
@@ -25,6 +24,12 @@
 
 ## Match Setup
 
+- Setup is a single scrolling panel: an in-page “New Match” header, one setup
+  card, and pinned bottom actions. Page content is capped at
+  `LayoutBreakpoints.contentMax` (1200).
+- Home opens setup in Singles mode; mode is selectable in-page. Changing mode keeps
+  players in slots that still exist and drops removed slots.
+- Player slots have player/team labels on top and open the picker on tap.
 - Duplicate players are allowed in the picker and rejected by validation at
   start: keep the picker simple, block the real mistake at the last gate.
 - Search matches names only. Club is a separate filter; the row's country code
@@ -32,10 +37,10 @@
 - Switching game type resets straight-pool defaults (`raceTo`, break format)
   and does not restore previous values.
 - Break format is hidden, not disabled, for straight pool; innings is shown
-  only for straight pool.
+  only for straight pool. Hidden sections collapse.
 - There is no doubles special case; sides follow the compact breakpoint.
-- Breakpoints measure `LayoutBuilder` constraints, so outer padding shifts the
-  viewport width at which they fire.
+- Setup stays usable at 375px and at 1.5×/2× text scale; the stepper
+  and bottom actions wrap instead of clipping.
 
 ## Match
 
