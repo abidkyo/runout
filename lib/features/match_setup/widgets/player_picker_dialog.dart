@@ -150,6 +150,7 @@ class _SearchField extends StatelessWidget {
     return TextField(
       key: const ValueKey('player-search'),
       controller: controller,
+      textCapitalization: TextCapitalization.words,
       style: context.textTheme.fieldText,
       decoration: const InputDecoration(
         hintText: 'Search',

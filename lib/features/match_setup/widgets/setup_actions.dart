@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 
-/// Start / Cancel action row at the bottom of the setup page.
+/// Start / Cancel action bar at the bottom of the setup page.
 class SetupActions extends StatelessWidget {
   const new({required this.onStart, required this.onCancel, super.key});
 
@@ -9,34 +11,47 @@ class SetupActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          OutlinedButton(
-            onPressed: onCancel,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 16,
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: context.colors.outlineVariant),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: LayoutBreakpoints.contentMax,
             ),
-            child: const Text('Cancel'),
-          ),
-          const SizedBox(width: 16),
-          FilledButton.icon(
-            onPressed: onStart,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 16,
-              ),
+            child: OverflowBar(
+              alignment: MainAxisAlignment.end,
+              overflowAlignment: OverflowBarAlignment.end,
+              spacing: 12,
+              overflowSpacing: 8,
+              children: [
+                OutlinedButton(
+                  onPressed: onCancel,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    textStyle: context.textTheme.titleMedium,
+                  ),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton.icon(
+                  onPressed: onStart,
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    textStyle: context.textTheme.titleMedium,
+                  ),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Start Match'),
+                ),
+              ],
             ),
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Start Match'),
           ),
-        ],
+        ),
       ),
     );
   }

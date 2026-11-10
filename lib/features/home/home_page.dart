@@ -5,7 +5,6 @@ import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
-import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/widgets/home_content.dart';
@@ -40,7 +39,7 @@ class _HomeShellState extends State<_HomeShell> {
   void _openNewMatch(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const MatchSetupPage(mode: MatchMode.singles),
+        builder: (_) => const MatchSetupPage(),
       ),
     );
   }

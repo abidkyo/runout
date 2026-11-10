@@ -14,7 +14,7 @@ void main() {
     testWidgets('start button shows the play arrow icon', (tester) async {
       await tester.pumpWidget(_host());
 
-      expect(find.byIcon(Icons.play_arrow), findsOneWidget);
+      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
     });
   });
 
@@ -55,6 +55,24 @@ void main() {
 
       expect(startCalls, 1);
       expect(cancelCalls, 0);
+    });
+  });
+
+  group('SetupActions — dynamic type', () {
+    testWidgets('stacks without overflow at 320px and 2x text scale', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(
+        tester.platformDispatcher.clearTextScaleFactorTestValue,
+      );
+
+      await tester.pumpWidget(_host());
+
+      expect(tester.takeException(), isNull);
     });
   });
 }

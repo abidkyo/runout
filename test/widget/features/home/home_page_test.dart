@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:runout/core/constants/app_strings.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
-import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/home_page.dart';
@@ -95,17 +94,14 @@ void main() {
   });
 
   group('navigation', () {
-    testWidgets('new match opens singles setup', (tester) async {
+    testWidgets('new match opens match setup page', (tester) async {
       _setSize(tester, const Size(1200, 900));
       await tester.pumpWidget(_host());
 
       await tester.tap(find.text('New Match'));
       await tester.pumpAndSettle();
 
-      final page = tester.widget<MatchSetupPage>(
-        find.byType(MatchSetupPage),
-      );
-      expect(page.mode, MatchMode.singles);
+      expect(find.byType(MatchSetupPage), findsOneWidget);
     });
 
     testWidgets('continue opens the match page', (tester) async {

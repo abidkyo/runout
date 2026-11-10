@@ -1,18 +1,15 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
-/// A wide numeric stepper with ±1 and ±10 controls and long-press repeat.
+/// A numeric stepper with ±1 and ±10 controls and long-press repeat.
 class NumberStepper extends StatefulWidget {
   const new({
     required this.value,
     required this.onChanged,
     required this.min,
     required this.max,
-    this.leadingLabel,
-    this.trailingLabel,
     super.key,
   });
 
@@ -20,8 +17,6 @@ class NumberStepper extends StatefulWidget {
   final ValueChanged<int> onChanged;
   final int min;
   final int max;
-  final String? leadingLabel;
-  final String? trailingLabel;
 
   @override
   State<NumberStepper> createState() => _NumberStepperState();
@@ -65,57 +60,84 @@ class _NumberStepperState extends State<NumberStepper> {
     final canDecrease = widget.value > widget.min;
     final canIncrease = widget.value < widget.max;
 
-    final labels = [
-      if (widget.leadingLabel != null) widget.leadingLabel!,
+    final valueText = Text(
       '${widget.value}',
-      if (widget.trailingLabel != null) widget.trailingLabel!,
-    ];
-
-    return SizedBox(
-      height: 44,
-      width: 360,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _StepButton(
-            icon: Icons.keyboard_double_arrow_left,
-            enabled: canDecrease,
-            onTap: () => _apply(-10),
-            onLongPressStart: () => _startRepeat(-10),
-            onLongPressEnd: _cancelTimer,
-          ),
-          _StepButton(
-            icon: Icons.remove,
-            enabled: canDecrease,
-            onTap: () => _apply(-1),
-            onLongPressStart: () => _startRepeat(-1),
-            onLongPressEnd: _cancelTimer,
-          ),
-          SizedBox(
-            width: 150,
-            child: Text(
-              labels.join(' '),
-              textAlign: TextAlign.center,
-              style: context.textTheme.stepperValue,
-            ),
-          ),
-          _StepButton(
-            icon: Icons.add,
-            enabled: canIncrease,
-            onTap: () => _apply(1),
-            onLongPressStart: () => _startRepeat(1),
-            onLongPressEnd: _cancelTimer,
-          ),
-          _StepButton(
-            icon: Icons.keyboard_double_arrow_right,
-            enabled: canIncrease,
-            onTap: () => _apply(10),
-            onLongPressStart: () => _startRepeat(10),
-            onLongPressEnd: _cancelTimer,
-          ),
-        ],
+      style: context.textTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
+      textAlign: TextAlign.center,
+      maxLines: 1,
+    );
+    final decreaseTen = _StepButton(
+      label: '-10',
+      enabled: canDecrease,
+      onTap: () => _apply(-10),
+      onLongPressStart: () => _startRepeat(-10),
+      onLongPressEnd: _cancelTimer,
+    );
+    final decreaseOne = _StepButton(
+      label: '-1',
+      enabled: canDecrease,
+      onTap: () => _apply(-1),
+      onLongPressStart: () => _startRepeat(-1),
+      onLongPressEnd: _cancelTimer,
+    );
+    final increaseOne = _StepButton(
+      label: '+1',
+      enabled: canIncrease,
+      onTap: () => _apply(1),
+      onLongPressStart: () => _startRepeat(1),
+      onLongPressEnd: _cancelTimer,
+    );
+    final increaseTen = _StepButton(
+      label: '+10',
+      enabled: canIncrease,
+      onTap: () => _apply(10),
+      onLongPressStart: () => _startRepeat(10),
+      onLongPressEnd: _cancelTimer,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 350;
+
+        if (isNarrow) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              valueText,
+              Column(
+                spacing: 8,
+                children: [
+                  Row(
+                    spacing: 8,
+                    children: [decreaseOne, increaseOne],
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [decreaseTen, increaseTen],
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Row(
+              spacing: 8,
+              children: [decreaseTen, decreaseOne],
+            ),
+            Expanded(child: valueText),
+            Row(
+              spacing: 8,
+              children: [increaseOne, increaseTen],
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -123,14 +145,14 @@ class _NumberStepperState extends State<NumberStepper> {
 /// A single stepper button, disabled when [enabled] is false.
 class _StepButton extends StatelessWidget {
   const new({
-    required this.icon,
+    required this.label,
     required this.enabled,
     required this.onTap,
     required this.onLongPressStart,
     required this.onLongPressEnd,
   });
 
-  final IconData icon;
+  final String label;
   final bool enabled;
   final VoidCallback onTap;
   final VoidCallback onLongPressStart;
@@ -138,28 +160,39 @@ class _StepButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final iconColor = enabled
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurface.withValues(alpha: 0.38);
+    final colors = context.colors;
 
-    final borderColor = enabled
-        ? theme.colorScheme.outline
-        : theme.colorScheme.outline.withValues(alpha: 0.38);
+    final foreground = enabled
+        ? colors.onSecondaryContainer
+        : colors.onSurface.withValues(alpha: 0.38);
 
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: borderColor),
-      ),
+    final background = enabled
+        ? colors.secondaryContainer
+        : colors.surfaceContainerHighest;
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: enabled ? onTap : null,
         onLongPress: enabled ? onLongPressStart : null,
         onLongPressUp: enabled ? onLongPressEnd : null,
-        customBorder: const CircleBorder(),
-        child: Icon(icon, color: iconColor, size: 24),
+        child: SizedBox(
+          width: 60,
+          height: 48,
+          child: Center(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

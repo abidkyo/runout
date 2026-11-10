@@ -13,7 +13,7 @@ enum MatchMode {
   String get displayName => switch (this) {
     .singles => 'Singles',
     .doubles => 'Doubles',
-    .threePlayer => 'Three Players',
+    .threePlayer => '3 Players',
   };
 
   /// Number of sides in a match of this mode.

@@ -54,10 +54,6 @@ extension AppTextTheme on TextTheme {
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 
-  TextStyle get stepperValue => titleMedium!.copyWith(
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
-
   TextStyle get timer => bodyLarge!.copyWith(
     fontFeatures: const [FontFeature.tabularFigures()],
   );

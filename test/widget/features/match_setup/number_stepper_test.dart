@@ -3,89 +3,55 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 
 void main() {
-  group('NumberStepper — label rendering', () {
-    testWidgets('renders the value alone when both labels are null', (
-      tester,
-    ) async {
+  group('NumberStepper — rendering', () {
+    testWidgets('renders the value', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
       expect(find.text('5'), findsOneWidget);
     });
 
-    testWidgets('renders leadingLabel before the value', (tester) async {
-      await tester.pumpWidget(
-        _host(value: 5, min: 1, max: 99, leadingLabel: 'Race to'),
-      );
-
-      expect(find.text('Race to 5'), findsOneWidget);
-    });
-
-    testWidgets('renders trailingLabel after the value', (tester) async {
-      await tester.pumpWidget(
-        _host(value: 25, min: 1, max: 99, trailingLabel: 'innings'),
-      );
-
-      expect(find.text('25 innings'), findsOneWidget);
-    });
-
-    testWidgets('renders both labels around the value', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          value: 5,
-          min: 1,
-          max: 99,
-          leadingLabel: 'Race to',
-          trailingLabel: 'racks',
-        ),
-      );
-
-      expect(find.text('Race to 5 racks'), findsOneWidget);
-    });
-  });
-
-  group('NumberStepper — icons', () {
-    testWidgets('renders the four step icons', (tester) async {
+    testWidgets('renders all four step buttons', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      expect(find.byIcon(Icons.remove), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_double_arrow_left), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_double_arrow_right), findsOneWidget);
+      expect(find.text('-10'), findsOneWidget);
+      expect(find.text('-1'), findsOneWidget);
+      expect(find.text('+1'), findsOneWidget);
+      expect(find.text('+10'), findsOneWidget);
     });
   });
 
   group('NumberStepper — tap', () {
-    testWidgets('tapping + emits value + 1', (tester) async {
+    testWidgets('tapping +1 emits value + 1', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.text('+1'));
       await tester.pump();
 
       expect(find.text('6'), findsOneWidget);
     });
 
-    testWidgets('tapping − emits value - 1', (tester) async {
+    testWidgets('tapping -1 emits value - 1', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.text('-1'));
       await tester.pump();
 
       expect(find.text('4'), findsOneWidget);
     });
 
-    testWidgets('tapping ++ emits value + 10', (tester) async {
+    testWidgets('tapping +10 emits value + 10', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.text('+10'));
       await tester.pump();
 
       expect(find.text('15'), findsOneWidget);
     });
 
-    testWidgets('tapping −− emits value - 10', (tester) async {
+    testWidgets('tapping -10 emits value - 10', (tester) async {
       await tester.pumpWidget(_host(value: 25, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.tap(find.text('-10'));
       await tester.pump();
 
       expect(find.text('15'), findsOneWidget);
@@ -93,47 +59,47 @@ void main() {
   });
 
   group('NumberStepper — bounds', () {
-    testWidgets('at min, both decrement buttons are disabled', (tester) async {
+    testWidgets('at min, decrement buttons are disabled', (tester) async {
       final calls = <int>[];
       await tester.pumpWidget(
         _host(value: 1, min: 1, max: 99, onChanged: calls.add),
       );
 
-      await tester.tap(find.byIcon(Icons.remove));
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.tap(find.text('-1'));
+      await tester.tap(find.text('-10'));
       await tester.pump();
 
       expect(calls, isEmpty);
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('at max, both increment buttons are disabled', (tester) async {
+    testWidgets('at max, increment buttons are disabled', (tester) async {
       final calls = <int>[];
       await tester.pumpWidget(
         _host(value: 99, min: 1, max: 99, onChanged: calls.add),
       );
 
-      await tester.tap(find.byIcon(Icons.add));
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.text('+1'));
+      await tester.tap(find.text('+10'));
       await tester.pump();
 
       expect(calls, isEmpty);
       expect(find.text('99'), findsOneWidget);
     });
 
-    testWidgets('++ clamps to max instead of overshooting', (tester) async {
+    testWidgets('+10 clamps to max instead of overshooting', (tester) async {
       await tester.pumpWidget(_host(value: 95, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.text('+10'));
       await tester.pump();
 
       expect(find.text('99'), findsOneWidget);
     });
 
-    testWidgets('−− clamps to min instead of overshooting', (tester) async {
+    testWidgets('-10 clamps to min instead of overshooting', (tester) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.tap(find.text('-10'));
       await tester.pump();
 
       expect(find.text('1'), findsOneWidget);
@@ -141,13 +107,13 @@ void main() {
   });
 
   group('NumberStepper — long-press repeat', () {
-    testWidgets('holding + fires once immediately and repeats on the timer', (
+    testWidgets('holding +1 fires once immediately and repeats on the timer', (
       tester,
     ) async {
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
       final gesture = await tester.startGesture(
-        tester.getCenter(find.byIcon(Icons.add)),
+        tester.getCenter(find.text('+1')),
       );
       // Advance past the long-press threshold so onLongPressStart fires.
       await tester.pump(const Duration(milliseconds: 600));
@@ -168,29 +134,78 @@ void main() {
     });
   });
 
-  group('NumberStepper — icon centering', () {
-    testWidgets('the + icon is centered in its 44×44 button', (tester) async {
+  group('NumberStepper — layout', () {
+    testWidgets('narrow width puts the step pairs beside the value', (
+      tester,
+    ) async {
+      _setWidth(tester, 349);
       await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
 
-      final iconRect = tester.getRect(find.byIcon(Icons.add));
-      // The button is the nearest Container ancestor of the icon.
-      final buttonRect = tester.getRect(
-        find.ancestor(
-          of: find.byIcon(Icons.add),
-          matching: find.byType(Container),
-        ),
-      );
+      final value = tester.getCenter(find.text('5'));
+      final minusOne = tester.getCenter(find.text('-1'));
+      final plusOne = tester.getCenter(find.text('+1'));
+      final minusTen = tester.getCenter(find.text('-10'));
+      final plusTen = tester.getCenter(find.text('+10'));
 
-      expect(buttonRect.size, const Size(44, 44));
-      expect(
-        iconRect.center,
-        offsetMoreOrLessEquals(buttonRect.center, epsilon: 0.5),
-      );
+      expect(minusOne.dy, plusOne.dy);
+      expect(minusTen.dy, plusTen.dy);
+      expect(minusTen.dy, greaterThan(minusOne.dy));
+      expect(value.dx, lessThan(minusOne.dx));
+    });
+
+    testWidgets('wide width puts the value between the step pairs', (
+      tester,
+    ) async {
+      _setWidth(tester, 350);
+      await tester.pumpWidget(_host(value: 5, min: 1, max: 99));
+
+      final value = tester.getCenter(find.text('5'));
+      final minusTen = tester.getCenter(find.text('-10'));
+      final plusOne = tester.getCenter(find.text('+1'));
+
+      expect(minusTen.dx, lessThan(value.dx));
+      expect(value.dx, lessThan(plusOne.dx));
+      expect(minusTen.dy, value.dy);
+    });
+  });
+
+  group('NumberStepper — dynamic type', () {
+    testWidgets('narrow layout does not overflow at 2x text scale', (
+      tester,
+    ) async {
+      _setWidth(tester, 300);
+      _setTextScale(tester, 2);
+
+      await tester.pumpWidget(_host(value: 999, min: 1, max: 999));
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('wide layout does not overflow at 2x text scale', (
+      tester,
+    ) async {
+      _setWidth(tester, 500);
+      _setTextScale(tester, 2);
+
+      await tester.pumpWidget(_host(value: 999, min: 1, max: 999));
+
+      expect(tester.takeException(), isNull);
     });
   });
 }
 
 // ---------------------------------------------------------------------------
+
+void _setWidth(WidgetTester tester, double width) {
+  tester.view.physicalSize = Size(width, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
+
+void _setTextScale(WidgetTester tester, double scale) {
+  tester.platformDispatcher.textScaleFactorTestValue = scale;
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+}
 
 /// A stateful host that owns the value, so taps round-trip through [onChanged]
 /// and the rendered label reflects the new value.
@@ -198,8 +213,6 @@ Widget _host({
   required int value,
   required int min,
   required int max,
-  String? leadingLabel,
-  String? trailingLabel,
   ValueChanged<int>? onChanged,
 }) {
   return MaterialApp(
@@ -208,8 +221,6 @@ Widget _host({
         initialValue: value,
         min: min,
         max: max,
-        leadingLabel: leadingLabel,
-        trailingLabel: trailingLabel,
         onChanged: onChanged,
       ),
     ),
@@ -221,16 +232,12 @@ class _StepperHost extends StatefulWidget {
     required this.initialValue,
     required this.min,
     required this.max,
-    this.leadingLabel,
-    this.trailingLabel,
     this.onChanged,
   });
 
   final int initialValue;
   final int min;
   final int max;
-  final String? leadingLabel;
-  final String? trailingLabel;
   final ValueChanged<int>? onChanged;
 
   @override
@@ -246,8 +253,6 @@ class _StepperHostState extends State<_StepperHost> {
       value: _value,
       min: widget.min,
       max: widget.max,
-      leadingLabel: widget.leadingLabel,
-      trailingLabel: widget.trailingLabel,
       onChanged: (next) {
         widget.onChanged?.call(next);
         setState(() => _value = next);
