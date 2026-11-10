@@ -1,5 +1,28 @@
 # UI/UX
 
+## Home
+
+- The home shell uses a compact AppBar with the app name and slogan, plus a
+  bottom `NavigationBar`; wide layouts use a sidebar.
+- The hero is the primary action. New Match opens Singles setup; doubles and
+  three-player are not reachable from Home yet.
+- In-progress matches are listed under “Continue Matches”; the section is
+  hidden entirely when none are playing.
+- Recent finished matches are capped at 10. “See all” switches to the Matches
+  tab.
+- Cards show the match date; created matches show “Not started”. Deleting a
+  match is deferred to the future `MatchDetailPage`.
+- Players and Settings are placeholder tabs until their features land.
+- Home and Match History avoid fixed heights. Layouts stay usable at 1.5× and
+  2× text scale; the compact AppBar grows with the text scale and cards avoid
+  fixed trailing widths.
+
+## Match History
+
+- The Matches tab lists finished matches only, newest first.
+- History cards are display-only; there is no detail page yet.
+- An empty history shows a single empty state.
+
 ## Match Setup
 
 - Duplicate players are allowed in the picker and rejected by validation at

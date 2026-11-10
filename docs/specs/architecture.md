@@ -15,6 +15,7 @@ lib/
 │   ├── enums/
 │   └── models/
 ├── features/
+│   ├── history/
 │   ├── home/
 │   ├── manager_link/
 │   ├── match/
@@ -39,23 +40,31 @@ test/
 
 - Public widgets live in `features/<feature>/widgets/`; pages and notifiers
   stay at the feature root.
-- Pages are thin: create providers, route, and delegate layout.
+- Pages are thin: create page-level notifiers when needed, route, and delegate
+  layout.
 - One-off subwidgets stay private in the using file.
 
 ## Composition
 
+- `RunoutApp` provides the in-memory `PlayerRepository` and `MatchRepository`
+  once at the root through `AppProviders`.
+- The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
+  sidebar.
 - `MaterialApp` with the light theme; no router or named routes.
 - Targets all Flutter platforms. No platform-specific branches, conditional
   imports, or `dart:io`.
 
 ## State and data
 
-- Provider only, no global state. Notifiers are `ChangeNotifier`; providers
-  are created at page level.
+- Provider only, no global state. Feature notifiers are `ChangeNotifier`;
+  providers are created at page level.
+- Home reads `MatchRepository` directly; `getFinished(limit:)` supplies the
+  recent cap. Repository delete/restore remain for the future `MatchDetailPage`.
 - Use `context.watch` to rebuild, `context.read` for actions,
   `Consumer`/`Selector` for partial rebuilds.
 - Undo/redo stores immutable `Match` snapshots in two stacks.
-- `PlayerRepository` is in-memory only. No DB, network, or serialization yet.
+- `PlayerRepository` and `MatchRepository` are in-memory only. No DB, network,
+  or serialization yet.
 - Offline-first is the intended direction; the repository layer will hide
   local/remote later. Don't add persistence ad hoc.
 - IDs use UUID v7.

@@ -22,38 +22,43 @@ Order inside a file:
 - `context.textTheme` / `context.colors` come from `theme_extension.dart`.
 - Custom text styles are defined in `AppTextTheme`.
 - Colors used are defined in `AppColorScheme`.
+- Use Material text roles; avoid hardcoded font sizes. Score digits use
+  tabular figures.
 
 ## Naming
 
-| Thing | Form |
-| --- | --- |
-| Notifier | `XNotifier` |
-| Private widget | `_WidgetName` in the same file |
-| Public widget | own file in `widgets/` |
-| Dialog | `XDialog` in `widgets/` (shared → `shared/widgets/`) |
-| Constant / enum value | `lowerCamelCase` |
-| Boolean | `isX`, `hasX`, `canX` |
-| Test file | `<subject>_test.dart` |
+| Thing                 | Form                                                 |
+| --------------------- | ---------------------------------------------------- |
+| Notifier              | `XNotifier`                                          |
+| Private widget        | `_WidgetName` in the same file                       |
+| Public widget         | own file in `widgets/`                               |
+| Dialog                | `XDialog` in `widgets/` (shared → `shared/widgets/`) |
+| Constant / enum value | `lowerCamelCase`                                     |
+| Boolean               | `isX`, `hasX`, `canX`                                |
+| Test file             | `<subject>_test.dart`                                |
 
 ## Widgets and layout
 
 - Never return a widget from a method; extract a widget class.
+- Avoid fixed heights for text-bearing surfaces. Layouts must survive 1.5×
+  and 2× text scale without overflow; let content size itself or scroll.
 
 ## Errors
 
 Choose by reachability:
 
-| Mechanism | Use for | Example |
-| --- | --- | --- |
-| `StateError` | reachable by a correct program | `buildMatch()` with empty players |
-| `assert` + early return | only incorrect code can produce it | bad index, negative points |
-| silent early return | normal precondition not met | `incrementScore` while not playing |
+| Mechanism               | Use for                            | Example                            |
+| ----------------------- | ---------------------------------- | ---------------------------------- |
+| `StateError`            | reachable by a correct program     | `buildMatch()` with empty players  |
+| `assert` + early return | only incorrect code can produce it | bad index, negative points         |
+| silent early return     | normal precondition not met        | `incrementScore` while not playing |
 
 Never throw in release paths; tests verify asserts, not release returns.
 
 ## Feedback
 
 - Use `showAppSnackBar` for one-off messages.
+- `showAppSnackBar` shows the close icon only when no action is supplied.
 - Dialog-local failures stay inline. A snackbar behind a modal barrier is
   invisible.
 

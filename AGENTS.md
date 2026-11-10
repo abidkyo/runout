@@ -13,13 +13,13 @@ Maintain compatibility with Android, iOS, Linux, macOS, and Windows.
 - Don't read `lib/` end to end. Use glob/grep to locate relevant files.
 - Keep responses concise. No preamble, recap, or code unless requested.
 
-| Task | Read |
-|---|---|
-| Scope, status, roadmap | `docs/specs/product.md` |
+| Task                                  | Read                         |
+| ------------------------------------- | ---------------------------- |
+| Scope, status, roadmap                | `docs/specs/product.md`      |
 | Layers, folders, providers, app shell | `docs/specs/architecture.md` |
-| Domain rules and scoring | `docs/specs/domain.md` |
-| Setup and match UI/UX | `docs/specs/ui.md` |
-| Naming, errors, tests | `docs/specs/conventions.md` |
+| Domain rules and scoring              | `docs/specs/domain.md`       |
+| Setup and match UI/UX                 | `docs/specs/ui.md`           |
+| Naming, errors, tests                 | `docs/specs/conventions.md`  |
 
 For changes spanning multiple areas, read only the relevant specifications.
 
@@ -34,7 +34,8 @@ For changes spanning multiple areas, read only the relevant specifications.
   - `shared/` → `core/`, `domain/`
   - Never import `features/` from `data/` or `shared/`.
 - Use Provider exclusively for state management. No Riverpod or Bloc.
-- Notifiers extend `ChangeNotifier`. Register providers at feature level.
+- Notifiers extend `ChangeNotifier`. Feature notifiers use page-level
+  providers; app repositories are provided once at the root via `AppProviders`.
 - Use `context.watch`, `context.read`, `Consumer`, or `Selector`.
 - Extract reusable widgets into widget classes. Don't return widgets from methods.
 - Keep feature widgets under `features/<feature>/widgets/`.
