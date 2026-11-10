@@ -20,6 +20,12 @@ extension AppTextTheme on TextTheme {
   TextStyle get screenTitle => titleLargeSolid;
   TextStyle get modeTitle => titleLargeSolid;
 
+  TextStyle get appTitle => titleLarge!.copyWith(
+    fontWeight: FontWeight.bold,
+    letterSpacing: 1.5,
+  );
+  TextStyle get appSubtitle => labelMedium!;
+
   TextStyle get dialogTitle => titleLargeSolid;
   TextStyle get dialogBody => bodyLarge!;
 

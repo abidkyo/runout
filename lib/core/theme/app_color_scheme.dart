@@ -8,6 +8,9 @@ extension AppColorScheme on ColorScheme {
   Color get screenTitle => primary;
   Color get modeIcon => primary;
 
+  Color get appTitle => primary;
+  Color get appSubtitle => onSurfaceVariant;
+
   Color get prompt => primary;
 
   Color get playerName => tertiary;
