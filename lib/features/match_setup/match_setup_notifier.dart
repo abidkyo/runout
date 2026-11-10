@@ -12,20 +12,17 @@ import 'package:uuid/uuid.dart';
 
 /// Holds the in-progress configuration for a match setup.
 class MatchSetupNotifier extends ChangeNotifier {
-  new({required MatchMode mode})
+  new({MatchMode mode = MatchMode.singles})
     : _mode = mode,
-      _players = List.generate(
-        mode.sideCount,
-        (_) => List<Player?>.filled(mode.playersPerSide, null),
-      );
+      _players = _emptyPlayers(mode);
 
-  final MatchMode _mode;
+  MatchMode _mode;
 
   GameType _gameType = GameType.eightBall;
   BreakFormat _breakFormat = BreakFormat.winnerBreak;
   int _raceTo = MatchDefaults.raceTo;
   int _innings = MatchDefaults.inningsLimit;
-  final List<List<Player?>> _players;
+  List<List<Player?>> _players;
 
   MatchMode get mode => _mode;
   GameType get gameType => _gameType;
@@ -35,6 +32,24 @@ class MatchSetupNotifier extends ChangeNotifier {
 
   /// Players per side. Outer list = sides, inner list = slots.
   List<List<Player?>> get players => _players;
+
+  set mode(MatchMode value) {
+    if (_mode == value) return;
+    _mode = value;
+
+    final previous = _players;
+    _players = List.generate(value.sideCount, (sideIndex) {
+      return List<Player?>.generate(value.playersPerSide, (slotIndex) {
+        if (sideIndex >= previous.length) return null;
+
+        final side = previous[sideIndex];
+        if (slotIndex >= side.length) return null;
+
+        return side[slotIndex];
+      });
+    });
+    notifyListeners();
+  }
 
   set gameType(GameType value) {
     if (_gameType == value) return;
@@ -129,6 +144,13 @@ class MatchSetupNotifier extends ChangeNotifier {
       id: const Uuid().v7(),
       config: config,
       sides: sides,
+    );
+  }
+
+  static List<List<Player?>> _emptyPlayers(MatchMode mode) {
+    return List.generate(
+      mode.sideCount,
+      (_) => List<Player?>.filled(mode.playersPerSide, null),
     );
   }
 }

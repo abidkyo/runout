@@ -11,15 +11,24 @@ import '../../helpers/factories.dart';
 void main() {
   group('initial state', () {
     test('has default settings', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       expect(n.gameType, GameType.eightBall);
       expect(n.breakFormat, BreakFormat.winnerBreak);
       expect(n.raceTo, 5);
       expect(n.innings, 25);
     });
 
+    test('defaults to singles', () {
+      final n = MatchSetupNotifier();
+
+      expect(n.mode, MatchMode.singles);
+      expect(n.players.length, 2);
+      expect(n.players[0].length, 1);
+      expect(n.players[1].length, 1);
+    });
+
     test('players grid matches mode shape (singles)', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       expect(n.players.length, 2);
       expect(n.players[0].length, 1);
       expect(n.players[1].length, 1);
@@ -44,7 +53,7 @@ void main() {
 
   group('setters', () {
     test('gameType updates and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -55,7 +64,7 @@ void main() {
     });
 
     test('gameType with same value does not notify', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -65,8 +74,7 @@ void main() {
     });
 
     test('gameType straightPool notifies once when forcing breakFormat', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..breakFormat = BreakFormat.winnerBreak;
+      final n = MatchSetupNotifier()..breakFormat = BreakFormat.winnerBreak;
       var notifyCount = 0;
       n
         ..addListener(() => notifyCount++)
@@ -76,7 +84,7 @@ void main() {
     });
 
     test('gameType straightPool forces alternateBreak', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..breakFormat = BreakFormat.winnerBreak
         ..gameType = GameType.straightPool;
 
@@ -87,7 +95,7 @@ void main() {
     test(
       'switching away from straightPool leaves breakFormat as alternate',
       () {
-        final n = MatchSetupNotifier(mode: MatchMode.singles)
+        final n = MatchSetupNotifier()
           ..gameType = GameType.straightPool
           ..gameType = GameType.eightBall;
 
@@ -96,7 +104,7 @@ void main() {
     );
 
     test('breakFormat updates and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -107,7 +115,7 @@ void main() {
     });
 
     test('raceTo updates and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -118,19 +126,17 @@ void main() {
     });
 
     test('raceTo clamps to minimum', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..raceTo = MatchLimits.minRaceTo - 1;
+      final n = MatchSetupNotifier()..raceTo = MatchLimits.minRaceTo - 1;
       expect(n.raceTo, MatchLimits.minRaceTo);
     });
 
     test('raceTo clamps to maximum', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..raceTo = MatchLimits.maxRaceTo + 1;
+      final n = MatchSetupNotifier()..raceTo = MatchLimits.maxRaceTo + 1;
       expect(n.raceTo, MatchLimits.maxRaceTo);
     });
 
     test('raceTo with same value does not notify', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -140,7 +146,7 @@ void main() {
     });
 
     test('gameType straightPool sets raceTo to 75', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..raceTo = 20
         ..gameType = GameType.straightPool;
 
@@ -148,7 +154,7 @@ void main() {
     });
 
     test('switching back to straightPool resets raceTo to 75 again', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..gameType = GameType.straightPool
         ..raceTo = 100
         ..gameType = GameType.eightBall
@@ -158,7 +164,7 @@ void main() {
     });
 
     test('switching away from straightPool resets raceTo to 5', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..gameType = GameType.straightPool
         ..gameType = GameType.eightBall;
 
@@ -166,7 +172,7 @@ void main() {
     });
 
     test('switching between non-straightPool games preserves raceTo', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..raceTo = 7
         ..gameType = GameType.nineBall
         ..gameType = GameType.tenBall;
@@ -175,7 +181,7 @@ void main() {
     });
 
     test('innings updates and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -186,19 +192,17 @@ void main() {
     });
 
     test('innings clamps to minimum', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..innings = MatchLimits.minInnings - 1;
+      final n = MatchSetupNotifier()..innings = MatchLimits.minInnings - 1;
       expect(n.innings, MatchLimits.minInnings);
     });
 
     test('innings clamps to maximum', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..innings = MatchLimits.maxInnings + 1;
+      final n = MatchSetupNotifier()..innings = MatchLimits.maxInnings + 1;
       expect(n.innings, MatchLimits.maxInnings);
     });
 
     test('innings with same value does not notify', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -208,7 +212,7 @@ void main() {
     });
 
     test('innings persists across gameType switches', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..innings = 75
         ..gameType = GameType.straightPool
         ..gameType = GameType.eightBall;
@@ -217,9 +221,98 @@ void main() {
     });
   });
 
+  group('mode', () {
+    test('updates and notifies', () {
+      final n = MatchSetupNotifier();
+      var notified = false;
+      n
+        ..addListener(() => notified = true)
+        ..mode = MatchMode.doubles;
+
+      expect(n.mode, MatchMode.doubles);
+      expect(n.players.length, 2);
+      expect(n.players[0].length, 2);
+      expect(n.players[1].length, 2);
+      expect(notified, isTrue);
+    });
+
+    test('same mode does not notify', () {
+      final n = MatchSetupNotifier();
+      var notified = false;
+      n
+        ..addListener(() => notified = true)
+        ..mode = MatchMode.singles;
+
+      expect(notified, isFalse);
+    });
+
+    test('growing to doubles preserves existing players', () {
+      final n = MatchSetupNotifier()
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..mode = MatchMode.doubles;
+
+      expect(n.players[0][0]?.id, 'p1');
+      expect(n.players[1][0]?.id, 'p2');
+      expect(n.players[0][1], isNull);
+      expect(n.players[1][1], isNull);
+    });
+
+    test('threePlayer to doubles keeps overlapping slots', () {
+      final n = MatchSetupNotifier(mode: MatchMode.threePlayer)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..setPlayer(2, 0, makePlayer('p3'))
+        ..mode = MatchMode.doubles;
+
+      expect(n.players[0][0]?.id, 'p1');
+      expect(n.players[1][0]?.id, 'p2');
+      expect(n.players[0][1], isNull);
+      expect(n.players[1][1], isNull);
+    });
+
+    test('shrinking to singles drops removed players', () {
+      final n = MatchSetupNotifier(mode: MatchMode.threePlayer)
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(1, 0, makePlayer('p2'))
+        ..setPlayer(2, 0, makePlayer('p3'))
+        ..mode = MatchMode.singles;
+
+      expect(n.players.length, 2);
+      expect(n.players[0][0]?.id, 'p1');
+      expect(n.players[1][0]?.id, 'p2');
+    });
+
+    test('doubles to singles drops second slots', () {
+      final n = MatchSetupNotifier(mode: MatchMode.doubles)
+        ..setPlayer(0, 1, makePlayer('p1'))
+        ..setPlayer(1, 1, makePlayer('p2'))
+        ..mode = MatchMode.singles;
+
+      expect(n.players[0][0], isNull);
+      expect(n.players[1][0], isNull);
+    });
+
+    test('buildMatch uses the selected mode and grid', () {
+      final n = MatchSetupNotifier()
+        ..mode = MatchMode.doubles
+        ..setPlayer(0, 0, makePlayer('p1'))
+        ..setPlayer(0, 1, makePlayer('p2'))
+        ..setPlayer(1, 0, makePlayer('p3'))
+        ..setPlayer(1, 1, makePlayer('p4'));
+
+      final m = n.buildMatch();
+
+      expect(m.config.matchMode, MatchMode.doubles);
+      expect(m.sides.length, 2);
+      expect(m.sides.every((s) => s.players.length == 2), isTrue);
+      expect(m.scores, [0, 0]);
+    });
+  });
+
   group('setPlayer', () {
     test('assigns the correct slot and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -230,8 +323,7 @@ void main() {
     });
 
     test('overwrites an existing player in the same slot', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -242,7 +334,7 @@ void main() {
     });
 
     test('ignores out-of-range side index without notifying', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -253,7 +345,7 @@ void main() {
     });
 
     test('ignores out-of-range slot index without notifying', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles);
+      final n = MatchSetupNotifier();
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -266,8 +358,7 @@ void main() {
 
   group('clearPlayer', () {
     test('clears the specified slot and notifies', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -278,8 +369,7 @@ void main() {
     });
 
     test('ignores out-of-range indexes without notifying', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -290,8 +380,7 @@ void main() {
     });
 
     test('ignores out-of-range slot with a valid side index', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -302,8 +391,7 @@ void main() {
     });
 
     test('ignores out-of-range side with a valid slot index', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
       var notified = false;
       n
         ..addListener(() => notified = true)
@@ -316,7 +404,7 @@ void main() {
 
   group('validatePlayers', () {
     test('returns null when all slots are filled with distinct players', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p2'));
 
@@ -334,8 +422,7 @@ void main() {
     });
 
     test('returns incomplete message when a slot is empty', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
 
       expect(
         n.validatePlayers(),
@@ -344,7 +431,7 @@ void main() {
     });
 
     test('returns duplicate message when the same player appears twice', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p1'));
 
@@ -395,14 +482,13 @@ void main() {
 
   group('buildMatch', () {
     test('throws StateError when validation fails', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
-        ..setPlayer(0, 0, makePlayer('p1'));
+      final n = MatchSetupNotifier()..setPlayer(0, 0, makePlayer('p1'));
 
       expect(n.buildMatch, throwsStateError);
     });
 
     test('throws StateError on duplicate players', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p1'));
 
@@ -412,7 +498,7 @@ void main() {
     test(
       'produces a Match with status created and no breaker, times, or winner',
       () {
-        final n = MatchSetupNotifier(mode: MatchMode.singles)
+        final n = MatchSetupNotifier()
           ..setPlayer(0, 0, makePlayer('p1'))
           ..setPlayer(1, 0, makePlayer('p2'));
 
@@ -426,7 +512,7 @@ void main() {
     );
 
     test('produces a Match with a unique id in each call', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p2'));
 
@@ -437,7 +523,7 @@ void main() {
     });
 
     test('produces a Match with the right config', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..gameType = GameType.eightBall
         ..breakFormat = BreakFormat.winnerBreak
         ..raceTo = 7
@@ -454,7 +540,7 @@ void main() {
     });
 
     test('produces a nine ball config with null innings', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..gameType = GameType.nineBall
         ..breakFormat = BreakFormat.alternateBreak
         ..raceTo = 7
@@ -471,7 +557,7 @@ void main() {
     });
 
     test('produces a straight pool config with innings set', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..gameType = GameType.straightPool
         ..innings = 50
         ..raceTo = 100
@@ -488,7 +574,7 @@ void main() {
     });
 
     test('produces two sides for singles', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p2'));
 
@@ -526,7 +612,7 @@ void main() {
     });
 
     test('scores start at zero for singles', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(1, 0, makePlayer('p2'));
 
@@ -536,7 +622,7 @@ void main() {
     });
 
     test('scores start at zero for doubles', () {
-      final n = MatchSetupNotifier(mode: MatchMode.singles)
+      final n = MatchSetupNotifier()
         ..setPlayer(0, 0, makePlayer('p1'))
         ..setPlayer(0, 1, makePlayer('p2'))
         ..setPlayer(1, 0, makePlayer('p3'))
