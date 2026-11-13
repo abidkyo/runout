@@ -73,44 +73,36 @@ class MatchRepository {
 
     const fsr = Player(
       id: 'p-fsr',
-      firstName: 'Francisco',
-      lastName: 'Sanchez Ruiz',
+      name: 'Francisco Sanchez Ruiz',
     );
     const svb = Player(
       id: 'p-svb',
-      firstName: 'Shane',
-      lastName: 'Van Boening',
+      name: 'Shane Van Boening',
     );
     const chris = Player(
       id: 'p-chris',
-      firstName: 'Chris',
-      lastName: 'Anderson',
+      name: 'Chris Anderson',
     );
     const michael = Player(
       id: 'p-michael',
-      firstName: 'Michael',
-      lastName: 'Brown',
+      name: 'Michael Brown',
     );
     const davidWilson = Player(
       id: 'p-david-wilson',
-      firstName: 'David',
-      lastName: 'Wilson',
+      name: 'David Wilson',
     );
-    const john = Player(id: 'p-john', firstName: 'John', lastName: 'Smith');
+    const john = Player(id: 'p-john', name: 'John Smith');
     const efren = Player(
       id: 'p-efren',
-      firstName: 'Efren',
-      lastName: 'Reyes',
+      name: 'Efren Reyes',
     );
     const ronnie = Player(
       id: 'p-ronnie',
-      firstName: 'Ronnie',
-      lastName: "O'Sullivan",
+      name: "Ronnie O'Sullivan",
     );
     const jasmin = Player(
       id: 'p-jasmin',
-      firstName: 'Jasmin',
-      lastName: 'Ouschan',
+      name: 'Jasmin Ouschan',
     );
 
     const straightPoolSingles = MatchConfig(

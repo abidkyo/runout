@@ -76,8 +76,8 @@ void main() {
       });
 
       expect(find.text('8 Ball · Singles'), findsOneWidget);
-      expect(find.text('First0 Last0'), findsOneWidget);
-      expect(find.text('First1 Last1'), findsOneWidget);
+      expect(find.text('Player-0'), findsOneWidget);
+      expect(find.text('Player-1'), findsOneWidget);
       expect(find.text('6'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
       expect(find.text('Today'), findsOneWidget);
@@ -137,9 +137,9 @@ void main() {
     testWidgets('renders every side', (tester) async {
       await tester.pumpWidget(_host(_threePlayerMatch()));
 
-      expect(find.text('Firsta Lasta'), findsOneWidget);
-      expect(find.text('Firstb Lastb'), findsOneWidget);
-      expect(find.text('Firstc Lastc'), findsOneWidget);
+      expect(find.text('Player-a'), findsOneWidget);
+      expect(find.text('Player-b'), findsOneWidget);
+      expect(find.text('Player-c'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);

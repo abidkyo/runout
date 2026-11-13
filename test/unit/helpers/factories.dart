@@ -8,8 +8,7 @@ import 'package:runout/domain/models/player.dart';
 
 Player makePlayer(String id) => Player(
   id: id,
-  firstName: 'First$id',
-  lastName: 'Last$id',
+  name: 'Player-$id',
   countryCode: 'DE',
 );
 

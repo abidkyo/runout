@@ -50,9 +50,8 @@ class _PlayerPickerDialogState extends State<PlayerPickerDialog> {
       final matchesClub = _club == null || p.clubName == _club;
       final matchesQuery =
           q.isEmpty ||
-          p.firstName.toLowerCase().contains(q) ||
-          p.lastName.toLowerCase().contains(q) ||
-          p.fullName.toLowerCase().contains(q);
+          p.name.toLowerCase().contains(q) ||
+          p.name.toLowerCase().contains(q);
       return matchesClub && matchesQuery;
     }).toList();
   }
@@ -197,7 +196,7 @@ class _PlayerRow extends StatelessWidget {
           ),
         ),
       ),
-      title: Text(player.fullName, style: context.textTheme.fieldText),
+      title: Text(player.name, style: context.textTheme.fieldText),
       onTap: () => Navigator.of(context).pop(player),
     );
   }

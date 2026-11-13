@@ -59,7 +59,7 @@ class MatchCard extends StatelessWidget {
   }
 
   String _sideName(MatchSide side) =>
-      side.players.map((player) => player.fullName).join(' & ');
+      side.players.map((player) => player.name).join(' & ');
 
   @override
   Widget build(BuildContext context) {

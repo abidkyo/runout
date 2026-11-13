@@ -10,7 +10,7 @@ void main() {
       await tester.pumpWidget(
         _host(
           _side([
-            _player(id: 'p1', firstName: 'Ada', lastName: 'Lovelace'),
+            _player(id: 'p1', name: 'Ada Lovelace'),
           ]),
         ),
       );
@@ -22,8 +22,8 @@ void main() {
       await tester.pumpWidget(
         _host(
           _side([
-            _player(id: 'p1', firstName: 'Ada', lastName: 'Lovelace'),
-            _player(id: 'p2', firstName: 'Grace', lastName: 'Hopper'),
+            _player(id: 'p1', name: 'Ada Lovelace'),
+            _player(id: 'p2', name: 'Grace Hopper'),
           ]),
         ),
       );
@@ -36,13 +36,11 @@ void main() {
 
 Player _player({
   required String id,
-  required String firstName,
-  required String lastName,
+  required String name,
   String? clubName,
 }) => Player(
   id: id,
-  firstName: firstName,
-  lastName: lastName,
+  name: name,
   clubName: clubName,
 );
 

@@ -20,7 +20,7 @@ class PlayerNameDisplay extends StatelessWidget {
       children: [
         for (var i = 0; i < side.players.length; i++)
           Text(
-            side.players[i].fullName,
+            side.players[i].name,
             style: context.textTheme.playerName.copyWith(
               color: context.colors.playerName,
               fontSize: nameSize,

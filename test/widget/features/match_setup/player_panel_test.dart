@@ -47,8 +47,7 @@ void _setWidth(WidgetTester tester, double width) {
 
 Player _john() => const Player(
   id: '1',
-  firstName: 'John',
-  lastName: 'Smith',
+  name: 'John Smith',
   countryCode: 'US',
   clubName: 'Alpha Club',
 );

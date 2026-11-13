@@ -145,7 +145,7 @@ class _PlayerDisplay extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            player.fullName,
+            player.name,
             style: context.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),

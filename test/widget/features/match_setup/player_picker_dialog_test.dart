@@ -177,7 +177,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(result, isNotNull);
-      expect(result!.fullName, 'Jane Doe');
+      expect(result!.name, 'Jane Doe');
     });
 
     testWidgets('cancel pops null', (tester) async {
@@ -244,22 +244,19 @@ Widget _host({
 List<Player> _threePlayers() => const [
   Player(
     id: '1',
-    firstName: 'John',
-    lastName: 'Smith',
+    name: 'John Smith',
     countryCode: 'US',
     clubName: 'Alpha Club',
   ),
   Player(
     id: '2',
-    firstName: 'Jane',
-    lastName: 'Doe',
+    name: 'Jane Doe',
     countryCode: 'DE',
     clubName: 'Beta Club',
   ),
   Player(
     id: '3',
-    firstName: 'Bob',
-    lastName: 'Jones',
+    name: 'Bob Jones',
     clubName: 'Alpha Club',
   ),
 ];

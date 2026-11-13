@@ -5,8 +5,7 @@ import 'package:meta/meta.dart';
 class Player {
   const new({
     required this.id,
-    required this.firstName,
-    required this.lastName,
+    required this.name,
     this.countryCode,
     this.clubName,
   });
@@ -14,18 +13,12 @@ class Player {
   /// Stable unique identifier (used for persistence and sync).
   final String id;
 
-  /// Player's first name.
-  final String firstName;
-
-  /// Player's last name.
-  final String lastName;
+  /// Player's name.
+  final String name;
 
   /// ISO 3166-1 alpha-2 country code (e.g. "US", "DE", "PH").
   final String? countryCode;
 
   /// Name of the player's club.
   final String? clubName;
-
-  /// Full name for display.
-  String get fullName => '$firstName $lastName';
 }
