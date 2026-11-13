@@ -32,8 +32,6 @@
 - Player slots have player/team labels on top and open the picker on tap.
 - Duplicate players are allowed in the picker and rejected by validation at
   start: keep the picker simple, block the real mistake at the last gate.
-- Search matches names only. Club is a separate filter; the row's country code
-  is a scanning identifier, independent of the filter.
 - Switching game type resets straight-pool defaults (`raceTo`, break format)
   and does not restore previous values.
 - Break format is hidden, not disabled, for straight pool; innings is shown

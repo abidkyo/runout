@@ -92,7 +92,12 @@ Future<void> _pickPlayer(
   await tester.tap(_slot(sideIndex, slotIndex));
   await tester.pumpAndSettle();
 
-  await tester.tap(find.text(name));
+  await tester.tap(
+    find.descendant(
+      of: find.byType(PlayerPickerDialog),
+      matching: find.text(name),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -279,10 +284,7 @@ void main() {
       await _pickPlayer(tester, 1, 0, p2);
 
       expect(
-        find.descendant(
-          of: _slot(0, 0),
-          matching: find.text('Pick player'),
-        ),
+        find.descendant(of: _slot(0, 0), matching: find.text('Select player')),
         findsOneWidget,
       );
       expect(
@@ -308,6 +310,23 @@ void main() {
       expect(find.text(p1), findsOneWidget);
     });
 
+    testWidgets('creating a player fills the slot', (tester) async {
+      await _pumpSetupPage(tester);
+
+      await tester.tap(_slot(0, 0));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('player-search')),
+        'New Player',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Add "New Player"'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PlayerPickerDialog), findsNothing);
+      expect(find.text('New Player'), findsOneWidget);
+    });
+
     testWidgets('cancelling the picker leaves the slot empty', (
       tester,
     ) async {
@@ -325,7 +344,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(PlayerPickerDialog), findsNothing);
-      expect(find.text('Pick player'), findsNWidgets(2));
+      expect(find.text('Select player'), findsNWidgets(2));
     });
   });
 
@@ -347,6 +366,20 @@ void main() {
     ) async {
       await _pumpSetupPage(tester);
       await _pickPlayer(tester, 0, 0, p1);
+
+      await tester.tap(find.text('Start Match'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(MatchPage), findsNothing);
+    });
+
+    testWidgets('shows a snackbar when filled with duplicate players', (
+      tester,
+    ) async {
+      await _pumpSetupPage(tester);
+      await _pickPlayer(tester, 0, 0, p1);
+      await _pickPlayer(tester, 1, 0, p1);
 
       await tester.tap(find.text('Start Match'));
       await tester.pumpAndSettle();

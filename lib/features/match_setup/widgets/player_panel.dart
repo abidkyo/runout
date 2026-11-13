@@ -97,7 +97,7 @@ class _SideBlock extends StatelessWidget {
 
 /// A single fillable player slot on the setup page.
 ///
-/// Shows either a chosen player or an empty "pick player" state.
+/// Shows either a chosen player or an empty state.
 class _PlayerSlot extends StatelessWidget {
   const new({
     required this.player,
@@ -174,7 +174,7 @@ class _EmptySlot extends StatelessWidget {
       children: [
         Icon(Icons.add, size: 20, color: color),
         Text(
-          'Pick player',
+          'Select player',
           style: context.textTheme.headlineSmall?.copyWith(color: color),
         ),
       ],

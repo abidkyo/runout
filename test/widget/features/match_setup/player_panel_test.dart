@@ -114,12 +114,12 @@ void main() {
   });
 
   group('PlayerPanel — slot content', () {
-    testWidgets('empty slots show the pick prompt and add icon', (
+    testWidgets('empty slots show the select prompt and add icon', (
       tester,
     ) async {
       await tester.pumpWidget(_host(notifier));
 
-      expect(find.text('Pick player'), findsNWidgets(2));
+      expect(find.text('Select player'), findsNWidgets(2));
       expect(find.byIcon(Icons.add), findsNWidgets(2));
     });
 
@@ -128,7 +128,7 @@ void main() {
       await tester.pumpWidget(_host(notifier));
 
       expect(find.text('John Smith'), findsOneWidget);
-      expect(find.text('Pick player'), findsOneWidget);
+      expect(find.text('Select player'), findsOneWidget);
     });
   });
 

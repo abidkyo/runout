@@ -39,9 +39,23 @@ class _MatchSetupView extends StatelessWidget {
     int slotIndex,
   ) async {
     final repo = context.read<PlayerRepository>();
+    List<Player> players;
+    try {
+      players = await repo.getAll();
+    } on Object catch (error) {
+      debugPrint('Failed to load players: $error');
+      if (!context.mounted) return;
+      showAppSnackBar(context, 'Could not load players.');
+      return;
+    }
+    if (!context.mounted) return;
+
     final picked = await showDialog<Player>(
       context: context,
-      builder: (_) => PlayerPickerDialog(players: repo.getAll()),
+      builder: (_) => PlayerPickerDialog(
+        players: players,
+        onCreatePlayer: repo.add,
+      ),
     );
     if (picked == null) return;
     if (!context.mounted) return;
