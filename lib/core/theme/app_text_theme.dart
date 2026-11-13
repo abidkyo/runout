@@ -29,7 +29,6 @@ extension AppTextTheme on TextTheme {
   TextStyle get dialogBody => bodyLarge!;
 
   TextStyle get playerName => titleLargeSolid;
-  TextStyle get playerClub => titleMedium!;
 
   TextStyle get prompt => titleLargeSolid;
 

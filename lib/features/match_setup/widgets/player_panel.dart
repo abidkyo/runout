@@ -1,8 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
-import 'package:runout/core/theme/app_color_scheme.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/domain/models/player.dart';
@@ -133,7 +131,7 @@ class _PlayerSlot extends StatelessWidget {
   }
 }
 
-/// Displays a chosen player, with club shown above the name.
+/// Displays a chosen player.
 class _PlayerDisplay extends StatelessWidget {
   const new({required this.player});
 
@@ -146,12 +144,6 @@ class _PlayerDisplay extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            player.clubName ?? '',
-            style: context.textTheme.playerClub.copyWith(
-              color: context.colors.playerClub,
-            ),
-          ),
           Text(
             player.fullName,
             style: context.textTheme.headlineMedium?.copyWith(

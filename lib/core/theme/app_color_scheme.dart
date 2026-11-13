@@ -13,7 +13,6 @@ extension AppColorScheme on ColorScheme {
   Color get prompt => primary;
 
   Color get playerName => tertiary;
-  Color get playerClub => secondary;
 
   Color get sidesFill => secondaryContainer;
   Color get sidesBorder => primary;

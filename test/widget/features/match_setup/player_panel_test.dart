@@ -124,11 +124,10 @@ void main() {
       expect(find.byIcon(Icons.add), findsNWidgets(2));
     });
 
-    testWidgets('filled slots show the club and player name', (tester) async {
+    testWidgets('filled slots show the player name', (tester) async {
       notifier.setPlayer(0, 0, _john());
       await tester.pumpWidget(_host(notifier));
 
-      expect(find.text('Alpha Club'), findsOneWidget);
       expect(find.text('John Smith'), findsOneWidget);
       expect(find.text('Pick player'), findsOneWidget);
     });

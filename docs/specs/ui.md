@@ -53,7 +53,5 @@
   the score as a visit-ending score.
 - The match title measures its own AppBar slot, not the window, because the
   leading/actions reduce the available width.
-- Club is shown only for the first player on a side. The club line is always
-  rendered, empty when null, to keep the name band height-stable.
 - Custom state surfaces need explicit semantics; labels describe state
   (`Winner`/`Breaking`/`Loser`) only, never content.
