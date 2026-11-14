@@ -52,6 +52,8 @@ For changes spanning multiple areas, read only the relevant specifications.
 - Notifier setters should return early when the value hasn't changed.
 - Use `clock.now()` instead of `DateTime.now()` for testability.
 - Handle empty states inside the screen displaying them.
+- Domain models use Freezed classic classes; after changing one, run
+  `dart run build_runner build`. Never edit `*.freezed.dart` by hand.
 - Avoid unnecessary abstractions and dependencies.
 - No new dependencies without asking.
 

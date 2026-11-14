@@ -17,6 +17,14 @@ Order inside a file:
 4. private subwidgets,
 5. helpers (extensions, top-level functions).
 
+## Code generation
+
+- Domain models use Freezed classic classes: a normal `const` constructor
+  with `assert(...)`, plus `part '<file>.freezed.dart'`.
+- Generated `*.freezed.dart` files are committed and excluded from analysis.
+  Never edit them by hand.
+- Run `dart run build_runner build` after changing a Freezed model.
+
 ## Theme
 
 - `context.textTheme` / `context.colors` come from `theme_extension.dart`.
