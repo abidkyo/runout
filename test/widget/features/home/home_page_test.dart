@@ -46,10 +46,10 @@ List<Match> _finishedMatches(int count) {
       makeMatch().copyWith(
         id: 'finished-$i',
         status: MatchStatus.finished,
-        scores: const [10, 5],
+        sides: [makeSide('0', score: 10), makeSide('1', score: 5)],
         startedAt: _base.add(Duration(days: i)),
         endedAt: _base.add(Duration(days: i, hours: 1)),
-        currentBreakerIndex: 0,
+        currentSideIndex: 0,
         winnerIndex: 0,
       ),
   ];

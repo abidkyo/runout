@@ -506,7 +506,7 @@ void main() {
 
         expect(m.status, MatchStatus.created);
         expect(m.startedAt, isNull);
-        expect(m.currentBreakerIndex, isNull);
+        expect(m.currentSideIndex, isNull);
         expect(m.winnerIndex, isNull);
       },
     );
@@ -534,12 +534,12 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.eightBall);
-      expect(m.config.inningsLimit, isNull);
+      expect(m.config.inningsLimit, 0);
       expect(m.config.raceTo, 7);
       expect(m.config.breakFormat, BreakFormat.winnerBreak);
     });
 
-    test('produces a nine ball config with null innings', () {
+    test('produces a nine ball config with zero innings', () {
       final n = MatchSetupNotifier()
         ..gameType = GameType.nineBall
         ..breakFormat = BreakFormat.alternateBreak
@@ -551,7 +551,7 @@ void main() {
 
       expect(m.config.matchMode, MatchMode.singles);
       expect(m.config.gameType, GameType.nineBall);
-      expect(m.config.inningsLimit, isNull);
+      expect(m.config.inningsLimit, 0);
       expect(m.config.raceTo, 7);
       expect(m.config.breakFormat, BreakFormat.alternateBreak);
     });
@@ -644,4 +644,10 @@ void main() {
       expect(m.scores, [0, 0, 0]);
     });
   });
+}
+
+// ---------------------------------------------------------------------------
+
+extension on Match {
+  List<int> get scores => sides.map((s) => s.score).toList();
 }

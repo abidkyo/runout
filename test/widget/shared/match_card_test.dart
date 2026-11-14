@@ -31,9 +31,9 @@ Widget _host(
 Match _playingMatch() {
   return makeMatch().copyWith(
     status: MatchStatus.playing,
-    scores: const [6, 4],
+    sides: [makeSide('0', score: 6), makeSide('1', score: 4)],
     startedAt: _now,
-    currentBreakerIndex: 0,
+    currentSideIndex: 0,
   );
 }
 
@@ -42,10 +42,10 @@ Match _finishedMatch({DateTime? endedAt}) {
 
   return makeMatch().copyWith(
     status: MatchStatus.finished,
-    scores: const [10, 7],
+    sides: [makeSide('0', score: 10), makeSide('1', score: 7)],
     startedAt: end.subtract(const Duration(hours: 2)),
     endedAt: end,
-    currentBreakerIndex: 0,
+    currentSideIndex: 0,
     winnerIndex: 0,
   );
 }
@@ -57,7 +57,11 @@ Match _threePlayerMatch() {
     sides: [makeSide('a'), makeSide('b'), makeSide('c')],
   ).copyWith(
     status: MatchStatus.finished,
-    scores: const [3, 2, 1],
+    sides: [
+      makeSide('a', score: 3),
+      makeSide('b', score: 2),
+      makeSide('c', score: 1),
+    ],
     startedAt: _now.subtract(const Duration(hours: 2)),
     endedAt: _now,
     winnerIndex: 0,

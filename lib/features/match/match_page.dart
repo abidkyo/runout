@@ -7,6 +7,7 @@ import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
@@ -117,7 +118,7 @@ class _ScoreArea extends StatelessWidget {
     final isFinished = match.status == MatchStatus.finished;
 
     VoidCallback? onTapFor(int i) {
-      if (isCreated) return () => notifier.selectBreaker(i);
+      if (isCreated) return () => notifier.selectStartingSide(i);
       if (isStraightPool) return null;
       if (isFinished) return null;
       return () => notifier.incrementScore(i);
@@ -128,7 +129,7 @@ class _ScoreArea extends StatelessWidget {
         final isCompact = constraints.maxWidth < LayoutBreakpoints.compact;
 
         final cards = <Widget>[
-          for (var i = 0; i < match.sides.length; i++)
+          for (final (int i, MatchSide side) in match.sides.indexed)
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -139,9 +140,9 @@ class _ScoreArea extends StatelessWidget {
                   onTap: onTapFor(i),
                   isWinner: isFinished && match.winnerIndex == i,
                   isLoser: isFinished && match.winnerIndex != i,
-                  isBreaker: isPlaying && match.currentBreakerIndex == i,
+                  isBreaker: isPlaying && match.currentSideIndex == i,
                   children: [
-                    PlayerNameDisplay(side: match.sides[i]),
+                    PlayerNameDisplay(side: side),
                     Expanded(
                       child: Center(
                         child: isCreated
@@ -154,7 +155,7 @@ class _ScoreArea extends StatelessWidget {
                               )
                             : AutoSizeText(
                                 key: const ValueKey('score-text'),
-                                '${match.scores[i]}',
+                                side.score.toString(),
                                 style: context.textTheme.score,
                                 minFontSize: AppTextTheme.scoreMinFontSize,
                                 maxLines: 1,
@@ -163,12 +164,12 @@ class _ScoreArea extends StatelessWidget {
                     ),
                     if (isStraightPool && !isCreated)
                       StraightPoolStats(
-                        innings: match.innings[i].clamp(
+                        innings: side.innings.clamp(
                           0,
                           match.effectiveInningsLimit,
                         ),
-                        highRun: match.highRuns[i],
-                        score: match.scores[i],
+                        highRun: side.highRun,
+                        score: side.score,
                       ),
                   ],
                 ),

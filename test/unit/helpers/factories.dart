@@ -12,14 +12,26 @@ Player makePlayer(String id) => Player(
   countryCode: 'DE',
 );
 
-MatchSide makeSide(String id) => MatchSide(players: [makePlayer(id)]);
+MatchSide makeSide(
+  String id, {
+  int score = 0,
+  int innings = 0,
+  int highRun = 0,
+  int consecutiveFouls = 0,
+}) => MatchSide(
+  players: [makePlayer(id)],
+  score: score,
+  innings: innings,
+  highRun: highRun,
+  consecutiveFouls: consecutiveFouls,
+);
 
 MatchConfig makeConfig({
   MatchMode matchMode = MatchMode.singles,
   GameType gameType = GameType.eightBall,
   int raceTo = 10,
   BreakFormat breakFormat = BreakFormat.alternateBreak,
-  int? inningsLimit,
+  int inningsLimit = 0,
 }) => MatchConfig(
   matchMode: matchMode,
   gameType: gameType,
@@ -31,12 +43,12 @@ MatchConfig makeConfig({
 Match makeMatch({
   MatchConfig? config,
   int sideCount = 2,
+  List<MatchSide>? sides,
 }) {
-  final sides = List.generate(sideCount, (i) => makeSide('$i'));
   return Match.create(
     id: 'match-1',
     config: config ?? makeConfig(),
-    sides: sides,
+    sides: sides ?? List.generate(sideCount, (i) => makeSide(i.toString())),
   );
 }
 

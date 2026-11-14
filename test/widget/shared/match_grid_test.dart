@@ -17,7 +17,7 @@ List<Match> _matches() {
       makeMatch().copyWith(
         id: 'match-$i',
         status: MatchStatus.finished,
-        scores: const [10, 5],
+        sides: [makeSide('0', score: 10), makeSide('1', score: 5)],
         startedAt: _base,
         endedAt: _base.add(Duration(hours: i)),
         winnerIndex: 0,

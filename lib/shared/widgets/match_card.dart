@@ -58,9 +58,6 @@ class MatchCard extends StatelessWidget {
     return '${day.day} ${_monthNames[day.month - 1]} ${day.year}';
   }
 
-  String _sideName(MatchSide side) =>
-      side.players.map((player) => player.name).join(' & ');
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -70,19 +67,21 @@ class MatchCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 16,
             children: [
               _MatchCardHeader(label: _label, date: _date),
-              const SizedBox(height: 8),
-              for (var i = 0; i < match.sides.length; i++) ...[
-                _PlayerRow(
-                  name: _sideName(match.sides[i]),
-                  score: match.scores[i],
-                  isWinner: isFinished && match.winnerIndex == i,
-                  isPlaying: isPlaying,
-                ),
-              ],
+              Column(
+                spacing: 8,
+                children: [
+                  for (final (int i, MatchSide side) in match.sides.indexed)
+                    _PlayerRow(
+                      side: side,
+                      isWinner: isFinished && match.winnerIndex == i,
+                      isPlaying: isPlaying,
+                    ),
+                ],
+              ),
               if (isPlaying) ...[
-                const SizedBox(height: 8),
                 FilledButton.tonalIcon(
                   onPressed: onTap,
                   icon: const Icon(Icons.play_arrow),
@@ -109,6 +108,7 @@ class _MatchCardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      spacing: 8,
       children: [
         Expanded(
           child: Text(
@@ -120,7 +120,6 @@ class _MatchCardHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(width: 8),
         Text(
           date,
           style: context.textTheme.bodySmall?.copyWith(
@@ -137,64 +136,60 @@ class _MatchCardHeader extends StatelessWidget {
 
 class _PlayerRow extends StatelessWidget {
   const new({
-    required this.name,
-    required this.score,
+    required this.side,
     required this.isWinner,
     required this.isPlaying,
   });
 
-  final String name;
-  final int score;
+  final MatchSide side;
   final bool isWinner;
   final bool isPlaying;
+
+  String get _sideName => side.players.map((player) => player.name).join(' & ');
 
   @override
   Widget build(BuildContext context) {
     final weight = isWinner ? FontWeight.bold : FontWeight.normal;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 24,
-            child: isWinner
-                ? Icon(
-                    Icons.emoji_events,
-                    color: context.colors.tertiary,
-                    semanticLabel: 'Winner',
-                  )
-                : isPlaying
-                ? Icon(
-                    Icons.circle,
-                    size: 10,
-                    color: context.colors.primary,
-                  )
-                : null,
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              name,
-              style: context.textTheme.titleMedium?.copyWith(
-                fontWeight: weight,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$score',
-            textAlign: TextAlign.end,
-            maxLines: 1,
+    return Row(
+      spacing: 8,
+      children: [
+        SizedBox(
+          width: 24,
+          child: isWinner
+              ? Icon(
+                  Icons.emoji_events,
+                  color: context.colors.tertiary,
+                  semanticLabel: 'Winner',
+                )
+              : isPlaying
+              ? Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: context.colors.primary,
+                )
+              : null,
+        ),
+        Expanded(
+          child: Text(
+            _sideName,
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: weight,
-              fontFeatures: const [FontFeature.tabularFigures()],
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+        Text(
+          side.score.toString(),
+          textAlign: TextAlign.end,
+          maxLines: 1,
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: weight,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
     );
   }
 }

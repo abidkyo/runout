@@ -29,7 +29,7 @@ void main() {
   late MatchNotifier notifier;
 
   setUp(() {
-    notifier = MatchNotifier(match)..selectBreaker(0);
+    notifier = MatchNotifier(match)..selectStartingSide(0);
   });
 
   tearDown(() {
@@ -47,7 +47,9 @@ void main() {
       expect(find.byIcon(Icons.change_history), findsOneWidget);
     });
 
-    testWidgets('remaining count reflects match.remaining', (tester) async {
+    testWidgets('remaining count reflects match.ballsRemaining', (
+      tester,
+    ) async {
       notifier.scoreRemaining(10);
       await tester.pumpWidget(_host(notifier));
 
@@ -63,13 +65,13 @@ void main() {
 
   group('StraightPoolActions — end visit', () {
     testWidgets('tapping end visit advances the breaker', (tester) async {
-      final before = notifier.match.currentBreakerIndex;
+      final before = notifier.match.currentSideIndex;
       await tester.pumpWidget(_host(notifier));
 
       await tester.tap(find.byIcon(Icons.swap_horiz));
       await tester.pump();
 
-      expect(notifier.match.currentBreakerIndex, isNot(before));
+      expect(notifier.match.currentSideIndex, isNot(before));
     });
 
     testWidgets('shows extension snackbar and resets the flag', (tester) async {
@@ -108,8 +110,8 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, 5);
-      expect(notifier.match.remaining, 10);
+      expect(notifier.match.sides.first.score, 5);
+      expect(notifier.match.ballsRemaining, 10);
     });
 
     testWidgets('selecting standard foul applies scoreRemaining', (
@@ -126,7 +128,7 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, -1);
+      expect(notifier.match.sides.first.score, -1);
     });
 
     testWidgets('selecting break foul with continue (default) '
@@ -142,8 +144,8 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, -2);
-      expect(notifier.match.currentBreakerIndex, 1);
+      expect(notifier.match.sides.first.score, -2);
+      expect(notifier.match.currentSideIndex, 1);
     });
 
     testWidgets('selecting break foul with re-break '
@@ -162,12 +164,12 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, -2);
-      expect(notifier.match.currentBreakerIndex, 0);
+      expect(notifier.match.sides.first.score, -2);
+      expect(notifier.match.currentSideIndex, 0);
     });
 
     testWidgets('cancelling does not change the match', (tester) async {
-      final before = notifier.match.scores.first;
+      final before = notifier.match.sides.first.score;
       await tester.pumpWidget(_host(notifier));
 
       await tester.tap(find.text('15'));
@@ -176,8 +178,8 @@ void main() {
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, before);
-      expect(notifier.match.remaining, 15);
+      expect(notifier.match.sides.first.score, before);
+      expect(notifier.match.ballsRemaining, 15);
     });
 
     testWidgets('shows three-fouls snackbar and resets the flag', (
@@ -211,8 +213,8 @@ void main() {
       await tester.tap(find.byIcon(Icons.change_history));
       await tester.pump();
 
-      expect(notifier.match.scores.first, 14);
-      expect(notifier.match.currentBreakerIndex, 0);
+      expect(notifier.match.sides.first.score, 14);
+      expect(notifier.match.currentSideIndex, 0);
     });
 
     testWidgets('long press opens the new rack picker', (tester) async {
@@ -236,8 +238,8 @@ void main() {
       await tester.tap(find.text('0'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, 15);
-      expect(notifier.match.currentBreakerIndex, 0);
+      expect(notifier.match.sides.first.score, 15);
+      expect(notifier.match.currentSideIndex, 0);
     });
 
     testWidgets('long press then selecting 1 add 14 points', (
@@ -251,8 +253,8 @@ void main() {
       await tester.tap(find.text('1'));
       await tester.pumpAndSettle();
 
-      expect(notifier.match.scores.first, 14);
-      expect(notifier.match.currentBreakerIndex, 0);
+      expect(notifier.match.sides.first.score, 14);
+      expect(notifier.match.currentSideIndex, 0);
     });
   });
 

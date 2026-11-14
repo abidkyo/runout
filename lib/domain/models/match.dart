@@ -1,6 +1,10 @@
-import 'package:meta/meta.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:runout/core/constants/match_defaults.dart';
+import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/domain/models/match_side.dart';
+
+part 'match.freezed.dart';
 
 /// The lifecycle state of a match.
 enum MatchStatus {
@@ -18,78 +22,46 @@ enum MatchStatus {
 ///
 /// Immutable. New states are produced by copying with updated values,
 /// which is what makes undo/redo snapshots cheap and safe.
-@immutable
-class Match {
+@freezed
+class Match with _$Match {
   const new({
     required this.id,
     required this.config,
     required this.sides,
-    required this.scores,
-    required this.innings,
-    required this.highRuns,
-    required this.foulCounters,
     required this.status,
-    this.remaining = ballsPerRack,
-    this.currentRun = 0,
-    this.isOpeningBreak = true,
+    this.currentSideIndex,
+    this.winnerIndex,
     this.effectiveInningsLimit = 0,
+    this.currentRun = 0,
+    this.ballsRemaining = MatchDefaults.ballsPerRack,
+    this.isOpeningBreak = true,
     this.startedAt,
     this.endedAt,
-    this.currentBreakerIndex,
-    this.winnerIndex,
-  }) : assert(sides.length >= 2, 'A match needs at least two sides.'),
-       assert(
-         scores.length == sides.length,
-         'Scores must have one entry per side.',
-       ),
-       assert(
-         innings.length == sides.length,
-         'Innings must have one entry per side.',
-       ),
-       assert(
-         highRuns.length == sides.length,
-         'High runs must have one entry per side.',
-       ),
-       assert(
-         foulCounters.length == sides.length,
-         'Foul counters must have one entry per side.',
-       );
+  }) : assert(sides.length >= 2, 'A match needs at least two sides.');
 
-  /// Creates a new match from its [sides], filling all per-side lists
-  /// with zeroes, and status set to created.
+  /// Creates a new match from its [sides], preserving their stats.
   ///
   /// This is the convenience constructor for starting a fresh match: callers
-  /// only supply [id], [config], and [sides], and the parallel state
-  /// ([scores], [innings], [highRuns], [foulCounters]) is allocated to
-  /// match. Every list therefore has exactly `sides.length` entries, so the
-  /// per-side invariants enforced by the main constructor hold by
-  /// construction.
+  /// supply [id], [config], and [sides], and the lifecycle state starts at
+  /// [MatchStatus.created].
   ///
-  /// The [effectiveInningsLimit] is seeded from [MatchConfig.inningsLimit],
-  /// or zero if that is null (for straight pool).
+  /// The [effectiveInningsLimit] is seeded from [MatchConfig.inningsLimit]
+  /// for straight pool and remains zero for other games.
   factory create({
     required String id,
     required MatchConfig config,
     required List<MatchSide> sides,
   }) {
-    final n = sides.length;
-    final innings = config.inningsLimit ?? 0;
+    final isStraightPool = config.gameType == GameType.straightPool;
 
     return Match(
       id: id,
       config: config,
       sides: sides,
-      effectiveInningsLimit: innings,
-      scores: List<int>.filled(n, 0),
-      innings: List<int>.filled(n, 0),
-      highRuns: List<int>.filled(n, 0),
-      foulCounters: List<int>.filled(n, 0),
       status: MatchStatus.created,
+      effectiveInningsLimit: isStraightPool ? config.inningsLimit : 0,
     );
   }
-
-  /// Balls on the table at the start of a rack.
-  static const int ballsPerRack = 15;
 
   /// Stable unique identifier.
   final String id;
@@ -100,35 +72,27 @@ class Match {
   /// The sides in this match. Order defines their index (0, 1, ...).
   final List<MatchSide> sides;
 
-  /// Score per side, indexed parallel to [sides].
-  final List<int> scores;
-
-  /// Innings per side, indexed parallel to [sides].
-  final List<int> innings;
-
-  /// Highest single-visit score per side, indexed parallel to [sides].
-  final List<int> highRuns;
-
-  /// Consecutive standard-foul count per side, indexed parallel to [sides].
-  ///
-  /// Straight pool only; stays all-zeros for 8/9/10-ball. A `standard` foul
-  /// increments it; `none`, `breakFoul`, and the third-foul penalty reset it.
-  final List<int> foulCounters;
-
   /// Current lifecycle state.
   final MatchStatus status;
 
-  /// Balls remaining on the table. Straight pool only; starts at
-  /// [Match.ballsPerRack].
-  final int remaining;
+  /// Index into [sides] of the side currently breaking.
+  /// Null before the first break is chosen.
+  final int? currentSideIndex;
+
+  /// Index into [sides] of the winning side. Null until finished.
+  final int? winnerIndex;
+
+  /// Current innings limit. Starts at `config.inningsLimit` for straight
+  /// pool and grows by 5 on each tied innings limit. Zero for other games.
+  final int effectiveInningsLimit;
 
   /// Points accumulated in the current visit. Reset to zero when the
   /// visit ends. Straight pool only.
   final int currentRun;
 
-  /// Current innings limit. Starts at `config.inningsLimit` for straight
-  /// pool and grows by 5 on each tied innings limit. Zero for other games.
-  final int effectiveInningsLimit;
+  /// Balls remaining on the table. Straight pool only; starts at
+  /// [MatchDefaults.ballsPerRack].
+  final int ballsRemaining;
 
   /// Whether the next shot is an opening break. Starts true. Cleared by a
   /// scoring call except a break foul that keeps the turn; set again by the
@@ -140,53 +104,4 @@ class Match {
 
   /// When the match ended. Null until [status] is [MatchStatus.finished].
   final DateTime? endedAt;
-
-  /// Index into [sides] of the side currently breaking.
-  /// Null before the first break is chosen.
-  final int? currentBreakerIndex;
-
-  /// Index into [sides] of the winning side. Null until finished.
-  final int? winnerIndex;
-
-  /// Returns a copy with the given fields replaced.
-  ///
-  /// Passing nothing keeps the current value.
-  Match copyWith({
-    String? id,
-    MatchConfig? config,
-    List<MatchSide>? sides,
-    List<int>? scores,
-    List<int>? innings,
-    List<int>? highRuns,
-    List<int>? foulCounters,
-    int? remaining,
-    int? currentRun,
-    int? effectiveInningsLimit,
-    bool? isOpeningBreak,
-    MatchStatus? status,
-    DateTime? startedAt,
-    DateTime? endedAt,
-    int? currentBreakerIndex,
-    int? winnerIndex,
-  }) {
-    return Match(
-      id: id ?? this.id,
-      config: config ?? this.config,
-      sides: sides ?? this.sides,
-      scores: scores ?? this.scores,
-      innings: innings ?? this.innings,
-      highRuns: highRuns ?? this.highRuns,
-      foulCounters: foulCounters ?? this.foulCounters,
-      remaining: remaining ?? this.remaining,
-      effectiveInningsLimit:
-          effectiveInningsLimit ?? this.effectiveInningsLimit,
-      currentRun: currentRun ?? this.currentRun,
-      isOpeningBreak: isOpeningBreak ?? this.isOpeningBreak,
-      status: status ?? this.status,
-      startedAt: startedAt ?? this.startedAt,
-      endedAt: endedAt ?? this.endedAt,
-      currentBreakerIndex: currentBreakerIndex ?? this.currentBreakerIndex,
-      winnerIndex: winnerIndex ?? this.winnerIndex,
-    );
-  }
 }

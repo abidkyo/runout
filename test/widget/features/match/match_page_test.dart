@@ -67,12 +67,12 @@ class _StubPage extends StatelessWidget {
 
 Match _playingMatch() => makeMatch().copyWith(
   status: MatchStatus.playing,
-  currentBreakerIndex: 0,
+  currentSideIndex: 0,
 );
 
 Match _playingSPMatch() => makeStraightPoolMatch().copyWith(
   status: MatchStatus.playing,
-  currentBreakerIndex: 0,
+  currentSideIndex: 0,
 );
 
 void _setWidth(WidgetTester tester, double width) {
@@ -209,9 +209,10 @@ void main() {
       testWidgets('clamps the stats innings to the effective innings limit', (
         tester,
       ) async {
-        final match = makeStraightPoolMatch(
-          inningsLimit: 5,
-        ).copyWith(status: MatchStatus.finished, innings: [7, 2]);
+        final match = makeStraightPoolMatch(inningsLimit: 5).copyWith(
+          status: MatchStatus.finished,
+          sides: [makeSide('0', innings: 7), makeSide('1', innings: 2)],
+        );
         await tester.pumpWidget(_host(match));
 
         final stats = tester.widgetList<StraightPoolStats>(

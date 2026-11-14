@@ -57,7 +57,7 @@ class StraightPoolActions extends StatelessWidget {
     final result = await showDialog<RemainingResult>(
       context: context,
       builder: (_) => RemainingPickerDialog(
-        remaining: match.remaining,
+        remaining: match.ballsRemaining,
         showBreakFoul: match.isOpeningBreak,
       ),
     );
@@ -86,7 +86,7 @@ class StraightPoolActions extends StatelessWidget {
         );
     if (newRemaining == null) return;
 
-    final points = notifier.match.remaining - newRemaining;
+    final points = notifier.match.ballsRemaining - newRemaining;
     notifier.newRack(newRemaining);
 
     if (!notifier.askToContinue) return;
@@ -106,7 +106,7 @@ class StraightPoolActions extends StatelessWidget {
     );
 
     if (!shouldContinue) {
-      final sideIndex = notifier.match.currentBreakerIndex;
+      final sideIndex = notifier.match.currentSideIndex;
       if (sideIndex == null) return;
 
       // Undo the kept-turn score, then re-apply as a visit-ending score.
@@ -138,7 +138,7 @@ class StraightPoolActions extends StatelessWidget {
           ),
           child: Tooltip(
             message: 'Balls remaining',
-            child: Text('${match.remaining}'),
+            child: Text(match.ballsRemaining.toString()),
           ),
         ),
         IconButton(

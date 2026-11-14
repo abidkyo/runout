@@ -13,7 +13,7 @@ Match _playingMatch() {
     id: 'playing',
     status: MatchStatus.playing,
     startedAt: _base,
-    currentBreakerIndex: 0,
+    currentSideIndex: 0,
   );
 }
 
@@ -21,7 +21,7 @@ Match _finishedMatch(int index) {
   return makeMatch().copyWith(
     id: 'finished-$index',
     status: MatchStatus.finished,
-    scores: const [10, 5],
+    sides: [makeSide('0', score: 10), makeSide('1', score: 5)],
     startedAt: _base.add(Duration(days: index)),
     endedAt: _base.add(Duration(days: index, hours: 1)),
     winnerIndex: 0,

@@ -28,7 +28,7 @@ void main() {
 
     test('uses clock.now() while playing', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(seconds: 5));
 
         expect(timer.elapsed, const Duration(seconds: 5));
@@ -37,7 +37,7 @@ void main() {
 
     test('is endedAt minus startedAt when finished', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(minutes: 42));
         match.incrementScore(0, points: match.match.config.raceTo);
 
@@ -53,7 +53,7 @@ void main() {
 
     test('pads single-digit values', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(seconds: 7));
 
         expect(timer.formatted, '00:07');
@@ -62,7 +62,7 @@ void main() {
 
     test('returns MM:SS under an hour', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(minutes: 2, seconds: 3));
 
         expect(timer.formatted, '02:03');
@@ -71,7 +71,7 @@ void main() {
 
     test('returns 59:59 at the last second before an hour', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(minutes: 59, seconds: 59));
 
         expect(timer.formatted, '59:59');
@@ -80,7 +80,7 @@ void main() {
 
     test('returns HH:MM:SS at exactly one hour', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(hours: 1));
 
         expect(timer.formatted, '01:00:00');
@@ -89,7 +89,7 @@ void main() {
 
     test('returns HH:MM:SS above an hour', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(hours: 1, minutes: 2, seconds: 3));
 
         expect(timer.formatted, '01:02:03');
@@ -98,7 +98,7 @@ void main() {
 
     test('keeps two-digit hours at ten hours', () {
       fakeAsync((async) {
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         async.elapse(const Duration(hours: 10, minutes: 2, seconds: 3));
 
         expect(timer.formatted, '10:02:03');
@@ -122,7 +122,7 @@ void main() {
       fakeAsync((async) {
         var notifications = 0;
 
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         timer.addListener(() => notifications++);
         async.elapse(const Duration(seconds: 5));
 
@@ -134,7 +134,7 @@ void main() {
       fakeAsync((async) {
         var notifications = 0;
 
-        match.selectBreaker(0);
+        match.selectStartingSide(0);
         match.incrementScore(0, points: match.match.config.raceTo);
 
         timer.addListener(() => notifications++);

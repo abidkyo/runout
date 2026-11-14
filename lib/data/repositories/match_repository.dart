@@ -50,7 +50,7 @@ class MatchRepository {
 
   /// Removes [match] and returns its index, or `-1` when it is absent.
   int delete(Match match) {
-    final index = _matches.indexOf(match);
+    final index = _matches.indexWhere((candidate) => candidate.id == match.id);
     if (index == -1) return -1;
 
     _matches.removeAt(index);
@@ -130,14 +130,13 @@ class MatchRepository {
           id: 'match-1',
           config: straightPoolSingles,
           sides: [
-            MatchSide(players: const [fsr]),
-            MatchSide(players: const [svb]),
+            MatchSide(players: const [fsr], score: 30),
+            MatchSide(players: const [svb], score: 5),
           ],
         ).copyWith(
           status: MatchStatus.playing,
-          scores: const [30, 5],
           startedAt: now.subtract(const Duration(hours: 2)),
-          currentBreakerIndex: 0,
+          currentSideIndex: 0,
         );
 
     final playingDoubles =
@@ -145,14 +144,13 @@ class MatchRepository {
           id: 'match-2',
           config: tenBallDoubles,
           sides: [
-            MatchSide(players: const [chris, michael]),
-            MatchSide(players: const [davidWilson, john]),
+            MatchSide(players: const [chris, michael], score: 3),
+            MatchSide(players: const [davidWilson, john], score: 2),
           ],
         ).copyWith(
           status: MatchStatus.playing,
-          scores: const [3, 2],
           startedAt: now.subtract(const Duration(days: 1, hours: 2)),
-          currentBreakerIndex: 1,
+          currentSideIndex: 1,
         );
 
     final playingThreePlayers =
@@ -160,15 +158,14 @@ class MatchRepository {
           id: 'match-3',
           config: nineBallThreePlayers,
           sides: [
-            MatchSide(players: const [efren]),
-            MatchSide(players: const [ronnie]),
-            MatchSide(players: const [jasmin]),
+            MatchSide(players: const [efren], score: 3),
+            MatchSide(players: const [ronnie], score: 2),
+            MatchSide(players: const [jasmin], score: 1),
           ],
         ).copyWith(
           status: MatchStatus.playing,
-          scores: const [3, 2, 1],
           startedAt: now.subtract(const Duration(hours: 5)),
-          currentBreakerIndex: 0,
+          currentSideIndex: 0,
         );
 
     final finishedSingles =
@@ -176,15 +173,14 @@ class MatchRepository {
           id: 'match-4',
           config: straightPoolSingles,
           sides: [
-            MatchSide(players: const [fsr]),
-            MatchSide(players: const [svb]),
+            MatchSide(players: const [fsr], score: 75),
+            MatchSide(players: const [svb], score: 25),
           ],
         ).copyWith(
           status: MatchStatus.finished,
-          scores: const [75, 25],
           startedAt: now.subtract(const Duration(days: 3, hours: 2)),
           endedAt: now.subtract(const Duration(days: 3)),
-          currentBreakerIndex: 1,
+          currentSideIndex: 1,
           winnerIndex: 0,
         );
 
@@ -193,15 +189,14 @@ class MatchRepository {
           id: 'match-5',
           config: tenBallDoubles,
           sides: [
-            MatchSide(players: const [chris, michael]),
-            MatchSide(players: const [davidWilson, john]),
+            MatchSide(players: const [chris, michael], score: 5),
+            MatchSide(players: const [davidWilson, john], score: 8),
           ],
         ).copyWith(
           status: MatchStatus.finished,
-          scores: const [5, 8],
           startedAt: now.subtract(const Duration(days: 10, hours: 2)),
           endedAt: now.subtract(const Duration(days: 10)),
-          currentBreakerIndex: 0,
+          currentSideIndex: 0,
           winnerIndex: 1,
         );
 
@@ -210,16 +205,15 @@ class MatchRepository {
           id: 'match-6',
           config: nineBallThreePlayers,
           sides: [
-            MatchSide(players: const [efren]),
-            MatchSide(players: const [ronnie]),
-            MatchSide(players: const [jasmin]),
+            MatchSide(players: const [efren], score: 10),
+            MatchSide(players: const [ronnie], score: 12),
+            MatchSide(players: const [jasmin], score: 11),
           ],
         ).copyWith(
           status: MatchStatus.finished,
-          scores: const [10, 12, 11],
           startedAt: now.subtract(const Duration(days: 15, hours: 2)),
           endedAt: now.subtract(const Duration(days: 15)),
-          currentBreakerIndex: 0,
+          currentSideIndex: 0,
           winnerIndex: 1,
         );
 

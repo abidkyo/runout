@@ -8,6 +8,7 @@ import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_config.dart';
+import 'package:runout/domain/models/match_side.dart';
 
 /// Holds the state of the current match and drives all transitions.
 ///
@@ -42,18 +43,18 @@ class MatchNotifier extends ChangeNotifier {
   bool get canRedo => _redoStack.isNotEmpty;
 
   /// The side currently breaking, or null before the first break.
-  int? get currentBreakerIndex => _match.currentBreakerIndex;
+  int? get currentSideIndex => _match.currentSideIndex;
 
   /// Picks the side that will break first and starts the match.
   ///
   /// Only valid while the match is in [MatchStatus.created].
   ///
-  /// In straight pool, selecting the breaker counts as that side's first
-  /// visit, so their innings counter is incremented here.
-  void selectBreaker(int sideIndex) {
+  /// In straight pool, selecting the starting side counts as that side's
+  /// first visit, so their innings counter is incremented here.
+  void selectStartingSide(int sideIndex) {
     assert(
       _match.status == MatchStatus.created,
-      'Breaker can only be selected before the match starts.',
+      'Starting side can only be selected before the match starts.',
     );
     if (_match.status != MatchStatus.created) return;
 
@@ -63,17 +64,18 @@ class MatchNotifier extends ChangeNotifier {
     );
     if (sideIndex < 0 || sideIndex >= _match.sides.length) return;
 
-    final innings = List<int>.of(_match.innings);
+    final sides = List<MatchSide>.of(_match.sides);
     if (_match.config.gameType == GameType.straightPool) {
-      innings[sideIndex] += 1;
+      final side = sides[sideIndex];
+      sides[sideIndex] = side.copyWith(innings: side.innings + 1);
     }
 
     _pushHistory();
     _match = _match.copyWith(
       status: MatchStatus.playing,
       startedAt: clock.now(),
-      currentBreakerIndex: sideIndex,
-      innings: innings,
+      currentSideIndex: sideIndex,
+      sides: sides,
     );
     notifyListeners();
   }
@@ -87,7 +89,7 @@ class MatchNotifier extends ChangeNotifier {
       'endVisit is only for straight pool.',
     );
     if (_match.config.gameType != GameType.straightPool) return;
-    incrementScore(_match.currentBreakerIndex ?? 0, points: 0);
+    incrementScore(_match.currentSideIndex ?? 0, points: 0);
   }
 
   /// Scores the balls potted since the last update, then ends the inning.
@@ -107,14 +109,14 @@ class MatchNotifier extends ChangeNotifier {
     if (_match.config.gameType != GameType.straightPool) return;
 
     assert(
-      remaining >= 2 && remaining <= _match.remaining,
-      'remaining must be between 2 and the current remaining.',
+      remaining >= 2 && remaining <= _match.ballsRemaining,
+      'remaining must be between 2 and the current balls remaining.',
     );
-    if (remaining < 2 || remaining > _match.remaining) return;
+    if (remaining < 2 || remaining > _match.ballsRemaining) return;
 
-    final points = _match.remaining - remaining;
+    final points = _match.ballsRemaining - remaining;
     incrementScore(
-      _match.currentBreakerIndex ?? 0,
+      _match.currentSideIndex ?? 0,
       points: points,
       remaining: remaining,
       keepsTurn: keepsTurn,
@@ -140,11 +142,11 @@ class MatchNotifier extends ChangeNotifier {
     );
     if (remaining != 0 && remaining != 1) return;
 
-    final points = _match.remaining - remaining;
+    final points = _match.ballsRemaining - remaining;
     incrementScore(
-      _match.currentBreakerIndex ?? 0,
+      _match.currentSideIndex ?? 0,
       points: points,
-      remaining: Match.ballsPerRack,
+      remaining: MatchDefaults.ballsPerRack,
       keepsTurn: true,
     );
   }
@@ -156,7 +158,7 @@ class MatchNotifier extends ChangeNotifier {
   /// in straight pool, one point equals one ball.
   ///
   /// In straight pool, one call represents one visit to the table.
-  /// The next breaker's innings counter is incremented by exactly one
+  /// The next side's innings counter is incremented by exactly one
   /// per call (their visit is counted before they play), regardless of
   /// [points].
   ///
@@ -194,10 +196,10 @@ class MatchNotifier extends ChangeNotifier {
 
     if (_match.config.gameType == GameType.straightPool) {
       assert(
-        sideIndex == _match.currentBreakerIndex,
-        'In straight pool, only the current breaker can score.',
+        sideIndex == _match.currentSideIndex,
+        'In straight pool, only the current side can score.',
       );
-      if (sideIndex != _match.currentBreakerIndex) return;
+      if (sideIndex != _match.currentSideIndex) return;
 
       if (foul == Foul.breakFoul) {
         assert(
@@ -213,53 +215,58 @@ class MatchNotifier extends ChangeNotifier {
     notifyThreeFouls = false;
     askToContinue = false;
 
-    final updatedScores = List<int>.of(_match.scores);
-    updatedScores[sideIndex] += points - foul.value;
+    final scoringSide = _match.sides[sideIndex];
+    final updatedSides = List<MatchSide>.of(_match.sides);
+
+    var updatedScore = scoringSide.score + points - foul.value;
 
     // Foul counters. A third standard foul forces the turn to stay.
-    var updatedFoulCounters = _match.foulCounters;
+    var updatedConsecutiveFouls = scoringSide.consecutiveFouls;
     var isThirdFoul = false;
     if (_match.config.gameType == GameType.straightPool) {
-      updatedFoulCounters = List<int>.of(_match.foulCounters);
       if (foul == Foul.standard) {
-        updatedFoulCounters[sideIndex] += 1;
-        if (updatedFoulCounters[sideIndex] >= 3) {
-          updatedFoulCounters[sideIndex] = 0;
-          updatedScores[sideIndex] -= MatchDefaults.threeFoulsPenalty;
+        updatedConsecutiveFouls += 1;
+        if (updatedConsecutiveFouls >= 3) {
+          updatedConsecutiveFouls = 0;
+          updatedScore -= MatchDefaults.threeFoulsPenalty;
           isThirdFoul = true;
         }
       } else {
-        updatedFoulCounters[sideIndex] = 0;
+        updatedConsecutiveFouls = 0;
       }
     }
 
     final effectiveKeepsTurn = keepsTurn || isThirdFoul;
 
-    final reachedTarget = updatedScores[sideIndex] >= _match.config.raceTo;
-    final nextBreaker = effectiveKeepsTurn
-        ? _match.currentBreakerIndex!
-        : _nextBreaker(scoringSide: sideIndex);
+    final reachedTarget = updatedScore >= _match.config.raceTo;
+    final nextSideIndex = effectiveKeepsTurn
+        ? _match.currentSideIndex!
+        : _nextSide(scoringSideIndex: sideIndex);
 
-    var updatedInnings = _match.innings;
     var updatedEffectiveLimit = _match.effectiveInningsLimit;
-    var updatedRemaining = remaining ?? _match.remaining;
+    var updatedBallsRemaining = remaining ?? _match.ballsRemaining;
     var updatedIsOpeningBreak = _match.isOpeningBreak;
 
     // Straight pool: accumulate the run and keep highRuns live.
-    var updatedHighRuns = _match.highRuns;
+    var updatedHighRun = scoringSide.highRun;
     var updatedCurrentRun = _match.currentRun;
     if (_match.config.gameType == GameType.straightPool) {
       updatedCurrentRun += points;
 
-      updatedHighRuns = List<int>.of(_match.highRuns);
-      if (updatedCurrentRun > updatedHighRuns[sideIndex]) {
-        updatedHighRuns[sideIndex] = updatedCurrentRun;
+      if (updatedCurrentRun > updatedHighRun) {
+        updatedHighRun = updatedCurrentRun;
       }
 
       if (!effectiveKeepsTurn) {
         updatedCurrentRun = 0;
       }
     }
+
+    updatedSides[sideIndex] = scoringSide.copyWith(
+      score: updatedScore,
+      highRun: updatedHighRun,
+      consecutiveFouls: updatedConsecutiveFouls,
+    );
 
     if ((_match.config.gameType == GameType.straightPool) &&
         (foul != Foul.breakFoul || !effectiveKeepsTurn)) {
@@ -268,7 +275,7 @@ class MatchNotifier extends ChangeNotifier {
 
     if (isThirdFoul) {
       updatedIsOpeningBreak = true;
-      updatedRemaining = 15;
+      updatedBallsRemaining = MatchDefaults.ballsPerRack;
       notifyThreeFouls = true;
     }
 
@@ -283,19 +290,21 @@ class MatchNotifier extends ChangeNotifier {
       }
     } else if (_match.config.gameType == GameType.straightPool &&
         !effectiveKeepsTurn) {
-      updatedInnings = List<int>.of(_match.innings);
-      updatedInnings[nextBreaker] += 1;
+      final nextSide = updatedSides[nextSideIndex];
+      updatedSides[nextSideIndex] = nextSide.copyWith(
+        innings: nextSide.innings + 1,
+      );
 
-      final reachedInningsLimit = updatedInnings.any(
-        (v) => v > updatedEffectiveLimit,
+      final reachedInningsLimit = updatedSides.any(
+        (side) => side.innings > updatedEffectiveLimit,
       );
 
       if (reachedInningsLimit) {
-        final highestScore = updatedScores.reduce(max);
+        final highestScore = updatedSides.map((side) => side.score).reduce(max);
 
         final winners = <int>[];
-        for (var i = 0; i < updatedScores.length; i++) {
-          if (updatedScores[i] == highestScore) winners.add(i);
+        for (var i = 0; i < updatedSides.length; i++) {
+          if (updatedSides[i].score == highestScore) winners.add(i);
         }
 
         if (winners.length == 1) {
@@ -312,29 +321,26 @@ class MatchNotifier extends ChangeNotifier {
 
     _pushHistory();
     _match = _match.copyWith(
-      scores: updatedScores,
-      innings: updatedInnings,
-      highRuns: updatedHighRuns,
-      foulCounters: updatedFoulCounters,
-      remaining: updatedRemaining,
-      currentRun: updatedCurrentRun,
+      sides: updatedSides,
+      currentSideIndex: nextSideIndex,
       effectiveInningsLimit: updatedEffectiveLimit,
+      currentRun: updatedCurrentRun,
+      ballsRemaining: updatedBallsRemaining,
       isOpeningBreak: updatedIsOpeningBreak,
-      status: finished ? MatchStatus.finished : null,
+      status: finished ? MatchStatus.finished : _match.status,
       endedAt: finished ? clock.now() : null,
       winnerIndex: winnerIndex,
-      currentBreakerIndex: nextBreaker,
     );
     notifyListeners();
   }
 
   /// Computes who breaks next based on [BreakFormat].
-  int _nextBreaker({required int scoringSide}) {
+  int _nextSide({required int scoringSideIndex}) {
     switch (_match.config.breakFormat) {
       case BreakFormat.winnerBreak:
-        return scoringSide;
+        return scoringSideIndex;
       case BreakFormat.alternateBreak:
-        final current = _match.currentBreakerIndex!;
+        final current = _match.currentSideIndex!;
         return (current + 1) % _match.sides.length;
     }
   }

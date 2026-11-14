@@ -16,4 +16,7 @@ class MatchDefaults {
 
   /// Penalty points for three-fouls.
   static const int threeFoulsPenalty = 15;
+
+  /// Balls on the table at the start of a straight pool rack.
+  static const int ballsPerRack = 15;
 }

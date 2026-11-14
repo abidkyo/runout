@@ -64,9 +64,9 @@ void main() {
       expect(_icon(tester, Icons.redo).onPressed, isNull);
     });
 
-    testWidgets('undo enabled after selectBreaker', (tester) async {
+    testWidgets('undo enabled after selectStartingSide', (tester) async {
       await _pump(tester, notifier);
-      notifier.selectBreaker(0);
+      notifier.selectStartingSide(0);
       await tester.pump();
 
       expect(_icon(tester, Icons.undo).onPressed, isNotNull);
@@ -75,7 +75,7 @@ void main() {
     testWidgets('redo enabled after undo', (tester) async {
       await _pump(tester, notifier);
       notifier
-        ..selectBreaker(0)
+        ..selectStartingSide(0)
         ..undo();
       await tester.pump();
 
@@ -84,7 +84,7 @@ void main() {
 
     testWidgets('tapping undo enables redo', (tester) async {
       await _pump(tester, notifier);
-      notifier.selectBreaker(0);
+      notifier.selectStartingSide(0);
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.undo));
@@ -96,7 +96,7 @@ void main() {
     testWidgets('tapping redo re-enables undo', (tester) async {
       await _pump(tester, notifier);
       notifier
-        ..selectBreaker(0)
+        ..selectStartingSide(0)
         ..undo();
       await tester.pump();
 
@@ -149,7 +149,7 @@ void main() {
     });
 
     testWidgets('visible when straight pool is playing', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch())..selectBreaker(0);
+      notifier = MatchNotifier(makeStraightPoolMatch())..selectStartingSide(0);
       await _pump(tester, notifier);
 
       expect(_actionsVisibility(tester).visible, isTrue);
@@ -157,7 +157,7 @@ void main() {
 
     testWidgets('hidden when straight pool is finished', (tester) async {
       notifier = MatchNotifier(makeStraightPoolMatch())
-        ..selectBreaker(0)
+        ..selectStartingSide(0)
         ..scoreRemaining(2);
       await _pump(tester, notifier);
 
