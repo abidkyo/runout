@@ -106,15 +106,12 @@ class StraightPoolActions extends StatelessWidget {
     );
 
     if (!shouldContinue) {
-      final sideIndex = notifier.match.currentSideIndex;
-      if (sideIndex == null) return;
-
       // Undo the kept-turn score, then re-apply as a visit-ending score.
       // The notifier can't mutate the last history entry in place, so this
       // is undo + redo with different flags.
       notifier
         ..undo()
-        ..incrementScore(sideIndex, points: points, remaining: newRemaining);
+        ..scoreVisit(points: points, ballsRemaining: newRemaining);
     }
   }
 

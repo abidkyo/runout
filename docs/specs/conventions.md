@@ -59,7 +59,7 @@ Choose by reachability:
 | ----------------------- | ---------------------------------- | ---------------------------------- |
 | `StateError`            | reachable by a correct program     | `buildMatch()` with empty players  |
 | `assert` + early return | only incorrect code can produce it | bad index, negative points         |
-| silent early return     | normal precondition not met        | `incrementScore` while not playing |
+| silent early return     | normal precondition not met        | `scoreRack` while not playing |
 
 Never throw in release paths; tests verify asserts, not release returns.
 

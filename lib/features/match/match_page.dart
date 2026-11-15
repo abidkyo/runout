@@ -121,7 +121,7 @@ class _ScoreArea extends StatelessWidget {
       if (isCreated) return () => notifier.selectStartingSide(i);
       if (isStraightPool) return null;
       if (isFinished) return null;
-      return () => notifier.incrementScore(i);
+      return () => notifier.scoreRack(i);
     }
 
     return LayoutBuilder(

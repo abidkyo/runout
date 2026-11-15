@@ -52,18 +52,18 @@ void main() {
     });
   });
 
-  group('incrementScore', () {
+  group('scoreRack', () {
     test('increments the given side only', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
 
       expect(notifier.match.sides[0].score, 1);
       expect(notifier.match.sides[1].score, 0);
     });
 
     test('does nothing when match is not playing', () {
-      final notifier = MatchNotifier(makeMatch())..incrementScore(0);
+      final notifier = MatchNotifier(makeMatch())..scoreRack(0);
       expect(notifier.match.sides[0].score, 0);
       expect(notifier.match.status, MatchStatus.created);
     });
@@ -71,28 +71,28 @@ void main() {
     test('throws for an out-of-range side index', () {
       final notifier = MatchNotifier(makeMatch())..selectStartingSide(0);
 
-      expect(() => notifier.incrementScore(5), throwsAssertionError);
-      expect(() => notifier.incrementScore(-1), throwsAssertionError);
-    });
-
-    test('throws when points are negative', () {
-      final n = MatchNotifier(makeMatch())..selectStartingSide(0);
-
-      expect(() => n.incrementScore(0, points: -1), throwsAssertionError);
+      expect(() => notifier.scoreRack(5), throwsAssertionError);
+      expect(() => notifier.scoreRack(-1), throwsAssertionError);
     });
 
     test('is a no-op after the match has finished', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 1)))
         ..selectStartingSide(0)
-        ..incrementScore(0); // reaches raceTo, finishes match
+        ..scoreRack(0); // reaches raceTo, finishes match
       expect(notifier.match.status, MatchStatus.finished);
 
       final scoresBefore = List<int>.of(notifier.match.scores);
-      notifier.incrementScore(1); // should be ignored
+      notifier.scoreRack(1); // should be ignored
 
       expect(notifier.match.scores, scoresBefore);
       expect(notifier.match.status, MatchStatus.finished);
       expect(notifier.match.winnerIndex, 0);
+    });
+
+    test('throws in straight pool', () {
+      final n = MatchNotifier(makeStraightPoolMatch())..selectStartingSide(0);
+
+      expect(() => n.scoreRack(0), throwsAssertionError);
     });
   });
 
@@ -100,8 +100,8 @@ void main() {
     test('finishes match when raceTo is reached', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 2)))
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(0);
+        ..scoreRack(0)
+        ..scoreRack(0);
 
       final m = notifier.match;
       expect(m.status, MatchStatus.finished);
@@ -112,7 +112,7 @@ void main() {
     test('stays playing below raceTo', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 3)))
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
 
       expect(notifier.match.status, MatchStatus.playing);
       expect(notifier.match.winnerIndex, isNull);
@@ -128,34 +128,34 @@ void main() {
               ),
             )
             ..selectStartingSide(0)
-            ..incrementScore(0);
+            ..scoreRack(0);
       expect(notifier.match.currentSideIndex, 0); // 0 wins, 0 breaks
 
-      notifier.incrementScore(1); // side 1 scores while 0 was breaking
+      notifier.scoreRack(1); // side 1 scores while 0 was breaking
       expect(notifier.match.currentSideIndex, 1); // 1 wins, 1 breaks
     });
 
     test('alternateBreak: breaker switches and wraps around', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
       expect(notifier.match.currentSideIndex, 1);
 
       // Switching from the last side wraps to the first.
-      notifier.incrementScore(1);
+      notifier.scoreRack(1);
       expect(notifier.match.currentSideIndex, 0);
     });
 
     test('alternateBreak: cycles through three sides', () {
       final notifier = MatchNotifier(makeMatch(sideCount: 3))
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
       expect(notifier.match.currentSideIndex, 1);
 
-      notifier.incrementScore(1);
+      notifier.scoreRack(1);
       expect(notifier.match.currentSideIndex, 2);
 
-      notifier.incrementScore(2);
+      notifier.scoreRack(2);
       expect(notifier.match.currentSideIndex, 0);
     });
   });
@@ -164,7 +164,7 @@ void main() {
     test('reverts the last action', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
       expect(notifier.match.sides[0].score, 1);
 
       notifier.undo();
@@ -175,7 +175,7 @@ void main() {
     test('restores the previous breaker', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
       expect(notifier.match.currentSideIndex, 1);
 
       notifier.undo();
@@ -185,7 +185,7 @@ void main() {
     test('steps back through multiple actions', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
+        ..scoreRack(0)
         ..undo()
         ..undo();
 
@@ -201,7 +201,7 @@ void main() {
     test('restores the winner state after finishing', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 1)))
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
       expect(notifier.match.status, MatchStatus.finished);
       expect(notifier.match.winnerIndex, 0);
       expect(notifier.match.endedAt, isNotNull);
@@ -217,7 +217,7 @@ void main() {
     test('reapplies undone action', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
+        ..scoreRack(0)
         ..undo()
         ..redo();
 
@@ -232,18 +232,18 @@ void main() {
     test('is cleared by a new action', () {
       final notifier = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
+        ..scoreRack(0)
         ..undo();
       expect(notifier.canRedo, isTrue);
 
-      notifier.incrementScore(1);
+      notifier.scoreRack(1);
       expect(notifier.canRedo, isFalse);
     });
 
     test('reapplies the winner state after finishing', () {
       final notifier = MatchNotifier(makeMatch(config: makeConfig(raceTo: 1)))
         ..selectStartingSide(0)
-        ..incrementScore(0)
+        ..scoreRack(0)
         ..undo()
         ..redo();
 
@@ -268,10 +268,16 @@ void main() {
   });
 
   group('straight pool — scoring guard', () {
-    test('throws when a non-breaker tries to score', () {
+    test('throws when points are negative', () {
       final n = MatchNotifier(makeStraightPoolMatch())..selectStartingSide(0);
 
-      expect(() => n.incrementScore(1), throwsAssertionError);
+      expect(() => n.scoreVisit(points: -1), throwsAssertionError);
+    });
+
+    test('throws in rotation games', () {
+      final n = MatchNotifier(makeMatch())..selectStartingSide(0);
+
+      expect(() => n.scoreVisit(points: 1), throwsAssertionError);
     });
   });
 
@@ -282,13 +288,13 @@ void main() {
 
       expect(n.match.innings, [0, 1]);
 
-      n.incrementScore(1);
+      n.scoreVisit(points: 1);
       expect(n.match.innings, [1, 1]);
 
-      n.incrementScore(0);
+      n.scoreVisit(points: 1);
       expect(n.match.innings, [1, 2]);
 
-      n.incrementScore(1);
+      n.scoreVisit(points: 1);
       expect(n.match.innings, [2, 2]);
     });
 
@@ -298,7 +304,7 @@ void main() {
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 0]);
-      n.incrementScore(0, points: 0);
+      n.scoreVisit(points: 0);
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 1]);
@@ -310,7 +316,7 @@ void main() {
 
       expect(n.match.scores, [0, 0]);
       expect(n.match.innings, [1, 0]);
-      n.incrementScore(0, points: 5);
+      n.scoreVisit(points: 5);
 
       expect(n.match.scores, [5, 0]);
       expect(n.match.innings, [1, 1]);
@@ -319,8 +325,8 @@ void main() {
     test('non-straight pool games never increment innings', () {
       final n = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(1);
+        ..scoreRack(0)
+        ..scoreRack(0);
 
       expect(n.match.innings, [0, 0]);
     });
@@ -337,7 +343,7 @@ void main() {
     test('update highRuns live during a visit', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true);
+        ..scoreVisit(points: 5, ballsRemaining: 10, keepsTurn: true);
 
       expect(n.match.currentRun, 5);
       expect(n.match.highRuns, [5, 0]);
@@ -346,8 +352,8 @@ void main() {
     test('update highRuns live across multiple visits', () {
       final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 4, remaining: 11, keepsTurn: true)
-        ..incrementScore(0, points: 6, remaining: 5, keepsTurn: true);
+        ..scoreVisit(points: 4, ballsRemaining: 11, keepsTurn: true)
+        ..scoreVisit(points: 6, ballsRemaining: 5, keepsTurn: true);
 
       expect(n.match.currentRun, 10);
       expect(n.match.highRuns, [10, 0]);
@@ -356,8 +362,8 @@ void main() {
     test('reset currentRun and update highRuns when the visit ends', () {
       final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 5, remaining: 10, keepsTurn: true)
-        ..incrementScore(0, points: 3, remaining: 7); // visit ends
+        ..scoreVisit(points: 5, ballsRemaining: 10, keepsTurn: true)
+        ..scoreVisit(points: 3, ballsRemaining: 7); // visit ends
 
       expect(n.match.highRuns, [8, 0]);
       expect(n.match.currentRun, 0);
@@ -367,9 +373,9 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 10) // visit 1: high run 10
-            ..incrementScore(1, points: 3) // side 1 visit: high run 3
-            ..incrementScore(0, points: 5); // visit 2: high run stays 10
+            ..scoreVisit(points: 10) // visit 1: high run 10
+            ..scoreVisit(points: 3) // side 1 visit: high run 3
+            ..scoreVisit(points: 5); // visit 2: high run stays 10
 
       expect(n.match.highRuns, [10, 3]);
     });
@@ -378,9 +384,9 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 10)
-            ..incrementScore(1, points: 3)
-            ..incrementScore(0, points: 5, keepsTurn: true);
+            ..scoreVisit(points: 10)
+            ..scoreVisit(points: 3)
+            ..scoreVisit(points: 5, keepsTurn: true);
 
       expect(n.match.currentRun, 5);
       expect(n.match.highRuns, [10, 3]);
@@ -390,9 +396,9 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 5)
-            ..incrementScore(1, points: 2)
-            ..incrementScore(0, points: 9);
+            ..scoreVisit(points: 5)
+            ..scoreVisit(points: 2)
+            ..scoreVisit(points: 9);
 
       expect(n.match.highRuns, [9, 2]);
     });
@@ -400,8 +406,8 @@ void main() {
     test('non-straight-pool games never touch highRuns or currentRun', () {
       final n = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(1);
+        ..scoreRack(0)
+        ..scoreRack(0);
 
       expect(n.match.highRuns, [0, 0]);
       expect(n.match.currentRun, 0);
@@ -411,7 +417,7 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 20);
+            ..scoreVisit(points: 20);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.highRuns, [20, 0]);
@@ -423,7 +429,7 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(1)
-            ..incrementScore(1, points: 20);
+            ..scoreVisit(points: 20);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 1);
@@ -434,9 +440,9 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 14)
-            ..incrementScore(1, points: 2)
-            ..incrementScore(0, points: 14);
+            ..scoreVisit(points: 14)
+            ..scoreVisit(points: 2)
+            ..scoreVisit(points: 14);
 
       expect(n.match.sides[0].score, 28);
       expect(n.match.status, MatchStatus.finished);
@@ -447,7 +453,7 @@ void main() {
       final n =
           MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 20))
             ..selectStartingSide(0)
-            ..incrementScore(0, points: 20);
+            ..scoreVisit(points: 20);
 
       expect(n.match.innings, [1, 0]);
     });
@@ -457,12 +463,12 @@ void main() {
     test('match ends when a side exceeds the innings limit', () {
       // limit 1, raceTo 10.
       // selectStartingSide(0): innings [1, 0]
-      // incrementScore(0): innings [1, 1] — 1 > 1 is false, continue.
-      // incrementScore(1): innings [2, 1] — 2 > 1 is true, finish.
+      // scoreVisit(points: 1): innings [1, 1] — 1 > 1 is false, continue.
+      // scoreVisit(points: 1): innings [2, 1] — 2 > 1 is true, finish.
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 3)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 3)
+        ..scoreVisit(points: 2);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.endedAt, isNotNull);
@@ -472,8 +478,8 @@ void main() {
     test('higher score wins, not the last scorer', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 4) // P1 = 4, innings [1, 1]
-        ..incrementScore(1, points: 2); // P2 = 2, innings [2, 1], finish
+        ..scoreVisit(points: 4) // P1 = 4, innings [1, 1]
+        ..scoreVisit(points: 2); // P2 = 2, innings [2, 1], finish
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
@@ -482,8 +488,8 @@ void main() {
     test('higher score wins, is the last scorer', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0) // P1 = 1, innings [1, 1]
-        ..incrementScore(1, points: 4); // P2 = 4, innings [2, 1], finish
+        ..scoreVisit(points: 1) // P1 = 1, innings [1, 1]
+        ..scoreVisit(points: 4); // P2 = 4, innings [2, 1], finish
 
       expect(n.match.winnerIndex, 1);
     });
@@ -491,8 +497,8 @@ void main() {
     test('match still playing while neither win condition has fired', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(1);
+        ..scoreVisit(points: 1)
+        ..scoreVisit(points: 1);
 
       expect(n.match.status, MatchStatus.playing);
       expect(n.match.winnerIndex, isNull);
@@ -518,8 +524,8 @@ void main() {
     test('undo after an innings win restores playing state', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 1)
+        ..scoreVisit(points: 2);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 1);
@@ -535,8 +541,8 @@ void main() {
     test('redo re-applies the innings win', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0)
-        ..incrementScore(1, points: 2)
+        ..scoreVisit(points: 1)
+        ..scoreVisit(points: 2)
         ..undo()
         ..redo();
 
@@ -548,7 +554,7 @@ void main() {
     test('undo after a score win restores playing state', () {
       final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 20);
+        ..scoreVisit(points: 20);
 
       expect(n.match.status, MatchStatus.finished);
       expect(n.match.winnerIndex, 0);
@@ -564,7 +570,7 @@ void main() {
     test('redo re-applies the score win', () {
       final n = MatchNotifier(makeStraightPoolMatch(raceTo: 20))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 20)
+        ..scoreVisit(points: 20)
         ..undo()
         ..redo();
 
@@ -712,8 +718,8 @@ void main() {
 
       n
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 2)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 2)
+        ..scoreVisit(points: 2);
 
       expect(n.match.status, MatchStatus.playing);
       expect(n.match.winnerIndex, isNull);
@@ -726,16 +732,16 @@ void main() {
     test('sets notifyExtension when extending', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 2)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 2)
+        ..scoreVisit(points: 2);
 
       expect(n.notifyExtension, isTrue);
     });
 
     test('notifyExtension is false when no extension fires', () {
       final n = MatchNotifier(makeStraightPoolMatch())
-        ..incrementScore(0, points: 3)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 3)
+        ..scoreVisit(points: 2);
 
       expect(n.notifyExtension, isFalse);
     });
@@ -743,12 +749,12 @@ void main() {
     test('notifyExtension resets on the next increment', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 2)
-        ..incrementScore(1, points: 2);
+        ..scoreVisit(points: 2)
+        ..scoreVisit(points: 2);
 
       expect(n.notifyExtension, isTrue);
 
-      n.incrementScore(0);
+      n.scoreVisit(points: 1);
 
       expect(n.notifyExtension, isFalse);
     });
@@ -759,8 +765,8 @@ void main() {
 
       n
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 5)
-        ..incrementScore(1, points: 5);
+        ..scoreVisit(points: 5)
+        ..scoreVisit(points: 5);
 
       expect(
         n.match.effectiveInningsLimit,
@@ -769,7 +775,7 @@ void main() {
 
       for (var i = 0; i < MatchDefaults.inningsExtension; i++) {
         n
-          ..incrementScore(0, points: i)
+          ..scoreVisit(points: i)
           ..endVisit();
       }
 
@@ -782,7 +788,7 @@ void main() {
     test('standard foul deducts one point', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.scores, [-1, 0]);
     });
@@ -790,7 +796,7 @@ void main() {
     test('standard foul increments the counter', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.consecutiveFouls, [1, 0]);
     });
@@ -799,11 +805,11 @@ void main() {
       // Each standard foul: -1. Third also applies penalty.
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.sides[0].score, -3 - MatchDefaults.threeFoulsPenalty);
       expect(n.match.sides[0].consecutiveFouls, 0);
@@ -812,9 +818,9 @@ void main() {
     test('no foul resets the counter', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0);
 
       expect(n.match.sides[0].consecutiveFouls, 0);
     });
@@ -822,7 +828,7 @@ void main() {
     test('break foul deducts two points', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+        ..scoreVisit(points: 0, foul: Foul.breakFoul);
 
       expect(n.match.scores, [-2, 0]);
     });
@@ -830,9 +836,9 @@ void main() {
     test('break foul resets the counter', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.breakFoul);
 
       expect(n.match.sides[0].consecutiveFouls, 0);
     });
@@ -840,7 +846,7 @@ void main() {
     test('break foul does not increment the counter', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+        ..scoreVisit(points: 0, foul: Foul.breakFoul);
 
       expect(n.match.sides[0].consecutiveFouls, 0);
     });
@@ -848,7 +854,7 @@ void main() {
     test('keepsTurn keeps the breaker after a break foul', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul, keepsTurn: true);
+        ..scoreVisit(points: 0, foul: Foul.breakFoul, keepsTurn: true);
 
       expect(n.match.currentSideIndex, 0);
       expect(n.match.innings, [1, 0]);
@@ -857,11 +863,11 @@ void main() {
     test('sets notifyThreeFouls on the third standard foul', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.notifyThreeFouls, isTrue);
     });
@@ -869,7 +875,7 @@ void main() {
     test('notifyThreeFouls is false when no penalty fires', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.notifyThreeFouls, isFalse);
     });
@@ -877,7 +883,7 @@ void main() {
     test('non-straight-pool games never touch foul counters', () {
       final n = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, foul: Foul.standard);
+        ..scoreRack(0);
 
       expect(n.match.consecutiveFouls, [0, 0]);
     });
@@ -899,7 +905,7 @@ void main() {
     test('becomes false after the first visit ends', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 3);
+        ..scoreVisit(points: 3);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
@@ -907,7 +913,7 @@ void main() {
     test('clears after the first visit even with a foul', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
@@ -915,7 +921,7 @@ void main() {
     test('stays true after breakfoul and keepsTurn is true', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul, keepsTurn: true);
+        ..scoreVisit(points: 0, foul: Foul.breakFoul, keepsTurn: true);
 
       expect(n.match.isOpeningBreak, isTrue);
     });
@@ -923,7 +929,7 @@ void main() {
     test('clears after breakfoul and keepsTurn is false', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.breakFoul);
+        ..scoreVisit(points: 0, foul: Foul.breakFoul);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
@@ -931,7 +937,7 @@ void main() {
     test('clears after scoring points with keepsTurn is true', () {
       final n = MatchNotifier(makeStraightPoolMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 5, keepsTurn: true);
+        ..scoreVisit(points: 5, keepsTurn: true);
 
       expect(n.match.isOpeningBreak, isFalse);
     });
@@ -939,11 +945,11 @@ void main() {
     test('three-foul penalty sets it back to true', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.isOpeningBreak, isTrue);
       expect(n.match.sides[0].consecutiveFouls, 0);
@@ -952,11 +958,11 @@ void main() {
     test('three-foul penalty resets remaining to 15', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.ballsRemaining, 15);
     });
@@ -964,11 +970,11 @@ void main() {
     test('third standard foul forces keepsTurn', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard)
-        ..incrementScore(1, points: 0)
-        ..incrementScore(0, points: 0, foul: Foul.standard);
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard)
+        ..scoreVisit(points: 0)
+        ..scoreVisit(points: 0, foul: Foul.standard);
 
       expect(n.match.currentSideIndex, 0);
     });
@@ -976,7 +982,7 @@ void main() {
     test('non-straight-pool games never touch isOpeningBreak', () {
       final n = MatchNotifier(makeMatch())
         ..selectStartingSide(0)
-        ..incrementScore(0);
+        ..scoreRack(0);
 
       expect(n.match.isOpeningBreak, isTrue);
     });
@@ -986,7 +992,7 @@ void main() {
     test('sets askToContinue when the target is reached on a kept turn', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 10, keepsTurn: true);
+        ..scoreVisit(points: 10, keepsTurn: true);
 
       expect(n.askToContinue, isTrue);
       expect(n.match.status, MatchStatus.playing);
@@ -996,7 +1002,7 @@ void main() {
     test('does not set askToContinue when the target ends the visit', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 10);
+        ..scoreVisit(points: 10);
 
       expect(n.askToContinue, isFalse);
       expect(n.match.status, MatchStatus.finished);
@@ -1006,9 +1012,9 @@ void main() {
     test('askToContinue is set again when the target is still reached', () {
       final n = MatchNotifier(makeStraightPoolMatch(inningsLimit: 5, raceTo: 5))
         ..selectStartingSide(0)
-        ..incrementScore(0, points: 10, keepsTurn: true)
+        ..scoreVisit(points: 10, keepsTurn: true)
         ..askToContinue = false
-        ..incrementScore(0, points: 10, keepsTurn: true);
+        ..scoreVisit(points: 10, keepsTurn: true);
 
       expect(n.askToContinue, isTrue);
     });

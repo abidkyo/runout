@@ -39,7 +39,9 @@ void main() {
       fakeAsync((async) {
         match.selectStartingSide(0);
         async.elapse(const Duration(minutes: 42));
-        match.incrementScore(0, points: match.match.config.raceTo);
+        for (var i = 0; i < match.match.config.raceTo; i++) {
+          match.scoreRack(0);
+        }
 
         expect(timer.elapsed, const Duration(minutes: 42));
       });
@@ -135,7 +137,9 @@ void main() {
         var notifications = 0;
 
         match.selectStartingSide(0);
-        match.incrementScore(0, points: match.match.config.raceTo);
+        for (var i = 0; i < match.match.config.raceTo; i++) {
+          match.scoreRack(0);
+        }
 
         timer.addListener(() => notifications++);
         async.elapse(const Duration(seconds: 5));

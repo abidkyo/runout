@@ -186,8 +186,8 @@ void main() {
       tester,
     ) async {
       notifier
-        ..incrementScore(0, points: 0, foul: Foul.standard, keepsTurn: true)
-        ..incrementScore(0, points: 0, foul: Foul.standard, keepsTurn: true);
+        ..scoreVisit(points: 0, foul: Foul.standard, keepsTurn: true)
+        ..scoreVisit(points: 0, foul: Foul.standard, keepsTurn: true);
 
       await tester.pumpWidget(_host(notifier));
 

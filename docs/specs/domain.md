@@ -29,23 +29,26 @@
 
 ## Scoring decisions
 
-- One `incrementScore` call is one straight-pool visit. Innings are counted
-  **before** the visit, so `innings` can be one ahead of completed visits;
-  the UI clamps the display.
+- `scoreRack` is the 8/9/10-ball entry point: one call awards one rack.
+- `scoreVisit` is the straight-pool entry point: one call is one visit.
+  Innings are counted **before** the visit, so `innings` can be one ahead of
+  completed visits; the UI clamps the display.
+- `scoreVisit` and `scoreRemaining` end the visit by default. Pass
+  `endsInning: false` to keep the turn. `newRack` keeps the turn.
+- `scoreRack` and `scoreVisit` are single-exit: compute, push history, one
+  notify. `winnerIndex != null` is the finished signal.
 - Score win takes priority over the innings limit. On a kept turn, reaching
   the target asks instead of finishing.
 - An innings tie extends the limit by 5; a unique high score wins.
 - `currentRun` accumulates raw points (fouls are not subtracted), and
   `highRun` is raised live. Average is derived, never stored.
-- Fouls live in `incrementScore` because a foul always ends a visit or forces
-  a re-break. A third standard foul forces the turn and re-racks. A break foul
+- Fouls live in `scoreVisit` because a foul always ends a visit or forces a
+  re-break. A third standard foul forces the turn and re-racks. A break foul
   cannot carry points.
 - `isOpeningBreak` starts true. It gates the break-foul option and clears
   after a scoring call except a break foul that keeps the turn.
-- `incrementScore` is single-exit: compute, push history, one notify.
-  `winnerIndex != null` is the finished signal.
 - `notifyExtension`, `notifyThreeFouls`, and `askToContinue` are one-shot
-  flags reset by the next `incrementScore`. They are not snapshotted, so
-  `undo()` does not clear them.
+  flags reset by the next scoring call. They are not snapshotted, so `undo()`
+  does not clear them.
 - Extension and three-foul notifications are mutually exclusive: a third
-  foul forces `keepsTurn`, skipping the innings branch.
+  foul forces the turn, skipping the innings branch.
