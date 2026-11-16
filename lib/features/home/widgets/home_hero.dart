@@ -20,32 +20,35 @@ class HomeHero extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back!',
-              style: context.textTheme.headlineSmall?.copyWith(
-                color: colors.onPrimaryContainer,
-                fontWeight: FontWeight.w600,
+      child: InkWell(
+        onTap: onNewMatch,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back!',
+                style: context.textTheme.headlineSmall?.copyWith(
+                  color: colors.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ready for another game?',
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: colors.onPrimaryContainer.withValues(alpha: 0.8),
+              const SizedBox(height: 8),
+              Text(
+                'Ready for another game?',
+                style: context.textTheme.bodyLarge?.copyWith(
+                  color: colors.onPrimaryContainer.withValues(alpha: 0.8),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: onNewMatch,
-              icon: const Icon(Icons.add),
-              label: const Text('New Match'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: onNewMatch,
+                icon: const Icon(Icons.add),
+                label: const Text('New Match'),
+              ),
+            ],
+          ),
         ),
       ),
     );

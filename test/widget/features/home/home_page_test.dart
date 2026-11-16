@@ -104,6 +104,21 @@ void main() {
       expect(find.byType(MatchSetupPage), findsOneWidget);
     });
 
+    testWidgets('tap on hero card opens match setup page', (tester) async {
+      _setSize(tester, const Size(1200, 900));
+      await tester.pumpWidget(_host());
+
+      final hero = find.ancestor(
+        of: find.text('New Match'),
+        matching: find.byType(Card),
+      );
+
+      await tester.tap(hero);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchSetupPage), findsOneWidget);
+    });
+
     testWidgets('continue opens the match page', (tester) async {
       _setSize(tester, const Size(1200, 1200));
       await tester.pumpWidget(_host());
