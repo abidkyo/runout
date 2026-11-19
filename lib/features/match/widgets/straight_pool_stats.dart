@@ -1,6 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_color_scheme.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
 /// One side's straight-pool stats: innings, high run, average.
@@ -26,22 +24,21 @@ class StraightPoolStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final fontSize = (size.shortestSide / 35).clamp(16.0, 24.0);
 
-    final fontSize = (size.shortestSide / 35).clamp(12.0, 24.0);
-
-    final style = context.textTheme.stats.copyWith(
-      color: context.colors.stats,
+    final style = context.textTheme.bodyLarge?.copyWith(
       fontSize: fontSize,
+      color: context.colors.onSurfaceVariant,
     );
 
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: fontSize * 1.5,
+      spacing: fontSize,
       children: [
-        Text('I: $innings', style: style),
-        Text('HR: $highRun', style: style),
-        Text('Ø: $_average', style: style), // Ø U+00D8
+        Text('INN: $innings', style: style),
+        Text('HIGH: $highRun', style: style),
+        Text('AVG: $_average', style: style),
       ],
     );
   }

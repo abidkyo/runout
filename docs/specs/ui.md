@@ -42,14 +42,26 @@
 
 ## Match
 
-- The whole side card is the tap target. The action depends on status:
-  breaker selection, score increment, or no tap in straight pool/finished.
-- The match page does not scroll; cards share the available space.
-- Restart and exit confirm only while playing. The target-reached prompt
-  ignores barrier taps so an outside tap cannot choose `End`.
-- A target reached on a kept turn asks whether to continue. Ending re-applies
-  the score as a visit-ending score.
-- The match title measures its own AppBar slot, not the window, because the
-  leading/actions reduce the available width.
+- The match page is a full-screen scoreboard: an in-page header, side cards that
+  fill the available height, and a bottom action bar. It does not scroll and
+  does not cap its content width.
+- The header shows the game, the race target (plus the innings limit for
+  straight pool), and the elapsed time.
+- At compact width every side stacks; at wide width sides sit side by side.
+- Cards show the players, a score that scales to fill its card, and
+  straight-pool stats. Created matches show “Who breaks?”. The winner card gets
+  a trophy.
+- The whole side card is the tap target. The action depends on status: breaker
+  selection, score increment, or no tap in straight pool/finished.
+- The wide bottom bar has undo/redo, End visit / Balls / New rack tiles for
+  straight pool, and Setup/Home. The compact bar uses icon buttons,
+  without straight pool action buttons.
+- Finished matches show no straight-pool actions.
+- Restart and exit confirm only while playing. The target-reached prompt ignores
+  barrier taps so an outside tap cannot choose `End`.
+- A target reached on a kept turn asks whether to continue. Ending re-applies the
+  score as a visit-ending score.
+- The page stays usable at 375px and at 1.5×/2× text scale; labels ellipsize or
+  scale down instead of overflowing.
 - Custom state surfaces need explicit semantics; labels describe state
   (`Winner`/`Breaking`/`Loser`) only, never content.

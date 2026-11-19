@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_color_scheme.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
 /// One side's column on the match page, presented as a single tappable card.
@@ -9,7 +9,7 @@ import 'package:runout/core/theme/theme_extension.dart';
 ///
 /// - [isBreaker] draws a primary-colored border.
 /// - [isWinner] draws a primary-colored border and fills the card with
-///   the primary container color.
+///   the secondary container color.
 /// - [isLoser] dims the whole card.
 ///
 /// [isBreaker] and [isWinner] are independent: the winner is not
@@ -34,6 +34,18 @@ class SideColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < LayoutBreakpoints.compact;
+
+    final cardColor = isWinner
+        ? context.colors.secondaryContainer
+        : context.colors.surfaceContainerLowest;
+
+    final borderColor = isBreaker || isWinner
+        ? context.colors.primary
+        : context.colors.outlineVariant;
+    final borderWidth = isCompact ? 2.0 : 4.0;
+
     final stateLabel = isWinner
         ? 'Winner'
         : isBreaker
@@ -47,19 +59,10 @@ class SideColumn extends StatelessWidget {
       button: onTap != null,
       label: stateLabel,
       child: Card(
-        clipBehavior: Clip.antiAlias,
-        margin: EdgeInsets.zero,
-        color: isWinner ? context.colors.sidesFill : null,
+        color: cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          // Always width 4, transparent when neither breaker nor winner, so the
-          // card's content box stays the same size with/without border.
-          side: BorderSide(
-            color: isBreaker || isWinner
-                ? context.colors.sidesBorder
-                : Colors.transparent,
-            width: 4,
-          ),
+          side: BorderSide(color: borderColor, width: borderWidth),
         ),
         // Opacity with value 1.0 is a no-op in Flutter (no layer is created),
         // so this is free when not dimmed.
@@ -68,7 +71,7 @@ class SideColumn extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(isCompact ? 8 : 16),
               child: Column(
                 crossAxisAlignment: .stretch,
                 children: children,

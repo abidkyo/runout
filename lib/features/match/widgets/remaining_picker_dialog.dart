@@ -3,6 +3,7 @@ import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 /// Result of [RemainingPickerDialog].
 typedef RemainingResult = ({int remaining, bool keepsTurn, Foul foul});
@@ -33,6 +34,105 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
   Foul _foul = Foul.none;
   bool _keepsTurn = false;
 
+  @override
+  Widget build(BuildContext context) {
+    final isBreakFoul = _foul == Foul.breakFoul;
+
+    return AlertDialog(
+      scrollable: true,
+      title: const Text('Record Inning'),
+      titleTextStyle: context.textTheme.dialogTitle,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _Header(),
+          const SizedBox(height: 24),
+          _BallButtons(
+            enabled: !isBreakFoul,
+            remaining: widget.remaining,
+            selected: _selected,
+            onTap: (value) => setState(() => _selected = value),
+          ),
+          const SizedBox(height: 16),
+          _Info(
+            remaining: widget.remaining,
+            selected: _selected,
+            foul: _foul,
+          ),
+          const SizedBox(height: 8),
+          const PopupMenuDivider(thickness: 2),
+          const SizedBox(height: 8),
+          _FoulSelector(
+            value: _foul,
+            showBreakFoul: widget.showBreakFoul,
+            onPressed: (foul) => setState(() {
+              _foul = foul;
+              if (foul != Foul.breakFoul) _keepsTurn = false;
+            }),
+          ),
+          if (isBreakFoul) ...[
+            const SizedBox(height: 12),
+            _TurnSelector(
+              keepsTurn: _keepsTurn,
+              onPressed: (value) => setState(() => _keepsTurn = value),
+            ),
+          ],
+          const SizedBox(height: 8),
+          const PopupMenuDivider(thickness: 2),
+          const SizedBox(height: 8),
+          _NewRackButton(
+            onPressed: (value) => Navigator.of(context).pop<RemainingResult>((
+              remaining: value,
+              keepsTurn: true,
+              foul: Foul.none,
+            )),
+          ),
+          const SizedBox(height: 16),
+          _NextButton(
+            onPressed: () => Navigator.of(context).pop<RemainingResult>((
+              remaining: _selected,
+              keepsTurn: isBreakFoul && _keepsTurn,
+              foul: _foul,
+            )),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        'How many balls left?',
+        style: context.textTheme.bodyLarge?.copyWith(
+          color: context.colors.onSurfaceVariant,
+        ),
+        maxLines: 1,
+        overflow: .ellipsis,
+      ),
+    );
+  }
+}
+
+class _BallButtons extends StatelessWidget {
+  const new({
+    required this.enabled,
+    required this.selected,
+    required this.remaining,
+    required this.onTap,
+  });
+
+  final bool enabled;
+  final int selected;
+  final int remaining;
+  final ValueChanged<int> onTap;
+
   /// Rows of the triangle, top to bottom: 2, 3, 4, 5 balls.
   static const _rows = <List<int>>[
     [2, 3],
@@ -44,75 +144,62 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final isNarrow = size.width < 425;
+    final ballSize = (size.width / 10).clamp(40.0, 52.0);
 
-    final isBreakFoul = _foul == Foul.breakFoul;
-    final result = (
-      remaining: _selected,
-      keepsTurn: isBreakFoul && _keepsTurn,
-      foul: _foul,
+    return Column(
+      spacing: 8,
+      children: [
+        for (final row in _rows)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 8,
+            children: [
+              for (final value in row)
+                BallButton(
+                  width: ballSize,
+                  value: value,
+                  selected: enabled && value <= selected,
+                  onTap: enabled && value <= remaining
+                      ? () => onTap(value)
+                      : null,
+                ),
+            ],
+          ),
+      ],
     );
+  }
+}
 
-    return AlertDialog(
-      scrollable: true,
-      title: const Text('How many balls left?'),
-      titleTextStyle: context.textTheme.dialogTitle,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final row in _rows)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final value in row)
-                  Padding(
-                    padding: EdgeInsets.all(isNarrow ? 2 : 4),
-                    child: BallButton(
-                      width: isNarrow ? 48 : 60,
-                      value: value,
-                      selected: !isBreakFoul && value <= _selected,
-                      onTap: !isBreakFoul && value <= widget.remaining
-                          ? () => setState(() => _selected = value)
-                          : null,
-                    ),
-                  ),
-              ],
-            ),
-          const SizedBox(height: 16),
-          _FoulSelector(
-            value: _foul,
-            showBreakFoul: widget.showBreakFoul,
-            onChanged: (foul) => setState(() {
-              _foul = foul;
-              if (foul != Foul.breakFoul) _keepsTurn = false;
-            }),
+class _Info extends StatelessWidget {
+  const new({
+    required this.remaining,
+    required this.selected,
+    required this.foul,
+  });
+
+  final int remaining;
+  final int selected;
+  final Foul foul;
+
+  @override
+  Widget build(BuildContext context) {
+    final points = remaining - selected - foul.value;
+    final sign = points > 0 ? '+' : '';
+
+    return OverflowBar(
+      alignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '$selected balls remaining',
+          style: context.textTheme.titleMedium?.copyWith(
+            color: context.colors.onSurfaceVariant,
           ),
-          Visibility(
-            key: const ValueKey('turn-selector-visibility'),
-            visible: isBreakFoul,
-            maintainSize: widget.showBreakFoul,
-            maintainAnimation: widget.showBreakFoul,
-            maintainState: widget.showBreakFoul,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: _TurnSelector(
-                keepsTurn: _keepsTurn,
-                onChanged: (value) => setState(() => _keepsTurn = value),
-              ),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(padding: const EdgeInsets.all(12)),
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
         ),
-        TextButton(
-          style: TextButton.styleFrom(padding: const EdgeInsets.all(12)),
-          onPressed: () => Navigator.of(context).pop(result),
-          child: const Text('Confirm'),
+        Text(
+          '$sign$points points',
+          style: context.textTheme.titleMedium?.copyWith(
+            color: context.colors.primary,
+          ),
         ),
       ],
     );
@@ -124,39 +211,44 @@ class _FoulSelector extends StatelessWidget {
   const new({
     required this.value,
     required this.showBreakFoul,
-    required this.onChanged,
+    required this.onPressed,
   });
 
   final Foul value;
   final bool showBreakFoul;
-  final ValueChanged<Foul> onChanged;
+  final ValueChanged<Foul> onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 360,
-      child: SegmentedButton<Foul>(
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+    final buttons = [
+      ChoiceButton(
+        label: Foul.none.displayName,
+        selected: Foul.none == value,
+        onPressed: () => onPressed(Foul.none),
+        verticalPadding: 16, // 40 px
+      ),
+      ChoiceButton(
+        label: Foul.standard.displayName,
+        selected: Foul.standard == value,
+        onPressed: () => onPressed(Foul.standard),
+        verticalPadding: 16, // 40 px
+      ),
+      if (showBreakFoul)
+        ChoiceButton(
+          label: Foul.breakFoul.displayName,
+          selected: Foul.breakFoul == value,
+          onPressed: () => onPressed(Foul.breakFoul),
+          verticalPadding: 16, // 40 px
         ),
-        segments: [
-          ButtonSegment(
-            value: Foul.none,
-            label: Text(Foul.none.displayName),
-          ),
-          ButtonSegment(
-            value: Foul.standard,
-            label: Text(Foul.standard.displayName),
-          ),
-          if (showBreakFoul)
-            ButtonSegment(
-              value: Foul.breakFoul,
-              label: Text(Foul.breakFoul.displayName),
-            ),
+    ];
+    return SizedBox(
+      key: const ValueKey('foul-selector'),
+      width: 360,
+      child: Row(
+        spacing: 8,
+        children: [
+          for (final button in buttons) Expanded(child: button),
         ],
-        selected: {value},
-        onSelectionChanged: (s) => onChanged(s.first),
       ),
     );
   }
@@ -164,27 +256,123 @@ class _FoulSelector extends StatelessWidget {
 
 /// Segmented selector for re-break vs continue after a break foul.
 class _TurnSelector extends StatelessWidget {
-  const new({required this.keepsTurn, required this.onChanged});
+  const new({required this.keepsTurn, required this.onPressed});
 
   final bool keepsTurn;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool> onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 240,
-      child: SegmentedButton<bool>(
-        showSelectedIcon: false,
-        style: SegmentedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        segments: const [
-          ButtonSegment(value: true, label: Text('Re-break')),
-          ButtonSegment(value: false, label: Text('Continue')),
-        ],
-        selected: {keepsTurn},
-        onSelectionChanged: (s) => onChanged(s.first),
+    final buttons = [
+      ChoiceButton(
+        label: 'Re-break',
+        selected: keepsTurn,
+        onPressed: () => onPressed(true),
+        verticalPadding: 16, // 40 px
       ),
+      ChoiceButton(
+        label: 'Continue',
+        selected: !keepsTurn,
+        onPressed: () => onPressed(false),
+        verticalPadding: 16, // 40 px
+      ),
+    ];
+
+    return SizedBox(
+      key: const ValueKey('turn selector'),
+      width: 240,
+      child: Row(
+        spacing: 8,
+        children: [
+          for (final button in buttons) Expanded(child: button),
+        ],
+      ),
+    );
+  }
+}
+
+class _NewRackButton extends StatelessWidget {
+  const new({required this.onPressed});
+
+  final ValueChanged<int> onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final titleStyle = context.textTheme.titleMedium?.copyWith(
+      color: context.colors.onSecondaryContainer,
+    );
+    final subtitleStyle = context.textTheme.labelMedium?.copyWith(
+      color: context.colors.onSurfaceVariant,
+    );
+    const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 12);
+
+    final params = [
+      ('New Rack', '0 ball remaining', () => onPressed(0)),
+      ('New Rack', '1 ball remaining', () => onPressed(1)),
+    ];
+
+    return Row(
+      spacing: 16,
+      children: [
+        for (final (String title, String subtitle, VoidCallback callback)
+            in params)
+          Expanded(
+            child: FilledButton.tonal(
+              onPressed: callback,
+              style: FilledButton.styleFrom(
+                padding: padding,
+                side: BorderSide(color: context.colors.outline),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    style: titleStyle,
+                    maxLines: 1,
+                    overflow: .ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: subtitleStyle,
+                    maxLines: 1,
+                    overflow: .ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _NextButton extends StatelessWidget {
+  const new({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = context.textTheme.titleMedium;
+    const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
+
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              textStyle: textStyle,
+              padding: padding,
+            ),
+            child: const Text(
+              'Next Inning',
+              maxLines: 1,
+              overflow: .ellipsis,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

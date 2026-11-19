@@ -43,6 +43,11 @@ void main() {
     expect(find.text('01:02:03'), findsOneWidget);
   });
 
+  testWidgets('renders the schedule icon', (tester) async {
+    await _pump(tester, formatted: '02:03');
+    expect(find.byIcon(Icons.schedule_rounded), findsOneWidget);
+  });
+
   testWidgets('uses tabular figures', (tester) async {
     await _pump(tester, formatted: '00:00');
 

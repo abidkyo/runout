@@ -1,6 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_color_scheme.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
 /// A circular ball button used in match dialogs.
@@ -27,24 +25,25 @@ class BallButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: EdgeInsets.zero,
-        shape: const CircleBorder(),
-        side: selected ? BorderSide.none : null,
-        minimumSize: Size(width, width),
-        textStyle: context.textTheme.ballLabel.copyWith(
-          fontSize: width * 0.3,
+    return SizedBox(
+      height: width,
+      width: width,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: const CircleBorder(),
+          side: selected ? BorderSide.none : null,
+          textStyle: TextStyle(
+            fontSize: width * 0.38,
+            fontWeight: FontWeight.w600,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+          backgroundColor: selected ? context.colors.primary : null,
+          foregroundColor: selected ? context.colors.onPrimary : null,
         ),
-        backgroundColor: selected
-            ? context.colors.ballSelectedBackground
-            : null,
-        foregroundColor: selected
-            ? context.colors.ballSelectedForeground
-            : null,
+        child: Text('$value'),
       ),
-      child: Text('$value'),
     );
   }
 }

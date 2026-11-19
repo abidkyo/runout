@@ -16,6 +16,7 @@ void main() {
       );
 
       expect(find.text('Ada Lovelace'), findsOneWidget);
+      expect(find.byIcon(Icons.emoji_events_rounded), findsNothing);
     });
 
     testWidgets('renders both names for a two-player side', (tester) async {
@@ -30,22 +31,35 @@ void main() {
 
       expect(find.text('Ada Lovelace'), findsOneWidget);
       expect(find.text('Grace Hopper'), findsOneWidget);
+      expect(find.byIcon(Icons.emoji_events_rounded), findsNothing);
+    });
+
+    testWidgets('renders a icon for winner', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          _side([
+            _player(id: 'p1', name: 'Ada Lovelace'),
+          ]),
+          isWinner: true,
+        ),
+      );
+
+      expect(find.text('Ada Lovelace'), findsOneWidget);
+      expect(find.byIcon(Icons.emoji_events_rounded), findsOneWidget);
     });
   });
 }
 
-Player _player({
-  required String id,
-  required String name,
-  String? clubName,
-}) => Player(
-  id: id,
-  name: name,
-  clubName: clubName,
-);
+Player _player({required String id, required String name, String? clubName}) {
+  return Player(id: id, name: name, clubName: clubName);
+}
 
 MatchSide _side(List<Player> players) => MatchSide(players: players);
 
-Widget _host(MatchSide side) => MaterialApp(
-  home: Scaffold(body: PlayerNameDisplay(side: side)),
-);
+Widget _host(MatchSide side, {bool isWinner = false}) {
+  return MaterialApp(
+    home: Scaffold(
+      body: PlayerNameDisplay(side: side, isWinner: isWinner),
+    ),
+  );
+}

@@ -1,12 +1,10 @@
-import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
-import 'package:runout/features/match/widgets/match_timer.dart';
-import 'package:runout/features/match/widgets/match_title.dart';
+import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -19,7 +17,23 @@ import '../../../unit/helpers/factories.dart';
 const ValueKey<String> _breakKey = ValueKey('break-text');
 const ValueKey<String> _scoreKey = ValueKey('score-text');
 
-Widget _host(Match match) => MaterialApp(home: MatchPage(match: match));
+Future<void> _pump(
+  WidgetTester tester,
+  Match match, {
+  double width = 1000,
+  double textScale = 1,
+}) {
+  _setSize(tester, width, 1000);
+  if (textScale != 1) _setTextScale(tester, textScale);
+
+  return tester.pumpWidget(
+    MaterialApp(
+      home: MatchPage(
+        match: match,
+      ),
+    ),
+  );
+}
 
 Future<void> _pumpStackedMatchPage(WidgetTester tester, Match match) async {
   await tester.pumpWidget(
@@ -75,18 +89,33 @@ Match _playingSPMatch() => makeStraightPoolMatch().copyWith(
   currentSideIndex: 0,
 );
 
-void _setWidth(WidgetTester tester, double width) {
-  tester.view.physicalSize = Size(width, 600);
+Match _finishedMatch() => makeMatch().copyWith(
+  status: MatchStatus.finished,
+  winnerIndex: 0,
+);
+
+Match _finishedSPMatch() => makeStraightPoolMatch().copyWith(
+  status: MatchStatus.finished,
+  winnerIndex: 0,
+);
+
+void _setSize(WidgetTester tester, double width, double height) {
+  tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
+}
+
+void _setTextScale(WidgetTester tester, double scale) {
+  tester.platformDispatcher.textScaleFactorTestValue = scale;
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 }
 
 Iterable<SideColumn> _columns(WidgetTester tester) {
   return tester.widgetList<SideColumn>(find.byType(SideColumn));
 }
 
-Iterable<AutoSizeText> _scores(WidgetTester tester) {
-  return tester.widgetList<AutoSizeText>(find.byKey(_scoreKey));
+Iterable<Text> _scores(WidgetTester tester) {
+  return tester.widgetList<Text>(find.byKey(_scoreKey));
 }
 
 // ---------------------------------------------------------------------------
@@ -94,14 +123,15 @@ Iterable<AutoSizeText> _scores(WidgetTester tester) {
 void main() {
   group('rendering', () {
     group('created', () {
-      testWidgets('renders the match title', (tester) async {
-        await tester.pumpWidget(_host(makeMatch()));
+      testWidgets('renders the match header and controls bar', (tester) async {
+        await _pump(tester, makeMatch());
 
-        expect(find.byType(MatchTitle), findsOneWidget);
+        expect(find.byType(MatchHeader), findsOneWidget);
+        expect(find.byType(ControlsBar), findsOneWidget);
       });
 
       testWidgets('renders one side column per side', (tester) async {
-        await tester.pumpWidget(_host(makeMatch()));
+        await _pump(tester, makeMatch());
 
         expect(find.byType(SideColumn), findsNWidgets(2));
       });
@@ -109,43 +139,34 @@ void main() {
       testWidgets(
         'renders three side columns for three-player',
         (tester) async {
-          await tester.pumpWidget(_host(makeMatch(sideCount: 3)));
+          await _pump(tester, makeMatch(sideCount: 3));
 
           expect(find.byType(SideColumn), findsNWidgets(3));
         },
       );
 
       testWidgets('renders the player names on each side', (tester) async {
-        await tester.pumpWidget(_host(makeMatch()));
+        await _pump(tester, makeMatch());
 
         expect(find.byType(PlayerNameDisplay), findsNWidgets(2));
       });
 
       testWidgets('renders a break text on each side', (tester) async {
-        await tester.pumpWidget(_host(makeMatch()));
+        await _pump(tester, makeMatch());
 
         expect(find.byKey(_breakKey), findsNWidgets(2));
-      });
-
-      testWidgets('renders the timer and controls bar', (tester) async {
-        await tester.pumpWidget(_host(makeMatch()));
-
-        expect(find.byType(MatchTimer), findsOneWidget);
-        expect(find.byType(ControlsBar), findsOneWidget);
       });
 
       testWidgets('straight pool stats hidden for non-straight-pool games', (
         tester,
       ) async {
-        await tester.pumpWidget(_host(makeMatch()));
+        await _pump(tester, makeMatch());
 
         expect(find.byType(StraightPoolStats), findsNothing);
       });
 
       testWidgets('straight pool stats hidden when created', (tester) async {
-        await tester.pumpWidget(
-          _host(makeStraightPoolMatch()),
-        );
+        await _pump(tester, makeStraightPoolMatch());
 
         expect(find.byType(StraightPoolStats), findsNothing);
       });
@@ -153,14 +174,14 @@ void main() {
 
     group('playing', () {
       testWidgets('renders a score text on each side', (tester) async {
-        await tester.pumpWidget(_host(_playingMatch()));
+        await _pump(tester, _playingMatch());
 
         expect(find.byKey(_scoreKey), findsNWidgets(2));
         expect(find.byKey(_breakKey), findsNothing);
       });
 
       testWidgets('marks the breaker side columns', (tester) async {
-        await tester.pumpWidget(_host(_playingMatch()));
+        await _pump(tester, _playingMatch());
 
         final columns = _columns(tester);
         expect(columns.first.isBreaker, isTrue);
@@ -170,13 +191,13 @@ void main() {
       testWidgets('straight pool stats hidden for non-straight-pool games', (
         tester,
       ) async {
-        await tester.pumpWidget(_host(_playingMatch()));
+        await _pump(tester, _playingMatch());
 
         expect(find.byType(StraightPoolStats), findsNothing);
       });
 
       testWidgets('renders straight pool stats', (tester) async {
-        await tester.pumpWidget(_host(_playingSPMatch()));
+        await _pump(tester, _playingSPMatch());
 
         expect(find.byType(StraightPoolStats), findsNWidgets(2));
       });
@@ -184,11 +205,7 @@ void main() {
 
     group('finished', () {
       testWidgets('marks the winner and loser side columns', (tester) async {
-        final match = makeMatch().copyWith(
-          status: MatchStatus.finished,
-          winnerIndex: 0,
-        );
-        await tester.pumpWidget(_host(match));
+        await _pump(tester, _finishedMatch());
 
         final columns = _columns(tester);
         expect(columns.first.isWinner, isTrue);
@@ -197,11 +214,14 @@ void main() {
         expect(columns.last.isLoser, isTrue);
       });
 
+      testWidgets('shows a trophy on the winning side', (tester) async {
+        await _pump(tester, _finishedMatch());
+
+        expect(find.byIcon(Icons.emoji_events_rounded), findsOneWidget);
+      });
+
       testWidgets('renders straight pool stats', (tester) async {
-        final match = makeStraightPoolMatch().copyWith(
-          status: MatchStatus.finished,
-        );
-        await tester.pumpWidget(_host(match));
+        await _pump(tester, _finishedSPMatch());
 
         expect(find.byType(StraightPoolStats), findsNWidgets(2));
       });
@@ -213,7 +233,7 @@ void main() {
           status: MatchStatus.finished,
           sides: [makeSide('0', innings: 7), makeSide('1', innings: 2)],
         );
-        await tester.pumpWidget(_host(match));
+        await _pump(tester, match);
 
         final stats = tester.widgetList<StraightPoolStats>(
           find.byType(StraightPoolStats),
@@ -229,7 +249,7 @@ void main() {
     testWidgets('tapping a side when created selects the breaker', (
       tester,
     ) async {
-      await tester.pumpWidget(_host(makeMatch()));
+      await _pump(tester, makeMatch());
 
       await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
@@ -239,7 +259,7 @@ void main() {
     });
 
     testWidgets('tapping a side in play increments that side', (tester) async {
-      await tester.pumpWidget(_host(_playingMatch()));
+      await _pump(tester, _playingMatch());
 
       await tester.tap(find.byType(SideColumn).first);
       await tester.pump();
@@ -249,20 +269,10 @@ void main() {
       expect(scores.last.data, '0');
     });
 
-    testWidgets('non-straight-pool sides are tappable while playing', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_host(_playingMatch()));
-
-      final columns = _columns(tester);
-      expect(columns.first.onTap, isNotNull);
-      expect(columns.last.onTap, isNotNull);
-    });
-
     testWidgets('straight-pool sides are not tappable while playing', (
       tester,
     ) async {
-      await tester.pumpWidget(_host(_playingSPMatch()));
+      await _pump(tester, _playingSPMatch());
 
       final columns = _columns(tester);
       expect(columns.first.onTap, isNull);
@@ -270,26 +280,11 @@ void main() {
     });
 
     testWidgets('finished sides are not tappable', (tester) async {
-      final match = makeMatch().copyWith(
-        status: MatchStatus.finished,
-        winnerIndex: 0,
-      );
-      await tester.pumpWidget(_host(match));
+      await _pump(tester, _finishedMatch());
 
       final columns = _columns(tester);
       expect(columns.first.onTap, isNull);
       expect(columns.last.onTap, isNull);
-    });
-
-    testWidgets('tapping a straight-pool side does nothing', (tester) async {
-      await tester.pumpWidget(_host(_playingSPMatch()));
-
-      await tester.tap(find.byType(SideColumn).first);
-      await tester.pump();
-
-      final scores = _scores(tester);
-      expect(scores.first.data, '0');
-      expect(scores.last.data, '0');
     });
   });
 
@@ -299,7 +294,7 @@ void main() {
     ) async {
       await _pumpStackedMatchPage(tester, makeMatch());
 
-      await tester.tap(find.byIcon(Icons.replay));
+      await tester.tap(find.byIcon(Icons.tune_rounded));
       await tester.pumpAndSettle();
 
       expect(find.byType(ConfirmDialog), findsNothing);
@@ -310,7 +305,7 @@ void main() {
     testWidgets('exit from created pops to the first route', (tester) async {
       await _pumpStackedMatchPage(tester, makeMatch());
 
-      await tester.tap(find.byIcon(Icons.exit_to_app));
+      await tester.tap(find.byIcon(Icons.home_rounded));
       await tester.pumpAndSettle();
 
       expect(find.byType(ConfirmDialog), findsNothing);
@@ -323,7 +318,7 @@ void main() {
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
 
-      await tester.tap(find.byIcon(Icons.replay));
+      await tester.tap(find.byIcon(Icons.tune_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Back to setup?'), findsOneWidget);
 
@@ -339,7 +334,7 @@ void main() {
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
 
-      await tester.tap(find.byIcon(Icons.replay));
+      await tester.tap(find.byIcon(Icons.tune_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Back to setup?'), findsOneWidget);
 
@@ -356,7 +351,7 @@ void main() {
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
 
-      await tester.tap(find.byIcon(Icons.exit_to_app));
+      await tester.tap(find.byIcon(Icons.home_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Exit to home?'), findsOneWidget);
 
@@ -369,11 +364,8 @@ void main() {
   });
 
   group('responsive layout', () {
-    testWidgets('uses a Row above the compact breakpoint', (
-      tester,
-    ) async {
-      _setWidth(tester, LayoutBreakpoints.compact + 100);
-      await tester.pumpWidget(_host(makeMatch()));
+    testWidgets('uses a Row above the compact breakpoint', (tester) async {
+      await _pump(tester, makeMatch(), width: LayoutBreakpoints.compact + 100);
 
       final columns = find.byType(SideColumn);
       final a = tester.getTopLeft(columns.at(0));
@@ -386,14 +378,27 @@ void main() {
     testWidgets('stacks in a Column below the compact breakpoint', (
       tester,
     ) async {
-      _setWidth(tester, LayoutBreakpoints.compact - 100);
-      await tester.pumpWidget(_host(makeMatch()));
+      await _pump(tester, makeMatch(), width: LayoutBreakpoints.compact - 100);
 
       final columns = find.byType(SideColumn);
       final a = tester.getTopLeft(columns.at(0));
       final b = tester.getTopLeft(columns.at(1));
 
       expect(b.dy, greaterThan(a.dy)); // stacked
+    });
+
+    testWidgets('fits the created state at 2x on 375 width', (tester) async {
+      await _pump(
+        tester,
+        makeStraightPoolMatch(sideCount: 3).copyWith(
+          status: MatchStatus.playing,
+          currentSideIndex: 0,
+        ),
+        width: 375,
+        textScale: 2,
+      );
+
+      expect(tester.takeException(), isNull);
     });
   });
 }

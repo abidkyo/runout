@@ -1,8 +1,6 @@
-import 'package:flutter_auto_size_text/flutter_auto_size_text.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
-import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
@@ -11,8 +9,7 @@ import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
-import 'package:runout/features/match/widgets/match_timer.dart';
-import 'package:runout/features/match/widgets/match_title.dart';
+import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_column.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
@@ -72,113 +69,103 @@ class _MatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final match = context.watch<MatchNotifier>().match;
-    final config = match.config;
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < LayoutBreakpoints.compact;
+    final padding = isCompact ? 16.0 : 24.0;
+
+    final config = context.read<MatchNotifier>().match.config;
 
     return Scaffold(
-      appBar: AppBar(
-        title: MatchTitle(config: config),
-        titleTextStyle: context.textTheme.screenTitle.copyWith(
-          color: context.colors.screenTitle,
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        actions: const [MatchTimer()],
-      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(padding),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: isCompact ? 8 : 12,
             children: [
-              const Expanded(child: _ScoreArea()),
-              ControlsBar(
-                onRestart: () => _backToSetup(context),
-                onExit: () => _exitToHome(context),
-              ),
+              MatchHeader(config: config),
+              const Expanded(child: _MatchBody()),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: ControlsBar(
+        onRestart: () => _backToSetup(context),
+        onExit: () => _exitToHome(context),
       ),
     );
   }
 }
 
-class _ScoreArea extends StatelessWidget {
+class _MatchBody extends StatelessWidget {
   const new();
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < LayoutBreakpoints.compact;
+
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
 
     final isStraightPool = match.config.gameType == GameType.straightPool;
-
     final isCreated = match.status == MatchStatus.created;
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
 
-    VoidCallback? onTapFor(int i) {
-      if (isCreated) return () => notifier.selectStartingSide(i);
+    VoidCallback? onTapFor(int index) {
+      if (isCreated) return () => notifier.selectStartingSide(index);
       if (isStraightPool) return null;
       if (isFinished) return null;
-      return () => notifier.scoreRack(i);
+      return () => notifier.scoreRack(index);
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < LayoutBreakpoints.compact;
-
-        final cards = <Widget>[
-          for (final (int i, MatchSide side) in match.sides.indexed)
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isCompact ? 0 : 8,
-                  vertical: isCompact ? 8 : 0,
-                ),
-                child: SideColumn(
-                  onTap: onTapFor(i),
-                  isWinner: isFinished && match.winnerIndex == i,
-                  isLoser: isFinished && match.winnerIndex != i,
-                  isBreaker: isPlaying && match.currentSideIndex == i,
-                  children: [
-                    PlayerNameDisplay(side: side),
-                    Expanded(
-                      child: Center(
-                        child: isCreated
-                            ? Text(
-                                key: const ValueKey('break-text'),
-                                'Who breaks?',
-                                style: context.textTheme.prompt.copyWith(
-                                  color: context.colors.prompt,
-                                ),
-                              )
-                            : AutoSizeText(
-                                key: const ValueKey('score-text'),
-                                side.score.toString(),
-                                style: context.textTheme.score,
-                                minFontSize: AppTextTheme.scoreMinFontSize,
-                                maxLines: 1,
-                              ),
-                      ),
-                    ),
-                    if (isStraightPool && !isCreated)
-                      StraightPoolStats(
-                        innings: side.innings.clamp(
-                          0,
-                          match.effectiveInningsLimit,
-                        ),
-                        highRun: side.highRun,
-                        score: side.score,
-                      ),
-                  ],
-                ),
+    final cards = <Widget>[
+      for (final (int i, MatchSide side) in match.sides.indexed)
+        Expanded(
+          child: SideColumn(
+            onTap: onTapFor(i),
+            isWinner: isFinished && match.winnerIndex == i,
+            isLoser: isFinished && match.winnerIndex != i,
+            isBreaker: isPlaying && match.currentSideIndex == i,
+            children: [
+              PlayerNameDisplay(
+                side: side,
+                isWinner: isFinished && match.winnerIndex == i,
               ),
-            ),
-        ];
+              Expanded(
+                child: isCreated
+                    ? Center(
+                        child: Text(
+                          'Who breaks?',
+                          key: const ValueKey('break-text'),
+                          style: context.textTheme.headlineMedium?.copyWith(
+                            color: context.colors.primary,
+                          ),
+                        ),
+                      )
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          side.score.toString(),
+                          style: context.textTheme.score,
+                          key: const ValueKey('score-text'),
+                        ),
+                      ),
+              ),
+              if (isStraightPool && !isCreated)
+                StraightPoolStats(
+                  innings: side.innings.clamp(0, match.effectiveInningsLimit),
+                  highRun: side.highRun,
+                  score: side.score,
+                ),
+            ],
+          ),
+        ),
+    ];
 
-        return isCompact ? Column(children: cards) : Row(children: cards);
-      },
-    );
+    return isCompact
+        ? Column(spacing: 8, children: cards)
+        : Row(spacing: 12, children: cards);
   }
 }

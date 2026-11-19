@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
-import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/straight_pool_actions.dart';
 
@@ -19,66 +20,146 @@ class ControlsBar extends StatelessWidget {
   /// Called when the user wants to return to the home page.
   final VoidCallback onExit;
 
-  static const double _iconSize = 28;
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isWide = width >= LayoutBreakpoints.wide;
+    final isCompact = width < LayoutBreakpoints.compact;
+
+    final match = context.read<MatchNotifier>().match;
+    final isStraightPool = match.config.gameType == GameType.straightPool;
+
+    return Container(
+      height: isCompact ? 65 : 77,
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: context.colors.outlineVariant),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: isCompact ? 16 : 24,
+          vertical: isCompact ? 8 : 12,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const _UndoRedoButton(),
+            if (isStraightPool && isWide) const StraightPoolActions(),
+            _NavigationButton(onRestart: onRestart, onExit: onExit),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UndoRedoButton extends StatelessWidget {
+  const new();
 
   @override
   Widget build(BuildContext context) {
     final notifier = context.watch<MatchNotifier>();
-    final match = notifier.match;
 
-    final isStraightPool = match.config.gameType == GameType.straightPool;
-    final isPlaying = match.status == MatchStatus.playing;
+    return Row(
+      children: [
+        Visibility(
+          maintainSize: true,
+          maintainState: true,
+          maintainAnimation: true,
+          visible: notifier.canUndo,
+          child: _IconLabelButton(
+            icon: Icons.undo_rounded,
+            label: 'Undo',
+            onPressed: notifier.canUndo ? notifier.undo : null,
+          ),
+        ),
+        Visibility(
+          maintainSize: true,
+          maintainState: true,
+          maintainAnimation: true,
+          visible: notifier.canRedo,
+          child: _IconLabelButton(
+            icon: Icons.redo_rounded,
+            label: 'Redo',
+            onPressed: notifier.canRedo ? notifier.redo : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+class _NavigationButton extends StatelessWidget {
+  const new({
+    required this.onRestart,
+    required this.onExit,
+  });
+
+  final VoidCallback onRestart;
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _IconLabelButton(
+          icon: Icons.tune_rounded,
+          label: 'Setup',
+          onPressed: onRestart,
+          tooltip: 'Back to setup',
+        ),
+        _IconLabelButton(
+          icon: Icons.home_rounded,
+          label: 'Home',
+          onPressed: onExit,
+          tooltip: 'Exit to home',
+        ),
+      ],
+    );
+  }
+}
+
+class _IconLabelButton extends StatelessWidget {
+  const new({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.tooltip,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isCompact = width < LayoutBreakpoints.compact;
+
+    final tooltip = this.tooltip;
+
+    final button = TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        minimumSize: isCompact ? const Size(56, 56) : const Size(68, 60),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 2,
         children: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.undo),
-                iconSize: _iconSize,
-                tooltip: 'Undo',
-                onPressed: notifier.canUndo ? notifier.undo : null,
-                disabledColor: Colors.transparent,
-              ),
-              IconButton(
-                icon: const Icon(Icons.redo),
-                iconSize: _iconSize,
-                tooltip: 'Redo',
-                onPressed: notifier.canRedo ? notifier.redo : null,
-                disabledColor: Colors.transparent,
-              ),
-            ],
-          ),
-          if (isStraightPool)
-            Visibility(
-              key: const ValueKey('straight-pool-actions-visibility'),
-              visible: isPlaying,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: const StraightPoolActions(),
+          Icon(icon, size: 28),
+          if (!isCompact)
+            Flexible(
+              child: Text(label, style: context.textTheme.labelMedium),
             ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.replay),
-                iconSize: _iconSize,
-                tooltip: 'Back to setup',
-                onPressed: onRestart,
-              ),
-              IconButton(
-                icon: const Icon(Icons.exit_to_app),
-                iconSize: _iconSize,
-                tooltip: 'Exit to home',
-                onPressed: onExit,
-              ),
-            ],
-          ),
         ],
       ),
     );
+
+    return isCompact
+        ? Tooltip(message: tooltip ?? label, child: button)
+        : button;
   }
 }

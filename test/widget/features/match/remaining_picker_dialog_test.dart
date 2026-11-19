@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
 import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 // ---------------------------------------------------------------------------
 
@@ -11,7 +12,12 @@ Future<void> _openDialog(
   required ValueChanged<RemainingResult?> onResult,
   int remaining = 15,
   bool showBreakFoul = true,
+  double width = 800,
 }) async {
+  tester.view.physicalSize = Size(width, 1000);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
   await tester.pumpWidget(
     MaterialApp(
       home: _Host(
@@ -60,39 +66,24 @@ BallButton _ball(WidgetTester tester, int value) {
   );
 }
 
-SegmentedButton<Foul> _foulSelector(WidgetTester tester) {
-  return tester.widget<SegmentedButton<Foul>>(
-    find.byType(SegmentedButton<Foul>),
+ChoiceButton _button(WidgetTester tester, String label) {
+  return tester.widget<ChoiceButton>(
+    find.widgetWithText(ChoiceButton, label),
   );
-}
-
-SegmentedButton<bool> _turnSelector(WidgetTester tester) {
-  return tester.widget<SegmentedButton<bool>>(
-    find.byType(SegmentedButton<bool>),
-  );
-}
-
-Visibility _turnVisibility(WidgetTester tester) {
-  return tester.widget<Visibility>(
-    find.byKey(const ValueKey('turn-selector-visibility')),
-  );
-}
-
-void _setViewport(WidgetTester tester, double width, double height) {
-  tester.view.physicalSize = Size(width, height);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
 }
 
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('rendering', () {
+  group('header', () {
     testWidgets('renders the title', (tester) async {
       await _openDialog(tester, onResult: (_) {});
+      expect(find.text('Record Inning'), findsOneWidget);
       expect(find.text('How many balls left?'), findsOneWidget);
     });
+  });
 
+  group('ball buttons', () {
     testWidgets('renders all 14 balls', (tester) async {
       await _openDialog(tester, onResult: (_) {});
       expect(find.byType(BallButton), findsNWidgets(14));
@@ -107,50 +98,6 @@ void main() {
       expect(find.text('16'), findsNothing);
     });
 
-    testWidgets('renders Cancel and Confirm', (tester) async {
-      await _openDialog(tester, onResult: (_) {});
-      expect(find.text('Cancel'), findsOneWidget);
-      expect(find.text('Confirm'), findsOneWidget);
-    });
-  });
-
-  group('ball button size', () {
-    testWidgets('has width 48 on narrow layout', (tester) async {
-      _setViewport(tester, 400, 600);
-      await _openDialog(tester, onResult: (_) {});
-
-      expect(_ball(tester, 2).width, 48);
-    });
-
-    testWidgets('has width 60 on wider layout', (tester) async {
-      await _openDialog(tester, onResult: (_) {});
-
-      expect(_ball(tester, 2).width, 60);
-    });
-
-    testWidgets('has padding of 2 on narrow layout', (tester) async {
-      _setViewport(tester, 400, 600);
-      await _openDialog(tester, onResult: (_) {});
-
-      final balls = find.byType(BallButton);
-      final a = tester.getRect(balls.at(11));
-      final b = tester.getRect(balls.at(12));
-
-      expect(b.left - a.right, 4);
-    });
-
-    testWidgets('has padding of 4 on wider layout', (tester) async {
-      await _openDialog(tester, onResult: (_) {});
-
-      final balls = find.byType(BallButton);
-      final a = tester.getRect(balls.at(11));
-      final b = tester.getRect(balls.at(12));
-
-      expect(b.left - a.right, 8);
-    });
-  });
-
-  group('ball selection', () {
     testWidgets('balls above remaining are disabled', (tester) async {
       await _openDialog(tester, remaining: 7, onResult: (_) {});
       for (var value = 2; value <= 7; value++) {
@@ -194,13 +141,56 @@ void main() {
     });
   });
 
+  group('info', () {
+    testWidgets('default', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+
+      expect(find.text('15 balls remaining'), findsOneWidget);
+      expect(find.text('0 points'), findsOneWidget);
+    });
+
+    testWidgets('show remaining balls and points made', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+      await tester.tap(find.widgetWithText(BallButton, '10'));
+      await tester.pump();
+
+      expect(find.text('10 balls remaining'), findsOneWidget);
+      expect(find.text('+5 points'), findsOneWidget);
+    });
+
+    testWidgets('show minus points made', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+
+      await tester.tap(find.text(Foul.standard.displayName));
+      await tester.pump();
+
+      expect(find.text('-1 points'), findsOneWidget);
+
+      await tester.tap(find.text(Foul.breakFoul.displayName));
+      await tester.pump();
+
+      expect(find.text('-2 points'), findsOneWidget);
+    });
+
+    testWidgets('calculate points + foul correctly', (tester) async {
+      await _openDialog(tester, onResult: (_) {});
+
+      await tester.tap(find.widgetWithText(BallButton, '10'));
+      await tester.pump();
+      await tester.tap(find.text(Foul.standard.displayName));
+      await tester.pump();
+
+      expect(find.text('+4 points'), findsOneWidget);
+    });
+  });
+
   group('foul selector', () {
     testWidgets('defaults to no foul', (tester) async {
       await _openDialog(tester, onResult: (_) {});
-      expect(_foulSelector(tester).selected, {Foul.none});
+      expect(_button(tester, Foul.none.displayName).selected, isTrue);
     });
 
-    testWidgets('breakFoul segment hidden when showBreakFoul is false', (
+    testWidgets('breakFoul button hidden when showBreakFoul is false', (
       tester,
     ) async {
       await _openDialog(
@@ -211,7 +201,7 @@ void main() {
       expect(find.text(Foul.breakFoul.displayName), findsNothing);
     });
 
-    testWidgets('breakFoul segment shown when showBreakFoul is true', (
+    testWidgets('breakFoul button shown when showBreakFoul is true', (
       tester,
     ) async {
       await _openDialog(tester, onResult: (_) {});
@@ -222,7 +212,8 @@ void main() {
       await _openDialog(tester, onResult: (_) {});
       await tester.tap(find.text(Foul.standard.displayName));
       await tester.pump();
-      expect(_foulSelector(tester).selected, {Foul.standard});
+
+      expect(_button(tester, Foul.standard.displayName).selected, isTrue);
     });
 
     testWidgets('selecting breakFoul disables and unhighlights balls', (
@@ -232,7 +223,8 @@ void main() {
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
 
-      expect(_foulSelector(tester).selected, {Foul.breakFoul});
+      expect(_button(tester, Foul.breakFoul.displayName).selected, isTrue);
+
       for (var value = 2; value <= 15; value++) {
         expect(_ball(tester, value).onTap, isNull, reason: '$value');
         expect(_ball(tester, value).selected, isFalse, reason: '$value');
@@ -243,21 +235,23 @@ void main() {
   group('turn selector', () {
     testWidgets('hidden when foul is none', (tester) async {
       await _openDialog(tester, onResult: (_) {});
-      expect(_turnVisibility(tester).visible, isFalse);
+      expect(find.text('Re-break'), findsNothing);
+      expect(find.text('Continue'), findsNothing);
     });
 
     testWidgets('shown when breakFoul is selected', (tester) async {
       await _openDialog(tester, onResult: (_) {});
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
-      expect(_turnVisibility(tester).visible, isTrue);
+      expect(find.text('Re-break'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
     });
 
     testWidgets('defaults to Continue', (tester) async {
       await _openDialog(tester, onResult: (_) {});
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
-      expect(_turnSelector(tester).selected, {false});
+      expect(_button(tester, 'Continue').selected, isTrue);
     });
 
     testWidgets('selecting Re-break updates the selection', (tester) async {
@@ -266,7 +260,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Re-break'));
       await tester.pump();
-      expect(_turnSelector(tester).selected, {true});
+      expect(_button(tester, 'Re-break').selected, isTrue);
     });
 
     testWidgets('leaving breakFoul for standard resets to Continue', (
@@ -282,7 +276,7 @@ void main() {
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
 
-      expect(_turnSelector(tester).selected, {false});
+      expect(_button(tester, 'Continue').selected, isTrue);
     });
 
     testWidgets('leaving breakFoul for none resets to Continue', (
@@ -298,28 +292,18 @@ void main() {
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
 
-      expect(_turnSelector(tester).selected, {false});
+      expect(_button(tester, 'Continue').selected, isTrue);
     });
   });
 
-  group('return value', () {
-    testWidgets('Cancel pops null', (tester) async {
-      final results = <RemainingResult?>[];
-      await _openDialog(tester, onResult: results.add);
-
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-
-      expect(results, [null]);
-    });
-
-    testWidgets('Confirm with defaults returns remaining, none, no keep', (
+  group('next inning', () {
+    testWidgets('defaults returns remaining, none, no keep', (
       tester,
     ) async {
       final results = <RemainingResult?>[];
       await _openDialog(tester, onResult: results.add);
 
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Next Inning'));
       await tester.pumpAndSettle();
 
       expect(
@@ -328,7 +312,7 @@ void main() {
       );
     });
 
-    testWidgets('Confirm after picking a ball returns the picked value', (
+    testWidgets('after picking a ball returns the picked value', (
       tester,
     ) async {
       final results = <RemainingResult?>[];
@@ -336,13 +320,13 @@ void main() {
 
       await tester.tap(find.widgetWithText(BallButton, '9'));
       await tester.pump();
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Next Inning'));
       await tester.pumpAndSettle();
 
       expect(results.first?.remaining, 9);
     });
 
-    testWidgets('Confirm with standard foul returns keepsTurn false', (
+    testWidgets('standard foul returns keepsTurn false', (
       tester,
     ) async {
       final results = <RemainingResult?>[];
@@ -350,14 +334,14 @@ void main() {
 
       await tester.tap(find.text(Foul.standard.displayName));
       await tester.pump();
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Next Inning'));
       await tester.pumpAndSettle();
 
       expect(results.single?.foul, Foul.standard);
       expect(results.single?.keepsTurn, isFalse);
     });
 
-    testWidgets('Confirm with breakFoul + Continue returns keepsTurn false', (
+    testWidgets('breakFoul + Continue returns keepsTurn false', (
       tester,
     ) async {
       final results = <RemainingResult?>[];
@@ -365,14 +349,14 @@ void main() {
 
       await tester.tap(find.text(Foul.breakFoul.displayName));
       await tester.pump();
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Next Inning'));
       await tester.pumpAndSettle();
 
       expect(results.single?.foul, Foul.breakFoul);
       expect(results.single?.keepsTurn, isFalse);
     });
 
-    testWidgets('Confirm with breakFoul + Re-break returns keepsTurn true', (
+    testWidgets('breakFoul + Re-break returns keepsTurn true', (
       tester,
     ) async {
       final results = <RemainingResult?>[];
@@ -382,7 +366,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Re-break'));
       await tester.pump();
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Next Inning'));
       await tester.pumpAndSettle();
 
       expect(results.single?.foul, Foul.breakFoul);
@@ -390,7 +374,7 @@ void main() {
     });
 
     testWidgets(
-      'Confirm after Re-break then standard returns keepsTurn false',
+      'after Re-break then standard returns keepsTurn false',
       (tester) async {
         final results = <RemainingResult?>[];
         await _openDialog(tester, onResult: results.add);
@@ -401,14 +385,42 @@ void main() {
         await tester.pump();
         await tester.tap(find.text(Foul.standard.displayName));
         await tester.pump();
-        await tester.tap(find.text('Confirm'));
+        await tester.tap(find.text('Next Inning'));
         await tester.pumpAndSettle();
 
         expect(results.single?.foul, Foul.standard);
         expect(results.single?.keepsTurn, isFalse);
       },
     );
+  });
 
+  group('new rack', () {
+    testWidgets('0 ball remaining', (tester) async {
+      final results = <RemainingResult?>[];
+      await _openDialog(tester, onResult: results.add);
+
+      await tester.tap(find.text('0 ball remaining'));
+      await tester.pumpAndSettle();
+
+      expect(results.single?.remaining, 0);
+      expect(results.single?.foul, Foul.none);
+      expect(results.single?.keepsTurn, isTrue);
+    });
+
+    testWidgets('1 ball remaining', (tester) async {
+      final results = <RemainingResult?>[];
+      await _openDialog(tester, onResult: results.add);
+
+      await tester.tap(find.text('1 ball remaining'));
+      await tester.pumpAndSettle();
+
+      expect(results.single?.remaining, 1);
+      expect(results.single?.foul, Foul.none);
+      expect(results.single?.keepsTurn, isTrue);
+    });
+  });
+
+  group('dynamic', () {
     testWidgets('barrier dismiss pops null', (tester) async {
       final results = <RemainingResult?>[];
       await _openDialog(tester, onResult: results.add);
@@ -418,12 +430,14 @@ void main() {
 
       expect(results, [null]);
     });
-  });
 
-  group('overflow', () {
-    testWidgets('does not overflow at a short viewport', (tester) async {
-      _setViewport(tester, 800, 400);
-      await _openDialog(tester, onResult: (_) {});
+    testWidgets('does not overflow at 375 width and 2x text scale', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await _openDialog(tester, onResult: (_) {}, width: 375);
 
       expect(tester.takeException(), isNull);
     });

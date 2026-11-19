@@ -31,11 +31,14 @@ void main() {
       expect(card.color, Theme.of(context).colorScheme.secondaryContainer);
     });
 
-    testWidgets('does not fill the card when not winner', (tester) async {
+    testWidgets('fill the card with surface container when not winner', (
+      tester,
+    ) async {
       await tester.pumpWidget(_host(children: const [SizedBox()]));
 
       final card = tester.widget<Card>(find.byType(Card));
-      expect(card.color, isNull);
+      final context = tester.element(find.byType(Card));
+      expect(card.color, Theme.of(context).colorScheme.surfaceContainerLowest);
     });
 
     testWidgets('draws a primary border when breaker', (tester) async {
@@ -60,15 +63,17 @@ void main() {
       expect(shape.side.color, Theme.of(context).colorScheme.primary);
     });
 
-    testWidgets('draws a transparent border when neither breaker nor winner', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_host(children: const [SizedBox()]));
+    testWidgets(
+      'draws a outline border when neither breaker nor winner',
+      (tester) async {
+        await tester.pumpWidget(_host(children: const [SizedBox()]));
 
-      final card = tester.widget<Card>(find.byType(Card));
-      final shape = card.shape! as RoundedRectangleBorder;
-      expect(shape.side.color, Colors.transparent);
-    });
+        final card = tester.widget<Card>(find.byType(Card));
+        final shape = card.shape! as RoundedRectangleBorder;
+        final context = tester.element(find.byType(Card));
+        expect(shape.side.color, Theme.of(context).colorScheme.outlineVariant);
+      },
+    );
 
     testWidgets('dims the content when loser', (tester) async {
       await tester.pumpWidget(

@@ -7,6 +7,7 @@ class ChoiceButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onPressed,
+    this.verticalPadding = 20, // this make 48px button
     this.icon,
     super.key,
   });
@@ -15,12 +16,16 @@ class ChoiceButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onPressed;
   final IconData? icon;
+  final double verticalPadding;
 
   @override
   Widget build(BuildContext context) {
     final icon = this.icon;
     final textStyle = context.textTheme.titleMedium;
-    const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
+    final padding = EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: verticalPadding,
+    );
 
     final content = Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -28,7 +33,7 @@ class ChoiceButton extends StatelessWidget {
       children: [
         if (icon != null) Icon(icon, size: 18),
         Flexible(
-          child: Text(label, maxLines: 1, overflow: .ellipsis),
+          child: Text(label, softWrap: false, overflow: .fade),
         ),
       ],
     );

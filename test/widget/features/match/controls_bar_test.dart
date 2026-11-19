@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/straight_pool_actions.dart';
@@ -12,31 +13,32 @@ import '../../../unit/helpers/factories.dart';
 Future<void> _pump(
   WidgetTester tester,
   MatchNotifier notifier, {
+  double width = 1000,
   VoidCallback? onRestart,
   VoidCallback? onExit,
 }) async {
+  tester.view.physicalSize = Size(width, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
   await tester.pumpWidget(
     ChangeNotifierProvider<MatchNotifier>.value(
       value: notifier,
       child: MaterialApp(
-        home: ControlsBar(
-          onRestart: onRestart ?? () {},
-          onExit: onExit ?? () {},
+        home: Scaffold(
+          body: ControlsBar(
+            onRestart: onRestart ?? () {},
+            onExit: onExit ?? () {},
+          ),
         ),
       ),
     ),
   );
 }
 
-IconButton _icon(WidgetTester tester, IconData icon) {
-  return tester.widget<IconButton>(
-    find.widgetWithIcon(IconButton, icon),
-  );
-}
-
-Visibility _actionsVisibility(WidgetTester tester) {
-  return tester.widget<Visibility>(
-    find.byKey(const ValueKey('straight-pool-actions-visibility')),
+TextButton _button(WidgetTester tester, IconData icon) {
+  return tester.widget<TextButton>(
+    find.widgetWithIcon(TextButton, icon),
   );
 }
 
@@ -53,143 +55,114 @@ void main() {
     notifier.dispose();
   });
 
-  group('undo and redo enablement', () {
-    testWidgets('undo disabled on a fresh match', (tester) async {
+  group('undo redo buttons', () {
+    testWidgets('disabled on a fresh match', (tester) async {
       await _pump(tester, notifier);
-      expect(_icon(tester, Icons.undo).onPressed, isNull);
+
+      expect(_button(tester, Icons.undo_rounded).onPressed, isNull);
+      expect(_button(tester, Icons.redo_rounded).onPressed, isNull);
     });
 
-    testWidgets('redo disabled on a fresh match', (tester) async {
+    testWidgets('enable from match history', (tester) async {
       await _pump(tester, notifier);
-      expect(_icon(tester, Icons.redo).onPressed, isNull);
-    });
 
-    testWidgets('undo enabled after selectStartingSide', (tester) async {
-      await _pump(tester, notifier);
       notifier.selectStartingSide(0);
       await tester.pump();
 
-      expect(_icon(tester, Icons.undo).onPressed, isNotNull);
-    });
+      expect(_button(tester, Icons.undo_rounded).onPressed, isNotNull);
+      expect(_button(tester, Icons.redo_rounded).onPressed, isNull);
 
-    testWidgets('redo enabled after undo', (tester) async {
-      await _pump(tester, notifier);
-      notifier
-        ..selectStartingSide(0)
-        ..undo();
+      await tester.tap(find.byIcon(Icons.undo_rounded));
       await tester.pump();
 
-      expect(_icon(tester, Icons.redo).onPressed, isNotNull);
-    });
+      expect(_button(tester, Icons.redo_rounded).onPressed, isNotNull);
 
-    testWidgets('tapping undo enables redo', (tester) async {
-      await _pump(tester, notifier);
-      notifier.selectStartingSide(0);
+      await tester.tap(find.byIcon(Icons.redo_rounded));
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.undo));
-      await tester.pump();
-
-      expect(_icon(tester, Icons.redo).onPressed, isNotNull);
+      expect(_button(tester, Icons.undo_rounded).onPressed, isNotNull);
     });
 
-    testWidgets('tapping redo re-enables undo', (tester) async {
-      await _pump(tester, notifier);
-      notifier
-        ..selectStartingSide(0)
-        ..undo();
-      await tester.pump();
+    testWidgets('has label and no tooltip on wider width', (tester) async {
+      await _pump(tester, notifier, width: 800);
 
-      await tester.tap(find.byIcon(Icons.redo));
-      await tester.pump();
-
-      expect(_icon(tester, Icons.undo).onPressed, isNotNull);
-    });
-  });
-
-  group('restart and exit', () {
-    testWidgets('restart fires onRestart once', (tester) async {
-      var calls = 0;
-      await _pump(tester, notifier, onRestart: () => calls++);
-
-      await tester.tap(find.byIcon(Icons.replay));
-      await tester.pump();
-
-      expect(calls, 1);
+      expect(find.text('Undo'), findsOneWidget);
+      expect(find.text('Redo'), findsOneWidget);
+      expect(find.byTooltip('Undo'), findsNothing);
+      expect(find.byTooltip('Redo'), findsNothing);
     });
 
-    testWidgets('exit fires onExit once', (tester) async {
-      var calls = 0;
-      await _pump(tester, notifier, onExit: () => calls++);
+    testWidgets('has tooltip and no label on compact width', (tester) async {
+      await _pump(tester, notifier, width: 400);
 
-      await tester.tap(find.byIcon(Icons.exit_to_app));
-      await tester.pump();
-
-      expect(calls, 1);
-    });
-  });
-
-  group('straight-pool center slot', () {
-    testWidgets('absent for 8-ball', (tester) async {
-      await _pump(tester, notifier);
-      expect(find.byType(StraightPoolActions), findsNothing);
-    });
-
-    testWidgets('present for straight pool', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch());
-      await _pump(tester, notifier);
-      expect(find.byType(StraightPoolActions), findsOneWidget);
-    });
-
-    testWidgets('hidden when straight pool is not playing', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch());
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isFalse);
-    });
-
-    testWidgets('visible when straight pool is playing', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch())..selectStartingSide(0);
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isTrue);
-    });
-
-    testWidgets('hidden when straight pool is finished', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch())
-        ..selectStartingSide(0)
-        ..scoreRemaining(2);
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isFalse);
-    });
-  });
-
-  group('icon styling', () {
-    testWidgets('all icons use the shared icon size', (tester) async {
-      notifier = MatchNotifier(makeStraightPoolMatch());
-      await _pump(tester, notifier);
-
-      expect(_icon(tester, Icons.undo).iconSize, 28);
-      expect(_icon(tester, Icons.redo).iconSize, 28);
-      expect(_icon(tester, Icons.replay).iconSize, 28);
-      expect(_icon(tester, Icons.exit_to_app).iconSize, 28);
-    });
-
-    testWidgets('tooltips are set', (tester) async {
-      await _pump(tester, notifier);
-
+      expect(find.text('Undo'), findsNothing);
+      expect(find.text('Redo'), findsNothing);
       expect(find.byTooltip('Undo'), findsOneWidget);
       expect(find.byTooltip('Redo'), findsOneWidget);
+    });
+  });
+
+  group('navigation buttons', () {
+    testWidgets('has label and no tooltip on wider width', (tester) async {
+      await _pump(tester, notifier, width: 800);
+
+      expect(find.text('Setup'), findsOneWidget);
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.byTooltip('Back to setup'), findsNothing);
+      expect(find.byTooltip('Exit to home'), findsNothing);
+    });
+
+    testWidgets('has tooltip and no label on compact width', (tester) async {
+      await _pump(tester, notifier, width: 400);
+
+      expect(find.text('Setup'), findsNothing);
+      expect(find.text('Home'), findsNothing);
       expect(find.byTooltip('Back to setup'), findsOneWidget);
       expect(find.byTooltip('Exit to home'), findsOneWidget);
     });
 
-    testWidgets('undo and redo use transparent disabled color', (tester) async {
+    testWidgets('fire their callbacks', (tester) async {
+      var restarts = 0;
+      var exits = 0;
+
+      await _pump(
+        tester,
+        notifier,
+        width: 375,
+        onRestart: () => restarts++,
+        onExit: () => exits++,
+      );
+
+      await tester.tap(find.byIcon(Icons.tune_rounded));
+      await tester.tap(find.byIcon(Icons.home_rounded));
+      await tester.pump();
+
+      expect(restarts, 1);
+      expect(exits, 1);
+    });
+  });
+
+  group('straight pool action', () {
+    testWidgets('not present for non-straight-pool match', (tester) async {
       await _pump(tester, notifier);
 
-      expect(_icon(tester, Icons.undo).disabledColor, Colors.transparent);
-      expect(_icon(tester, Icons.redo).disabledColor, Colors.transparent);
+      expect(find.byType(StraightPoolActions), findsNothing);
+    });
+
+    testWidgets('present for straight-pool match', (tester) async {
+      final match = makeStraightPoolMatch();
+      final notifier = MatchNotifier(match);
+      await _pump(tester, notifier);
+
+      expect(find.byType(StraightPoolActions), findsOneWidget);
+    });
+
+    testWidgets('not present when below the wide breakpoint', (tester) async {
+      final match = makeStraightPoolMatch();
+      final notifier = MatchNotifier(match);
+      await _pump(tester, notifier, width: LayoutBreakpoints.wide - 100);
+
+      expect(find.byType(StraightPoolActions), findsNothing);
     });
   });
 }

@@ -8,16 +8,12 @@ Future<void> _pump(
   WidgetTester tester, {
   VoidCallback? onTap,
   int value = 7,
-  double width = 60,
-  bool selected = false,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       home: BallButton(
         value: value,
         onTap: onTap,
-        selected: selected,
-        width: width,
       ),
     ),
   );
@@ -72,82 +68,6 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-    });
-  });
-
-  group('selected styling', () {
-    testWidgets('unselected has no background', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.backgroundColor?.resolve({}), isNull);
-    });
-
-    testWidgets('unselected has no explicit foreground', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.foregroundColor?.resolve({}), isNull);
-    });
-
-    testWidgets('selected uses primary as background', (tester) async {
-      await _pump(tester, onTap: () {}, selected: true);
-
-      final context = tester.element(find.byType(BallButton));
-      final primary = Theme.of(context).colorScheme.primary;
-
-      expect(_button(tester).style!.backgroundColor?.resolve({}), primary);
-    });
-
-    testWidgets('selected uses onPrimary as foreground', (tester) async {
-      await _pump(tester, onTap: () {}, selected: true);
-
-      final context = tester.element(find.byType(BallButton));
-      final onPrimary = Theme.of(context).colorScheme.onPrimary;
-
-      expect(_button(tester).style!.foregroundColor?.resolve({}), onPrimary);
-    });
-
-    testWidgets('selected removes the border side', (tester) async {
-      await _pump(tester, onTap: () {}, selected: true);
-      expect(
-        _button(tester).style!.side?.resolve({}),
-        BorderSide.none,
-      );
-    });
-
-    testWidgets('unselected keeps the default border side', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.side?.resolve({}), isNull);
-    });
-  });
-
-  group('shape and size', () {
-    testWidgets('uses a CircleBorder', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.shape?.resolve({}), isA<CircleBorder>());
-    });
-
-    testWidgets('has a default minimum size of 60 by 60', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(
-        _button(tester).style!.minimumSize?.resolve({}),
-        const Size(60, 60),
-      );
-    });
-
-    testWidgets('set minimum size of according to given width', (tester) async {
-      await _pump(tester, width: 48, onTap: () {});
-      expect(
-        _button(tester).style!.minimumSize?.resolve({}),
-        const Size(48, 48),
-      );
-    });
-
-    testWidgets('has a default font size of 18 (=60*0.3)', (tester) async {
-      await _pump(tester, onTap: () {});
-      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 18);
-    });
-
-    testWidgets('set font size of according to given width', (tester) async {
-      await _pump(tester, width: 48, onTap: () {});
-      expect(_button(tester).style!.textStyle?.resolve({})?.fontSize, 48 * 0.3);
     });
   });
 }

@@ -6,9 +6,8 @@ import 'package:material_ui/material_ui.dart';
 /// Import this file where the extension is used; extensions do not resolve
 /// transitively.
 extension AppTextTheme on TextTheme {
-  /// Bounds for the auto-sized match score.
-  static const double scoreMinFontSize = 24;
-  static const double scoreMaxFontSize = 288;
+  /// Base size for the match score. The score is fitted to its card.
+  static const double scoreMaxFontSize = 384;
 
   /// Family registered in `pubspec.yaml`.
   static const String fontFamily = 'Inter';
@@ -17,47 +16,25 @@ extension AppTextTheme on TextTheme {
   TextStyle get titleLargeSolid =>
       titleLarge!.copyWith(fontWeight: FontWeight.w500);
 
-  TextStyle get screenTitle => titleLargeSolid;
-
   TextStyle get appTitle => titleLarge!.copyWith(
     fontWeight: FontWeight.bold,
     letterSpacing: 1.5,
   );
   TextStyle get appSubtitle => labelMedium!;
 
-  TextStyle get dialogTitle => titleLargeSolid;
+  TextStyle get dialogTitle => headlineSmall!.copyWith(
+    fontWeight: FontWeight.w600,
+  );
   TextStyle get dialogBody => bodyLarge!;
-
-  TextStyle get playerName => titleLargeSolid;
-
-  TextStyle get prompt => titleLargeSolid;
-
-  // dropdown menu and text field
-  TextStyle get fieldText => titleMedium!;
-  TextStyle get fieldLabel => labelMedium!;
-  TextStyle get fieldValue => labelLarge!;
-
-  TextStyle get sectionLabel => labelLarge!;
 
   TextStyle get ballLabel => labelLarge!.copyWith(
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 
-  TextStyle get remainingLabel => titleLarge!.copyWith(
-    fontWeight: FontWeight.w500,
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
-
   TextStyle get score => titleMedium!.copyWith(
     fontSize: scoreMaxFontSize,
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
-
-  TextStyle get timer => bodyLarge!.copyWith(
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
-
-  TextStyle get stats => bodyMedium!.copyWith(
+    height: 1,
+    fontWeight: FontWeight.w700,
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 }
