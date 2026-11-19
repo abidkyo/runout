@@ -3,8 +3,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
-import 'package:runout/features/match_setup/widgets/choice_button.dart';
 import 'package:runout/features/match_setup/widgets/mode_selector.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 // ---------------------------------------------------------------------------
 

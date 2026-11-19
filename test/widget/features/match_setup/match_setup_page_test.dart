@@ -8,13 +8,13 @@ import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/match_setup/widgets/break_format_selector.dart';
-import 'package:runout/features/match_setup/widgets/choice_button.dart';
 import 'package:runout/features/match_setup/widgets/game_type_selector.dart';
 import 'package:runout/features/match_setup/widgets/mode_selector.dart';
 import 'package:runout/features/match_setup/widgets/number_stepper.dart';
 import 'package:runout/features/match_setup/widgets/player_panel.dart';
 import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/widgets/setup_actions.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 // ---------------------------------------------------------------------------
 

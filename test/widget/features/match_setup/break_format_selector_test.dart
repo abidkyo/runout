@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
 import 'package:runout/features/match_setup/widgets/break_format_selector.dart';
-import 'package:runout/features/match_setup/widgets/choice_button.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 // ---------------------------------------------------------------------------
 

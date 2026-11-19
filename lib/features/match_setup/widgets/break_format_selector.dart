@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/enums/break_format.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
-import 'package:runout/features/match_setup/widgets/choice_button.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 /// Break format choices backed by [MatchSetupNotifier].
 class BreakFormatSelector extends StatelessWidget {

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 import 'package:runout/features/match_setup/match_setup_notifier.dart';
-import 'package:runout/features/match_setup/widgets/choice_button.dart';
+import 'package:runout/shared/widgets/choice_button.dart';
 
 /// Match mode choices backed by [MatchSetupNotifier].
 class ModeSelector extends StatelessWidget {
