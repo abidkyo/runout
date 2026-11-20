@@ -26,16 +26,17 @@ class IconLabelButton extends StatelessWidget {
 
     final tooltip = this.tooltip;
 
-    final button = SizedBox(
+    return SizedBox(
       width: isCompact ? 56 : 68,
       height: isCompact ? 56 : 60,
-      child: TextButton(
+      child: IconButton(
         onPressed: onPressed,
-        style: TextButton.styleFrom(
+        style: IconButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          foregroundColor: foregroundColor,
+          foregroundColor: foregroundColor ?? context.colors.primary,
         ),
-        child: Column(
+        tooltip: tooltip ?? label,
+        icon: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 2,
           children: [
@@ -55,9 +56,5 @@ class IconLabelButton extends StatelessWidget {
         ),
       ),
     );
-
-    return isCompact
-        ? Tooltip(message: tooltip ?? label, child: button)
-        : button;
   }
 }

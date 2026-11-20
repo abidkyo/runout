@@ -30,9 +30,9 @@ Future<void> _pump(
   );
 }
 
-TextButton _button(WidgetTester tester, IconData icon) {
-  return tester.widget<TextButton>(
-    find.widgetWithIcon(TextButton, icon),
+IconButton _button(WidgetTester tester, IconData icon) {
+  return tester.widget<IconButton>(
+    find.widgetWithIcon(IconButton, icon),
   );
 }
 
@@ -74,13 +74,13 @@ void main() {
       expect(redos, 1);
     });
 
-    testWidgets('has labels and no tooltips on wider width', (tester) async {
+    testWidgets('has labels and tooltips on wider width', (tester) async {
       await _pump(tester, width: 800);
 
       expect(find.text('Undo'), findsOneWidget);
       expect(find.text('Redo'), findsOneWidget);
-      expect(find.byTooltip('Undo'), findsNothing);
-      expect(find.byTooltip('Redo'), findsNothing);
+      expect(find.byTooltip('Undo'), findsOneWidget);
+      expect(find.byTooltip('Redo'), findsOneWidget);
     });
 
     testWidgets('has tooltips and no labels on compact width', (tester) async {

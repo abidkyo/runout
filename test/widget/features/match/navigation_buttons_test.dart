@@ -62,15 +62,15 @@ void main() {
       expect(find.text('Home'), findsOneWidget);
     });
 
-    testWidgets('has labels and no tooltips on wider width', (tester) async {
+    testWidgets('has labels and tooltips on wider width', (tester) async {
       await _pump(tester, width: 800);
 
       expect(find.text('Discard'), findsOneWidget);
       expect(find.text('Setup'), findsOneWidget);
       expect(find.text('Home'), findsOneWidget);
-      expect(find.byTooltip('Discard match'), findsNothing);
-      expect(find.byTooltip('Back to setup'), findsNothing);
-      expect(find.byTooltip('Exit to home'), findsNothing);
+      expect(find.byTooltip('Discard match'), findsOneWidget);
+      expect(find.byTooltip('Back to setup'), findsOneWidget);
+      expect(find.byTooltip('Exit to home'), findsOneWidget);
     });
 
     testWidgets('has tooltips and no labels on compact width', (tester) async {
@@ -87,8 +87,8 @@ void main() {
     testWidgets('uses the error color for discard', (tester) async {
       await _pump(tester);
 
-      final button = tester.widget<TextButton>(
-        find.widgetWithIcon(TextButton, Icons.delete_rounded),
+      final button = tester.widget<IconButton>(
+        find.widgetWithIcon(IconButton, Icons.delete_rounded),
       );
       final context = tester.element(find.byType(NavigationButtons));
       expect(

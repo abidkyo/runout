@@ -39,6 +39,7 @@ class SPButtons extends StatelessWidget {
             textScaler: TextScaler.noScaling,
           ),
           label: 'Balls',
+          tooltip: 'Remaining balls',
           onPressed: onOpenScoring,
         ),
         _LabelButton(
@@ -56,11 +57,13 @@ class _LabelButton extends StatelessWidget {
     required this.body,
     required this.onPressed,
     this.label,
+    this.tooltip,
   });
 
   final Widget body;
   final String? label;
   final VoidCallback? onPressed;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +72,7 @@ class _LabelButton extends StatelessWidget {
     return SizedBox(
       width: 128,
       height: 60,
-      child: FilledButton.tonal(
+      child: IconButton.filledTonal(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -77,7 +80,8 @@ class _LabelButton extends StatelessWidget {
             borderRadius: BorderRadiusGeometry.circular(12),
           ),
         ),
-        child: Column(
+        tooltip: tooltip ?? label,
+        icon: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 2,
           children: [
