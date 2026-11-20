@@ -47,7 +47,7 @@ class _HomeShellState extends State<_HomeShell> {
   void _openMatch(BuildContext context, Match match) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => MatchPage(match: match),
+        builder: (_) => MatchPage(match: match, isNewMatch: false),
       ),
     );
   }

@@ -23,6 +23,7 @@ Future<void> _pump(
   Match match, {
   double width = 1000,
   double textScale = 1,
+  bool isNewMatch = true,
 }) {
   _setSize(tester, width, 1000);
   if (textScale != 1) _setTextScale(tester, textScale);
@@ -31,6 +32,7 @@ Future<void> _pump(
     MaterialApp(
       home: MatchPage(
         match: match,
+        isNewMatch: isNewMatch,
       ),
     ),
   );
@@ -386,6 +388,22 @@ void main() {
       );
 
       expect(find.byType(SPButtons), findsNothing);
+    });
+  });
+
+  group('setup action', () {
+    testWidgets('shown by default', (tester) async {
+      await _pump(tester, _playingMatch());
+
+      expect(find.byIcon(Icons.tune_rounded), findsOneWidget);
+    });
+
+    testWidgets('hidden when not a new match', (tester) async {
+      await _pump(tester, _playingMatch(), isNewMatch: false);
+
+      expect(find.byIcon(Icons.tune_rounded), findsNothing);
+      expect(find.byIcon(Icons.delete_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.home_rounded), findsOneWidget);
     });
   });
 

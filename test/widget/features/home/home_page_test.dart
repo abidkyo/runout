@@ -129,6 +129,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.byType(MatchPage), findsOneWidget);
+      expect(find.byIcon(Icons.tune_rounded), findsNothing);
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump();

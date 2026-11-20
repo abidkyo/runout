@@ -20,9 +20,14 @@ import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// The match scoring page.
 class MatchPage extends StatelessWidget {
-  const new({required this.match, super.key});
+  const new({
+    required this.match,
+    this.isNewMatch = true,
+    super.key,
+  });
 
   final Match match;
+  final bool isNewMatch;
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +40,15 @@ class MatchPage extends StatelessWidget {
           create: (ctx) => MatchTimerNotifier(ctx.read<MatchNotifier>()),
         ),
       ],
-      child: const _MatchView(),
+      child: _MatchView(showSetupButton: isNewMatch),
     );
   }
 }
 
 class _MatchView extends StatelessWidget {
-  const new();
+  const new({required this.showSetupButton});
+
+  final bool showSetupButton;
 
   Future<void> _discardMatch(BuildContext context) async {
     final status = context.read<MatchNotifier>().match.status;
@@ -146,7 +153,7 @@ class _MatchView extends StatelessWidget {
             ),
           NavigationButtons(
             onDiscard: () => _discardMatch(context),
-            onEdit: () => _editSetup(context),
+            onEdit: showSetupButton ? () => _editSetup(context) : null,
             onExit: () => _exitToHome(context),
           ),
         ],

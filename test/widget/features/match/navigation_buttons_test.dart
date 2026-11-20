@@ -9,6 +9,7 @@ Future<void> _pump(
   VoidCallback? onDiscard,
   VoidCallback? onEdit,
   VoidCallback? onExit,
+  bool showEdit = true,
   double width = 1000,
 }) async {
   tester.view.physicalSize = Size(width, 600);
@@ -20,7 +21,7 @@ Future<void> _pump(
       home: Scaffold(
         body: NavigationButtons(
           onDiscard: onDiscard ?? () {},
-          onEdit: onEdit ?? () {},
+          onEdit: showEdit ? (onEdit ?? () {}) : null,
           onExit: onExit ?? () {},
         ),
       ),
@@ -51,6 +52,14 @@ void main() {
       expect(discards, 1);
       expect(edits, 1);
       expect(exits, 1);
+    });
+
+    testWidgets('omits setup when editing is unavailable', (tester) async {
+      await _pump(tester, width: 800, showEdit: false);
+
+      expect(find.byIcon(Icons.tune_rounded), findsNothing);
+      expect(find.text('Discard'), findsOneWidget);
+      expect(find.text('Home'), findsOneWidget);
     });
 
     testWidgets('has labels and no tooltips on wider width', (tester) async {

@@ -61,6 +61,8 @@
   action tiles; compact straight-pool scoring uses the side cards.
 - Finished matches show no straight-pool actions.
 - Exit to home does not confirm; the current match is preserved for saving.
+- The Setup action is hidden when a match is opened from Home (Continue), because
+  there is no setup route to return to.
 - Setup confirms while playing, returns to setup, and discards the current
   match. Created matches skip the confirmation.
 - Discard confirms while playing, returns home, and discards the current match.
