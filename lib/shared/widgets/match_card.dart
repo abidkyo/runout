@@ -145,8 +145,6 @@ class _PlayerRow extends StatelessWidget {
   final bool isWinner;
   final bool isPlaying;
 
-  String get _sideName => side.players.map((player) => player.name).join(' & ');
-
   @override
   Widget build(BuildContext context) {
     final weight = isWinner ? FontWeight.bold : FontWeight.normal;
@@ -172,7 +170,7 @@ class _PlayerRow extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            _sideName,
+            side.displayName,
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: weight,
             ),

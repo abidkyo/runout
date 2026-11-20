@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/match_defaults.dart';
+import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/shared/widgets/app_snack_bar.dart';
@@ -14,10 +15,18 @@ class SPScoring {
   /// Opens the scoring dialog and applies the selected result.
   Future<void> openScoringDialog(BuildContext context) async {
     final match = _notifier.match;
+    if (match.status != MatchStatus.playing) return;
+
+    final index = match.currentSideIndex;
+    assert(index != null, 'A straight-pool visit needs a current side.');
+    if (index == null) return;
+
+    final sideName = match.sides[index].displayName;
 
     final result = await showDialog<SPScoreResult>(
       context: context,
       builder: (_) => SPScoringDialog(
+        sideName: sideName,
         remaining: match.ballsRemaining,
         showBreakFoul: match.isOpeningBreak,
       ),

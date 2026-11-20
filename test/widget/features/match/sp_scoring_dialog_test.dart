@@ -49,6 +49,7 @@ class _Host extends StatelessWidget {
         final result = await showDialog<SPScoreResult>(
           context: context,
           builder: (_) => SPScoringDialog(
+            sideName: 'Tester',
             remaining: remaining,
             showBreakFoul: showBreakFoul,
           ),
@@ -76,9 +77,10 @@ ChoiceButton _button(WidgetTester tester, String label) {
 
 void main() {
   group('header', () {
-    testWidgets('renders the title', (tester) async {
+    testWidgets('renders the title, side name, and question', (tester) async {
       await _openDialog(tester, onResult: (_) {});
       expect(find.text('Record Inning'), findsOneWidget);
+      expect(find.text('Tester'), findsOneWidget);
       expect(find.text('How many balls left?'), findsOneWidget);
     });
   });

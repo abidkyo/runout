@@ -34,4 +34,6 @@ class MatchSide with _$MatchSide {
   ///
   /// Straight pool only; stays zero for 8/9/10-ball.
   final int consecutiveFouls;
+
+  String get displayName => players.map((player) => player.name).join(' & ');
 }

@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/core/theme/app_text_theme.dart';
+import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
@@ -17,11 +17,13 @@ typedef SPScoreResult = ({int remaining, bool keepsTurn, Foul foul});
 /// on cancel.
 class SPScoringDialog extends StatefulWidget {
   const new({
+    required this.sideName,
     required this.remaining,
     required this.showBreakFoul,
     super.key,
   });
 
+  final String sideName;
   final int remaining;
   final bool showBreakFoul;
 
@@ -40,12 +42,10 @@ class _SPScoringDialogState extends State<SPScoringDialog> {
 
     return AlertDialog(
       scrollable: true,
-      title: const Text('Record Inning'),
-      titleTextStyle: context.textTheme.dialogTitle,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _Header(),
+          _Header(sideName: widget.sideName),
           const SizedBox(height: 24),
           _BallButtons(
             enabled: !isBreakFoul,
@@ -102,20 +102,41 @@ class _SPScoringDialogState extends State<SPScoringDialog> {
 }
 
 class _Header extends StatelessWidget {
-  const new();
+  const new({required this.sideName});
+
+  final String sideName;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        'How many balls left?',
-        style: context.textTheme.bodyLarge?.copyWith(
-          color: context.colors.onSurfaceVariant,
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        Text(
+          'Record Inning',
+          style: context.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        maxLines: 1,
-        overflow: .ellipsis,
-      ),
+        const SizedBox(height: 4),
+        Text(
+          sideName,
+          style: context.textTheme.titleLarge?.copyWith(
+            color: context.colors.playerName,
+            fontWeight: FontWeight.w500,
+          ),
+          maxLines: 1,
+          overflow: .ellipsis,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'How many balls left?',
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+          maxLines: 1,
+          overflow: .ellipsis,
+        ),
+      ],
     );
   }
 }

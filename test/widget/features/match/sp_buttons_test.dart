@@ -103,6 +103,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SPScoringDialog), findsOneWidget);
+      expect(find.text('Record Inning'), findsOneWidget);
+      expect(find.text('Player-0'), findsOneWidget);
       expect(find.text('How many balls left?'), findsOneWidget);
     });
 

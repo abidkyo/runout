@@ -55,7 +55,7 @@
   selection, score increment, or the straight-pool scoring dialog; finished
   cards are not tappable.
 - In straight pool, every side card opens the scoring dialog while playing. The
-  dialog always scores the current side.
+  dialog always scores the current side and shows that side's player names.
 - The wide bottom bar has undo/redo, End inning / Balls / New rack tiles for
   straight pool, and Setup/Home. The compact bar uses icon buttons without
   straight pool action buttons; compact straight-pool scoring uses the side
