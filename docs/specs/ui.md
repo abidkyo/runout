@@ -52,10 +52,14 @@
   straight-pool stats. Created matches show “Who breaks?”. The winner card gets
   a trophy.
 - The whole side card is the tap target. The action depends on status: breaker
-  selection, score increment, or no tap in straight pool/finished.
-- The wide bottom bar has undo/redo, End visit / Balls / New rack tiles for
-  straight pool, and Setup/Home. The compact bar uses icon buttons,
-  without straight pool action buttons.
+  selection, score increment, or the straight-pool scoring dialog; finished
+  cards are not tappable.
+- In straight pool, every side card opens the scoring dialog while playing. The
+  dialog always scores the current side.
+- The wide bottom bar has undo/redo, End inning / Balls / New rack tiles for
+  straight pool, and Setup/Home. The compact bar uses icon buttons without
+  straight pool action buttons; compact straight-pool scoring uses the side
+  cards.
 - Finished matches show no straight-pool actions.
 - Restart and exit confirm only while playing. The target-reached prompt ignores
   barrier taps so an outside tap cannot choose `End`.

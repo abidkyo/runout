@@ -7,6 +7,7 @@ import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_card.dart';
+import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
@@ -269,14 +270,59 @@ void main() {
       expect(scores.last.data, '0');
     });
 
-    testWidgets('straight-pool sides are not tappable while playing', (
+    testWidgets('tapping a straight-pool side opens the scoring dialog', (
       tester,
     ) async {
       await _pump(tester, _playingSPMatch());
 
+      await tester.tap(find.byType(SideCard).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SPScoringDialog), findsOneWidget);
+    });
+
+    testWidgets('tapping an opponent straight-pool side opens the dialog', (
+      tester,
+    ) async {
+      await _pump(tester, _playingSPMatch());
+
+      await tester.tap(find.byType(SideCard).last);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SPScoringDialog), findsOneWidget);
+    });
+
+    testWidgets('confirming from a side card scores the current side', (
+      tester,
+    ) async {
+      await _pump(tester, _playingSPMatch());
+
+      await tester.tap(find.byType(SideCard).last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('10'));
+      await tester.pump();
+
+      await tester.tap(find.text('Next Inning'));
+      await tester.pumpAndSettle();
+
       final cards = _cards(tester);
-      expect(cards.first.onTap, isNull);
-      expect(cards.last.onTap, isNull);
+      expect(cards.last.isBreaker, isTrue);
+      expect(find.byType(SPScoringDialog), findsNothing);
+      expect(find.text('5'), findsOneWidget);
+    });
+
+    testWidgets('side-card scoring works at compact width', (tester) async {
+      await _pump(
+        tester,
+        _playingSPMatch(),
+        width: LayoutBreakpoints.compact - 100,
+      );
+
+      await tester.tap(find.byType(SideCard).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SPScoringDialog), findsOneWidget);
     });
 
     testWidgets('finished sides are not tappable', (tester) async {

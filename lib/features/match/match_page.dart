@@ -8,6 +8,7 @@ import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
+import 'package:runout/features/match/straight_pool_scoring.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
@@ -107,6 +108,7 @@ class _MatchBody extends StatelessWidget {
 
     final notifier = context.watch<MatchNotifier>();
     final match = notifier.match;
+    final scoring = SPScoring(notifier);
 
     final isStraightPool = match.config.gameType == GameType.straightPool;
     final isCreated = match.status == MatchStatus.created;
@@ -115,7 +117,10 @@ class _MatchBody extends StatelessWidget {
 
     VoidCallback? onTapFor(int index) {
       if (isCreated) return () => notifier.selectStartingSide(index);
-      if (isStraightPool) return null;
+      if (isStraightPool) {
+        if (!isPlaying) return null;
+        return () => scoring.openScoringDialog(context);
+      }
       if (isFinished) return null;
       return () => notifier.scoreRack(index);
     }
