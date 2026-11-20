@@ -34,7 +34,7 @@ class SetupActions extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onCancel,
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 48),
+                    minimumSize: const Size(0, 56),
                     textStyle: context.textTheme.titleMedium,
                   ),
                   child: const Text('Cancel'),
@@ -42,7 +42,7 @@ class SetupActions extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: onStart,
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 48),
+                    minimumSize: const Size(0, 56),
                     textStyle: context.textTheme.titleMedium,
                   ),
                   icon: const Icon(Icons.play_arrow_rounded),

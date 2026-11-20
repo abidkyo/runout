@@ -160,7 +160,7 @@ class _SetupPanel extends StatelessWidget {
     final isStraightPool = notifier.gameType == GameType.straightPool;
 
     return Card(
-      color: context.colors.surfaceContainerLow,
+      color: context.colors.surfaceContainerLowest,
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
