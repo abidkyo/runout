@@ -20,7 +20,7 @@ class SPButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 16,
+      spacing: 12,
       children: [
         _LabelButton(
           body: const Icon(Icons.swap_horiz_rounded, size: 28),

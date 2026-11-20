@@ -9,6 +9,7 @@ class IconLabelButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.tooltip,
+    this.foregroundColor,
     super.key,
   });
 
@@ -16,6 +17,7 @@ class IconLabelButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final String? tooltip;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class IconLabelButton extends StatelessWidget {
         onPressed: onPressed,
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 4),
+          foregroundColor: foregroundColor,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

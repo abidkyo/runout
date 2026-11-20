@@ -43,30 +43,43 @@ class MatchPage extends StatelessWidget {
 class _MatchView extends StatelessWidget {
   const new();
 
-  Future<bool> _confirmLeave(BuildContext context, {required String title}) {
+  Future<void> _discardMatch(BuildContext context) async {
     final status = context.read<MatchNotifier>().match.status;
-    if (status != MatchStatus.playing) return Future.value(true);
 
-    return showConfirmDialog(
-      context,
-      title: title,
-      message:
-          'The match is still in progress. '
-          'Leaving will discard the current match.',
-      confirmLabel: 'Leave',
-      destructive: true,
-    );
+    if (status != MatchStatus.created) {
+      final leave = await showConfirmDialog(
+        context,
+        title: 'Discard match?',
+        message: 'This match will be discarded and will not be saved.',
+        confirmLabel: 'Discard',
+        destructive: true,
+      );
+      if (!leave || !context.mounted) return;
+    }
+
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  Future<void> _backToSetup(BuildContext context) async {
-    final leave = await _confirmLeave(context, title: 'Back to setup?');
-    if (!leave || !context.mounted) return;
+  Future<void> _editSetup(BuildContext context) async {
+    final status = context.read<MatchNotifier>().match.status;
+
+    if (status == MatchStatus.playing) {
+      final leave = await showConfirmDialog(
+        context,
+        title: 'Back to setup?',
+        message:
+            'Returning to setup will discard this match. '
+            'You can then change the match settings.',
+        confirmLabel: 'Discard',
+        destructive: true,
+      );
+      if (!leave || !context.mounted) return;
+    }
+
     Navigator.of(context).pop();
   }
 
   Future<void> _exitToHome(BuildContext context) async {
-    final leave = await _confirmLeave(context, title: 'Exit to home?');
-    if (!leave || !context.mounted) return;
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -132,7 +145,8 @@ class _MatchView extends StatelessWidget {
               ),
             ),
           NavigationButtons(
-            onRestart: () => _backToSetup(context),
+            onDiscard: () => _discardMatch(context),
+            onEdit: () => _editSetup(context),
             onExit: () => _exitToHome(context),
           ),
         ],

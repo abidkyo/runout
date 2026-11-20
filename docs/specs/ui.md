@@ -56,13 +56,17 @@
   cards are not tappable.
 - In straight pool, every side card opens the scoring dialog while playing. The
   dialog always scores the current side and shows that side's player names.
-- The wide bottom bar has undo/redo, End inning / Balls / New rack tiles for
-  straight pool, and Setup/Home. The compact bar uses icon buttons without
-  straight pool action buttons; compact straight-pool scoring uses the side
-  cards.
+- The bottom bar has undo/redo, straight-pool tiles on wide layouts, and
+  Discard/Setup/Home. The compact bar uses icon buttons without straight-pool
+  action tiles; compact straight-pool scoring uses the side cards.
 - Finished matches show no straight-pool actions.
-- Restart and exit confirm only while playing. The target-reached prompt ignores
-  barrier taps so an outside tap cannot choose `End`.
+- Exit to home does not confirm; the current match is preserved for saving.
+- Setup confirms while playing, returns to setup, and discards the current
+  match. Created matches skip the confirmation.
+- Discard confirms while playing, returns home, and discards the current match.
+  Created matches skip the confirmation.
+- The target-reached prompt ignores barrier taps so an outside tap cannot
+  choose `End`.
 - A target reached on a kept turn asks whether to continue. Ending re-applies the
   score as a visit-ending score.
 - The page stays usable at 375px and at 1.5×/2× text scale; labels ellipsize or

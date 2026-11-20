@@ -6,7 +6,8 @@ import 'package:runout/features/match/widgets/navigation_buttons.dart';
 
 Future<void> _pump(
   WidgetTester tester, {
-  VoidCallback? onRestart,
+  VoidCallback? onDiscard,
+  VoidCallback? onEdit,
   VoidCallback? onExit,
   double width = 1000,
 }) async {
@@ -18,7 +19,8 @@ Future<void> _pump(
     MaterialApp(
       home: Scaffold(
         body: NavigationButtons(
-          onRestart: onRestart ?? () {},
+          onDiscard: onDiscard ?? () {},
+          onEdit: onEdit ?? () {},
           onExit: onExit ?? () {},
         ),
       ),
@@ -29,29 +31,35 @@ Future<void> _pump(
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('MatchNavigationButtons', () {
-    testWidgets('fires the restart and exit callbacks', (tester) async {
-      var restarts = 0;
+  group('NavigationButtons', () {
+    testWidgets('fires the discard, edit and exit callbacks', (tester) async {
+      var discards = 0;
+      var edits = 0;
       var exits = 0;
       await _pump(
         tester,
         width: 375,
-        onRestart: () => restarts++,
+        onDiscard: () => discards++,
+        onEdit: () => edits++,
         onExit: () => exits++,
       );
 
+      await tester.tap(find.byIcon(Icons.delete_rounded));
       await tester.tap(find.byIcon(Icons.tune_rounded));
       await tester.tap(find.byIcon(Icons.home_rounded));
 
-      expect(restarts, 1);
+      expect(discards, 1);
+      expect(edits, 1);
       expect(exits, 1);
     });
 
     testWidgets('has labels and no tooltips on wider width', (tester) async {
       await _pump(tester, width: 800);
 
+      expect(find.text('Discard'), findsOneWidget);
       expect(find.text('Setup'), findsOneWidget);
       expect(find.text('Home'), findsOneWidget);
+      expect(find.byTooltip('Discard match'), findsNothing);
       expect(find.byTooltip('Back to setup'), findsNothing);
       expect(find.byTooltip('Exit to home'), findsNothing);
     });
@@ -59,10 +67,25 @@ void main() {
     testWidgets('has tooltips and no labels on compact width', (tester) async {
       await _pump(tester, width: 400);
 
+      expect(find.text('Discard'), findsNothing);
       expect(find.text('Setup'), findsNothing);
       expect(find.text('Home'), findsNothing);
+      expect(find.byTooltip('Discard match'), findsOneWidget);
       expect(find.byTooltip('Back to setup'), findsOneWidget);
       expect(find.byTooltip('Exit to home'), findsOneWidget);
+    });
+
+    testWidgets('uses the error color for discard', (tester) async {
+      await _pump(tester);
+
+      final button = tester.widget<TextButton>(
+        find.widgetWithIcon(TextButton, Icons.delete_rounded),
+      );
+      final context = tester.element(find.byType(NavigationButtons));
+      expect(
+        button.style?.foregroundColor?.resolve({}),
+        Theme.of(context).colorScheme.error,
+      );
     });
   });
 }

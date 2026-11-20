@@ -390,7 +390,7 @@ void main() {
   });
 
   group('leaving', () {
-    testWidgets('back to setup from created pops without a dialog', (
+    testWidgets('edit setup from created pops without a dialog', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, makeMatch());
@@ -414,7 +414,7 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
-    testWidgets('back to setup while playing then cancels out of the dialog', (
+    testWidgets('edit setup while playing then cancels the dialog', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
@@ -430,7 +430,7 @@ void main() {
       expect(find.byType(MatchPage), findsOneWidget);
     });
 
-    testWidgets('back to setup while playing then confirms and pops', (
+    testWidgets('edit setup while playing then discards and pops', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
@@ -439,7 +439,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Back to setup?'), findsOneWidget);
 
-      await tester.tap(find.text('Leave'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConfirmDialog),
+          matching: find.text('Discard'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(MatchPage), findsNothing);
@@ -447,18 +452,61 @@ void main() {
       expect(find.text('home'), findsNothing);
     });
 
-    testWidgets('exit while playing confirms and pops to the first route', (
+    testWidgets('discard from created pops to the first route', (tester) async {
+      await _pumpStackedMatchPage(tester, makeMatch());
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ConfirmDialog), findsNothing);
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+    });
+
+    testWidgets('discard while playing can be cancelled', (tester) async {
+      await _pumpStackedMatchPage(tester, _playingMatch());
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Discard match?'), findsOneWidget);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ConfirmDialog), findsNothing);
+      expect(find.byType(MatchPage), findsOneWidget);
+    });
+
+    testWidgets('discard while playing pops to the first route', (
+      tester,
+    ) async {
+      await _pumpStackedMatchPage(tester, _playingMatch());
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Discard match?'), findsOneWidget);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConfirmDialog),
+          matching: find.text('Discard'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+    });
+
+    testWidgets('exit while playing does not confirm and pops home', (
       tester,
     ) async {
       await _pumpStackedMatchPage(tester, _playingMatch());
 
       await tester.tap(find.byIcon(Icons.home_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Exit to home?'), findsOneWidget);
 
-      await tester.tap(find.text('Leave'));
-      await tester.pumpAndSettle();
-
+      expect(find.byType(ConfirmDialog), findsNothing);
       expect(find.byType(MatchPage), findsNothing);
       expect(find.text('home'), findsOneWidget);
     });
