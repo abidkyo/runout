@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
-import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
-import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
-import 'package:runout/features/match/widgets/straight_pool_actions.dart';
+import 'package:runout/features/match/widgets/sp_buttons.dart';
+import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 import '../../../unit/helpers/factories.dart';
@@ -23,7 +22,7 @@ Future<void> _pump(WidgetTester tester, MatchNotifier notifier) async {
       value: notifier,
       child: const MaterialApp(
         home: Scaffold(
-          body: StraightPoolActions(),
+          body: SPButtons(),
         ),
       ),
     ),
@@ -50,7 +49,7 @@ void main() {
     notifier.dispose();
   });
 
-  group('StraightPoolActions — rendering', () {
+  group('SPButtons — rendering', () {
     testWidgets('hidden when created', (tester) async {
       notifier = MatchNotifier(match);
       await _pump(tester, notifier);
@@ -78,7 +77,7 @@ void main() {
       expect(_actionsVisibility(tester).visible, isTrue);
     });
 
-    testWidgets('shows end visit, remaining count, and new rack', (
+    testWidgets('shows end inning, balls count, and new rack', (
       tester,
     ) async {
       await _pump(tester, notifier);
@@ -88,7 +87,7 @@ void main() {
       expect(find.byIcon(Icons.change_history_rounded), findsOneWidget);
     });
 
-    testWidgets('remaining count reflects match.ballsRemaining', (
+    testWidgets('balls count reflects match.ballsRemaining', (
       tester,
     ) async {
       notifier.scoreRemaining(10);
@@ -98,8 +97,8 @@ void main() {
     });
   });
 
-  group('StraightPoolActions — end visit', () {
-    testWidgets('tapping end visit advances the breaker', (tester) async {
+  group('SPButtons — end inning', () {
+    testWidgets('tapping end inning advances the breaker', (tester) async {
       final before = notifier.match.currentSideIndex;
       await _pump(tester, notifier);
 
@@ -122,15 +121,49 @@ void main() {
     });
   });
 
-  group('StraightPoolActions — score dialog', () {
-    testWidgets('tapping remaining opens the dialog', (tester) async {
+  group('SPButtons — score dialog', () {
+    testWidgets('tapping balls opens the dialog', (tester) async {
       await _pump(tester, notifier);
 
       await tester.tap(find.text('15'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(RemainingPickerDialog), findsOneWidget);
+      expect(find.byType(SPScoringDialog), findsOneWidget);
       expect(find.text('How many balls left?'), findsOneWidget);
+    });
+
+    testWidgets('0 balls remaining starts a new rack', (tester) async {
+      final local = MatchNotifier(makeStraightPoolMatch(raceTo: 20));
+      addTearDown(local.dispose);
+      local.selectStartingSide(0);
+      await _pump(tester, local);
+
+      await tester.tap(find.text('15'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('0 ball remaining'));
+      await tester.pumpAndSettle();
+
+      expect(local.match.sides.first.score, 15);
+      expect(local.match.ballsRemaining, 15);
+      expect(local.match.currentSideIndex, 0);
+    });
+
+    testWidgets('1 ball remaining starts a new rack', (tester) async {
+      final local = MatchNotifier(makeStraightPoolMatch(raceTo: 20));
+      addTearDown(local.dispose);
+      local.selectStartingSide(0);
+      await _pump(tester, local);
+
+      await tester.tap(find.text('15'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('1 ball remaining'));
+      await tester.pumpAndSettle();
+
+      expect(local.match.sides.first.score, 14);
+      expect(local.match.ballsRemaining, 15);
+      expect(local.match.currentSideIndex, 0);
     });
 
     testWidgets('tap next inning applies scoreRemaining', (
@@ -229,7 +262,7 @@ void main() {
     });
   });
 
-  group('StraightPoolActions — new rack', () {
+  group('SPButtons — new rack', () {
     testWidgets('short press calls newRack(1)', (tester) async {
       await _pump(tester, notifier);
 
@@ -239,49 +272,9 @@ void main() {
       expect(notifier.match.sides.first.score, 14);
       expect(notifier.match.currentSideIndex, 0);
     });
-
-    testWidgets('long press opens the new rack picker', (tester) async {
-      await _pump(tester, notifier);
-
-      await tester.longPress(find.byIcon(Icons.change_history_rounded));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(NewRackPickerDialog), findsOneWidget);
-      expect(find.text('How many balls left?'), findsOneWidget);
-    });
-
-    testWidgets('long press then selecting 0 add 15 points', (
-      tester,
-    ) async {
-      await _pump(tester, notifier);
-
-      await tester.longPress(find.byIcon(Icons.change_history_rounded));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('0'));
-      await tester.pumpAndSettle();
-
-      expect(notifier.match.sides.first.score, 15);
-      expect(notifier.match.currentSideIndex, 0);
-    });
-
-    testWidgets('long press then selecting 1 add 14 points', (
-      tester,
-    ) async {
-      await _pump(tester, notifier);
-
-      await tester.longPress(find.byIcon(Icons.change_history_rounded));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('1'));
-      await tester.pumpAndSettle();
-
-      expect(notifier.match.sides.first.score, 14);
-      expect(notifier.match.currentSideIndex, 0);
-    });
   });
 
-  group('StraightPoolActions — continue after target', () {
+  group('SPButtons — continue after target', () {
     testWidgets('short press at the target shows the confirm dialog', (
       tester,
     ) async {

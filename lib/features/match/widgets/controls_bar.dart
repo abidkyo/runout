@@ -4,7 +4,7 @@ import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/features/match/match_notifier.dart';
-import 'package:runout/features/match/widgets/straight_pool_actions.dart';
+import 'package:runout/features/match/widgets/sp_buttons.dart';
 
 /// Bottom bar of the match page with undo/redo and exit/restart controls.
 class ControlsBar extends StatelessWidget {
@@ -45,7 +45,7 @@ class ControlsBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const _UndoRedoButton(),
-            if (isStraightPool && isWide) const StraightPoolActions(),
+            if (isStraightPool && isWide) const SPButtons(),
             _NavigationButton(onRestart: onRestart, onExit: onExit),
           ],
         ),

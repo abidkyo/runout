@@ -2,14 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
-import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
+import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/shared/widgets/choice_button.dart';
 
 // ---------------------------------------------------------------------------
 
 Future<void> _openDialog(
   WidgetTester tester, {
-  required ValueChanged<RemainingResult?> onResult,
+  required ValueChanged<SPScoreResult?> onResult,
   int remaining = 15,
   bool showBreakFoul = true,
   double width = 800,
@@ -38,7 +38,7 @@ class _Host extends StatelessWidget {
     required this.showBreakFoul,
   });
 
-  final ValueChanged<RemainingResult?> onResult;
+  final ValueChanged<SPScoreResult?> onResult;
   final int remaining;
   final bool showBreakFoul;
 
@@ -46,9 +46,9 @@ class _Host extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        final result = await showDialog<RemainingResult>(
+        final result = await showDialog<SPScoreResult>(
           context: context,
-          builder: (_) => RemainingPickerDialog(
+          builder: (_) => SPScoringDialog(
             remaining: remaining,
             showBreakFoul: showBreakFoul,
           ),
@@ -300,7 +300,7 @@ void main() {
     testWidgets('defaults returns remaining, none, no keep', (
       tester,
     ) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text('Next Inning'));
@@ -315,7 +315,7 @@ void main() {
     testWidgets('after picking a ball returns the picked value', (
       tester,
     ) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.widgetWithText(BallButton, '9'));
@@ -329,7 +329,7 @@ void main() {
     testWidgets('standard foul returns keepsTurn false', (
       tester,
     ) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text(Foul.standard.displayName));
@@ -344,7 +344,7 @@ void main() {
     testWidgets('breakFoul + Continue returns keepsTurn false', (
       tester,
     ) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text(Foul.breakFoul.displayName));
@@ -359,7 +359,7 @@ void main() {
     testWidgets('breakFoul + Re-break returns keepsTurn true', (
       tester,
     ) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text(Foul.breakFoul.displayName));
@@ -376,7 +376,7 @@ void main() {
     testWidgets(
       'after Re-break then standard returns keepsTurn false',
       (tester) async {
-        final results = <RemainingResult?>[];
+        final results = <SPScoreResult?>[];
         await _openDialog(tester, onResult: results.add);
 
         await tester.tap(find.text(Foul.breakFoul.displayName));
@@ -396,7 +396,7 @@ void main() {
 
   group('new rack', () {
     testWidgets('0 ball remaining', (tester) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text('0 ball remaining'));
@@ -408,7 +408,7 @@ void main() {
     });
 
     testWidgets('1 ball remaining', (tester) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tap(find.text('1 ball remaining'));
@@ -422,7 +422,7 @@ void main() {
 
   group('dynamic', () {
     testWidgets('barrier dismiss pops null', (tester) async {
-      final results = <RemainingResult?>[];
+      final results = <SPScoreResult?>[];
       await _openDialog(tester, onResult: results.add);
 
       await tester.tapAt(const Offset(10, 10));

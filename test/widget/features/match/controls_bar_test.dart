@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
-import 'package:runout/features/match/widgets/straight_pool_actions.dart';
+import 'package:runout/features/match/widgets/sp_buttons.dart';
 
 import '../../../unit/helpers/factories.dart';
 
@@ -146,7 +146,7 @@ void main() {
     testWidgets('not present for non-straight-pool match', (tester) async {
       await _pump(tester, notifier);
 
-      expect(find.byType(StraightPoolActions), findsNothing);
+      expect(find.byType(SPButtons), findsNothing);
     });
 
     testWidgets('present for straight-pool match', (tester) async {
@@ -154,7 +154,7 @@ void main() {
       final notifier = MatchNotifier(match);
       await _pump(tester, notifier);
 
-      expect(find.byType(StraightPoolActions), findsOneWidget);
+      expect(find.byType(SPButtons), findsOneWidget);
     });
 
     testWidgets('not present when below the wide breakpoint', (tester) async {
@@ -162,7 +162,7 @@ void main() {
       final notifier = MatchNotifier(match);
       await _pump(tester, notifier, width: LayoutBreakpoints.wide - 100);
 
-      expect(find.byType(StraightPoolActions), findsNothing);
+      expect(find.byType(SPButtons), findsNothing);
     });
   });
 }

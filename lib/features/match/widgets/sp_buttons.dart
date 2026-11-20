@@ -4,8 +4,7 @@ import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
-import 'package:runout/features/match/widgets/new_rack_picker_dialog.dart';
-import 'package:runout/features/match/widgets/remaining_picker_dialog.dart';
+import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/shared/widgets/app_snack_bar.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
@@ -13,7 +12,7 @@ import 'package:runout/shared/widgets/confirm_dialog.dart';
 ///
 /// Visible only while the match is playing; the visibility gate lives in
 /// the parent (`ControlsBar`).
-class StraightPoolActions extends StatelessWidget {
+class SPButtons extends StatelessWidget {
   const new({super.key});
 
   // The two flags are mutually exclusive: a third foul forces keepsTurn, so
@@ -43,23 +42,24 @@ class StraightPoolActions extends StatelessWidget {
     }
   }
 
-  void _endInning(BuildContext context) {
-    context.read<MatchNotifier>().endVisit();
-    _maybeNotify(context);
-  }
-
   Future<void> _openScoreDialog(BuildContext context) async {
     final notifier = context.read<MatchNotifier>();
     final match = notifier.match;
 
-    final result = await showDialog<RemainingResult>(
+    final result = await showDialog<SPScoreResult>(
       context: context,
-      builder: (_) => RemainingPickerDialog(
+      builder: (_) => SPScoringDialog(
         remaining: match.ballsRemaining,
         showBreakFoul: match.isOpeningBreak,
       ),
     );
     if (result == null) return;
+
+    if (!context.mounted) return;
+    if (result.remaining < 2) {
+      await _newRack(context, remaining: result.remaining);
+      return;
+    }
 
     notifier.scoreRemaining(
       result.remaining,
@@ -71,19 +71,16 @@ class StraightPoolActions extends StatelessWidget {
     _maybeNotify(context);
   }
 
-  Future<void> _newRack(BuildContext context, {int? remaining}) async {
+  void _endInning(BuildContext context) {
+    context.read<MatchNotifier>().endVisit();
+    _maybeNotify(context);
+  }
+
+  Future<void> _newRack(BuildContext context, {required int remaining}) async {
     final notifier = context.read<MatchNotifier>();
 
-    final newRemaining =
-        remaining ??
-        await showDialog<int>(
-          context: context,
-          builder: (_) => const NewRackPickerDialog(),
-        );
-    if (newRemaining == null) return;
-
-    final points = notifier.match.ballsRemaining - newRemaining;
-    notifier.newRack(newRemaining);
+    final points = notifier.match.ballsRemaining - remaining;
+    notifier.newRack(remaining);
 
     if (!notifier.askToContinue) return;
     notifier.askToContinue = false;
@@ -107,7 +104,7 @@ class StraightPoolActions extends StatelessWidget {
       // is undo + redo with different flags.
       notifier
         ..undo()
-        ..scoreVisit(points: points, ballsRemaining: newRemaining);
+        ..scoreVisit(points: points, ballsRemaining: remaining);
     }
   }
 
@@ -150,7 +147,6 @@ class StraightPoolActions extends StatelessWidget {
             body: const Icon(Icons.change_history_rounded, size: 28),
             label: 'New rack',
             onPressed: () => _newRack(context, remaining: 1),
-            onLongPress: () => _newRack(context),
           ),
         ],
       ),
@@ -163,13 +159,11 @@ class _LabelButton extends StatelessWidget {
     required this.body,
     required this.onPressed,
     this.label,
-    this.onLongPress,
   });
 
   final Widget body;
   final String? label;
   final VoidCallback? onPressed;
-  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +171,6 @@ class _LabelButton extends StatelessWidget {
 
     return FilledButton.tonal(
       onPressed: onPressed,
-      onLongPress: onLongPress,
       style: FilledButton.styleFrom(
         minimumSize: const Size(128, 60),
         shape: RoundedRectangleBorder(

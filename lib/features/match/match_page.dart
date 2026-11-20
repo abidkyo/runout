@@ -11,7 +11,7 @@ import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
-import 'package:runout/features/match/widgets/side_column.dart';
+import 'package:runout/features/match/widgets/side_card.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
@@ -123,7 +123,7 @@ class _MatchBody extends StatelessWidget {
     final cards = <Widget>[
       for (final (int i, MatchSide side) in match.sides.indexed)
         Expanded(
-          child: SideColumn(
+          child: SideCard(
             onTap: onTapFor(i),
             isWinner: isFinished && match.winnerIndex == i,
             isLoser: isFinished && match.winnerIndex != i,

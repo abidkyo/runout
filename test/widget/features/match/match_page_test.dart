@@ -6,7 +6,7 @@ import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
-import 'package:runout/features/match/widgets/side_column.dart';
+import 'package:runout/features/match/widgets/side_card.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
@@ -110,8 +110,8 @@ void _setTextScale(WidgetTester tester, double scale) {
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 }
 
-Iterable<SideColumn> _columns(WidgetTester tester) {
-  return tester.widgetList<SideColumn>(find.byType(SideColumn));
+Iterable<SideCard> _cards(WidgetTester tester) {
+  return tester.widgetList<SideCard>(find.byType(SideCard));
 }
 
 Iterable<Text> _scores(WidgetTester tester) {
@@ -130,18 +130,18 @@ void main() {
         expect(find.byType(ControlsBar), findsOneWidget);
       });
 
-      testWidgets('renders one side column per side', (tester) async {
+      testWidgets('renders one side card per side', (tester) async {
         await _pump(tester, makeMatch());
 
-        expect(find.byType(SideColumn), findsNWidgets(2));
+        expect(find.byType(SideCard), findsNWidgets(2));
       });
 
       testWidgets(
-        'renders three side columns for three-player',
+        'renders three side cards for three-player',
         (tester) async {
           await _pump(tester, makeMatch(sideCount: 3));
 
-          expect(find.byType(SideColumn), findsNWidgets(3));
+          expect(find.byType(SideCard), findsNWidgets(3));
         },
       );
 
@@ -180,12 +180,12 @@ void main() {
         expect(find.byKey(_breakKey), findsNothing);
       });
 
-      testWidgets('marks the breaker side columns', (tester) async {
+      testWidgets('marks the breaker side cards', (tester) async {
         await _pump(tester, _playingMatch());
 
-        final columns = _columns(tester);
-        expect(columns.first.isBreaker, isTrue);
-        expect(columns.last.isBreaker, isFalse);
+        final cards = _cards(tester);
+        expect(cards.first.isBreaker, isTrue);
+        expect(cards.last.isBreaker, isFalse);
       });
 
       testWidgets('straight pool stats hidden for non-straight-pool games', (
@@ -204,14 +204,14 @@ void main() {
     });
 
     group('finished', () {
-      testWidgets('marks the winner and loser side columns', (tester) async {
+      testWidgets('marks the winner and loser side cards', (tester) async {
         await _pump(tester, _finishedMatch());
 
-        final columns = _columns(tester);
-        expect(columns.first.isWinner, isTrue);
-        expect(columns.first.isLoser, isFalse);
-        expect(columns.last.isWinner, isFalse);
-        expect(columns.last.isLoser, isTrue);
+        final cards = _cards(tester);
+        expect(cards.first.isWinner, isTrue);
+        expect(cards.first.isLoser, isFalse);
+        expect(cards.last.isWinner, isFalse);
+        expect(cards.last.isLoser, isTrue);
       });
 
       testWidgets('shows a trophy on the winning side', (tester) async {
@@ -251,7 +251,7 @@ void main() {
     ) async {
       await _pump(tester, makeMatch());
 
-      await tester.tap(find.byType(SideColumn).first);
+      await tester.tap(find.byType(SideCard).first);
       await tester.pump();
 
       expect(find.byKey(_scoreKey), findsNWidgets(2));
@@ -261,7 +261,7 @@ void main() {
     testWidgets('tapping a side in play increments that side', (tester) async {
       await _pump(tester, _playingMatch());
 
-      await tester.tap(find.byType(SideColumn).first);
+      await tester.tap(find.byType(SideCard).first);
       await tester.pump();
 
       final scores = _scores(tester);
@@ -274,17 +274,17 @@ void main() {
     ) async {
       await _pump(tester, _playingSPMatch());
 
-      final columns = _columns(tester);
-      expect(columns.first.onTap, isNull);
-      expect(columns.last.onTap, isNull);
+      final cards = _cards(tester);
+      expect(cards.first.onTap, isNull);
+      expect(cards.last.onTap, isNull);
     });
 
     testWidgets('finished sides are not tappable', (tester) async {
       await _pump(tester, _finishedMatch());
 
-      final columns = _columns(tester);
-      expect(columns.first.onTap, isNull);
-      expect(columns.last.onTap, isNull);
+      final cards = _cards(tester);
+      expect(cards.first.onTap, isNull);
+      expect(cards.last.onTap, isNull);
     });
   });
 
@@ -367,9 +367,9 @@ void main() {
     testWidgets('uses a Row above the compact breakpoint', (tester) async {
       await _pump(tester, makeMatch(), width: LayoutBreakpoints.compact + 100);
 
-      final columns = find.byType(SideColumn);
-      final a = tester.getTopLeft(columns.at(0));
-      final b = tester.getTopLeft(columns.at(1));
+      final cards = find.byType(SideCard);
+      final a = tester.getTopLeft(cards.at(0));
+      final b = tester.getTopLeft(cards.at(1));
 
       expect(a.dy, b.dy); // same row
       expect(b.dx, greaterThan(a.dx));
@@ -380,9 +380,9 @@ void main() {
     ) async {
       await _pump(tester, makeMatch(), width: LayoutBreakpoints.compact - 100);
 
-      final columns = find.byType(SideColumn);
-      final a = tester.getTopLeft(columns.at(0));
-      final b = tester.getTopLeft(columns.at(1));
+      final cards = find.byType(SideCard);
+      final a = tester.getTopLeft(cards.at(0));
+      final b = tester.getTopLeft(cards.at(1));
 
       expect(b.dy, greaterThan(a.dy)); // stacked
     });

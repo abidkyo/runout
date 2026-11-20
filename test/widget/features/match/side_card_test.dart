@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:runout/features/match/widgets/side_column.dart';
+import 'package:runout/features/match/widgets/side_card.dart';
 
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('SideColumn', () {
+  group('SideCard', () {
     testWidgets('renders its children in order', (tester) async {
       await tester.pumpWidget(
         _host(children: const [Text('first'), Text('second')]),
@@ -92,14 +92,14 @@ void main() {
     });
   });
 
-  group('SideColumn — tap', () {
+  group('SideCard — tap', () {
     testWidgets('tapping the card calls onTap', (tester) async {
       var calls = 0;
       await tester.pumpWidget(
         _host(children: const [SizedBox()], onTap: () => calls++),
       );
 
-      await tester.tap(find.byType(SideColumn));
+      await tester.tap(find.byType(SideCard));
       await tester.pump();
 
       expect(calls, 1);
@@ -125,7 +125,7 @@ void main() {
     });
   });
 
-  group('SideColumn semantics', () {
+  group('SideCard semantics', () {
     testWidgets('announces winner', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
@@ -133,7 +133,7 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(SideColumn)).label,
+        tester.getSemantics(find.byType(SideCard)).label,
         contains('Winner'),
       );
       handle.dispose();
@@ -146,7 +146,7 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(SideColumn)).label,
+        tester.getSemantics(find.byType(SideCard)).label,
         contains('Breaking'),
       );
       handle.dispose();
@@ -159,7 +159,7 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(SideColumn)).label,
+        tester.getSemantics(find.byType(SideCard)).label,
         contains('Loser'),
       );
       handle.dispose();
@@ -175,7 +175,7 @@ void main() {
         ),
       );
 
-      final label = tester.getSemantics(find.byType(SideColumn)).label;
+      final label = tester.getSemantics(find.byType(SideCard)).label;
       expect(label, contains('Winner'));
       expect(label, isNot(contains('Breaking')));
       handle.dispose();
@@ -185,7 +185,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_host(children: const [SizedBox()]));
 
-      final label = tester.getSemantics(find.byType(SideColumn)).label;
+      final label = tester.getSemantics(find.byType(SideCard)).label;
       expect(label, isNot(contains('Winner')));
       expect(label, isNot(contains('Breaking')));
       expect(label, isNot(contains('Loser')));
@@ -198,7 +198,7 @@ void main() {
         _host(children: const [SizedBox()], onTap: () {}),
       );
 
-      final node = tester.getSemantics(find.byType(SideColumn));
+      final node = tester.getSemantics(find.byType(SideCard));
       expect(node, isSemantics(isButton: true));
       handle.dispose();
     });
@@ -209,7 +209,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_host(children: const [SizedBox()]));
 
-      final node = tester.getSemantics(find.byType(SideColumn));
+      final node = tester.getSemantics(find.byType(SideCard));
       expect(node, isSemantics(isButton: false));
       handle.dispose();
     });
@@ -227,7 +227,7 @@ Widget _host({
 }) {
   return MaterialApp(
     home: Scaffold(
-      body: SideColumn(
+      body: SideCard(
         onTap: onTap,
         isWinner: isWinner,
         isLoser: isLoser,

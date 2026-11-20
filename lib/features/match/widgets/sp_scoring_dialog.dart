@@ -5,8 +5,8 @@ import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/features/match/widgets/ball_button.dart';
 import 'package:runout/shared/widgets/choice_button.dart';
 
-/// Result of [RemainingPickerDialog].
-typedef RemainingResult = ({int remaining, bool keepsTurn, Foul foul});
+/// Result of [SPScoringDialog].
+typedef SPScoreResult = ({int remaining, bool keepsTurn, Foul foul});
 
 /// Dialog for picking the balls remaining and the foul, if any.
 ///
@@ -15,7 +15,7 @@ typedef RemainingResult = ({int remaining, bool keepsTurn, Foul foul});
 /// foul ([Foul.none] or [Foul.standard], plus [Foul.breakFoul] when
 /// [showBreakFoul] is true). Returns the selection on confirm, or null
 /// on cancel.
-class RemainingPickerDialog extends StatefulWidget {
+class SPScoringDialog extends StatefulWidget {
   const new({
     required this.remaining,
     required this.showBreakFoul,
@@ -26,10 +26,10 @@ class RemainingPickerDialog extends StatefulWidget {
   final bool showBreakFoul;
 
   @override
-  State<RemainingPickerDialog> createState() => _RemainingPickerDialogState();
+  State<SPScoringDialog> createState() => _SPScoringDialogState();
 }
 
-class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
+class _SPScoringDialogState extends State<SPScoringDialog> {
   late int _selected = widget.remaining;
   Foul _foul = Foul.none;
   bool _keepsTurn = false;
@@ -81,7 +81,7 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
           const PopupMenuDivider(thickness: 2),
           const SizedBox(height: 8),
           _NewRackButton(
-            onPressed: (value) => Navigator.of(context).pop<RemainingResult>((
+            onPressed: (value) => Navigator.of(context).pop<SPScoreResult>((
               remaining: value,
               keepsTurn: true,
               foul: Foul.none,
@@ -89,7 +89,7 @@ class _RemainingPickerDialogState extends State<RemainingPickerDialog> {
           ),
           const SizedBox(height: 16),
           _NextButton(
-            onPressed: () => Navigator.of(context).pop<RemainingResult>((
+            onPressed: () => Navigator.of(context).pop<SPScoreResult>((
               remaining: _selected,
               keepsTurn: isBreakFoul && _keepsTurn,
               foul: _foul,

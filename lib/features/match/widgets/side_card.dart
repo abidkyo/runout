@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 
-/// One side's column on the match page, presented as a single tappable card.
+/// One side's card on the match page, presented as a single tappable card.
 ///
 /// [children] are laid out top-to-bottom and stretched horizontally.
 /// When [onTap] is non-null, tapping anywhere on the card invokes it.
@@ -15,7 +15,7 @@ import 'package:runout/core/theme/theme_extension.dart';
 /// [isBreaker] and [isWinner] are independent: the winner is not
 /// necessarily the breaker, and a side can be the breaker without being
 /// the winner. When both are true the border is drawn once (same color).
-class SideColumn extends StatelessWidget {
+class SideCard extends StatelessWidget {
   const new({
     required this.children,
     this.onTap,
