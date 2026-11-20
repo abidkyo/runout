@@ -8,12 +8,14 @@ import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
-import 'package:runout/features/match/straight_pool_scoring.dart';
-import 'package:runout/features/match/widgets/controls_bar.dart';
+import 'package:runout/features/match/sp_scoring.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
+import 'package:runout/features/match/widgets/navigation_buttons.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_card.dart';
+import 'package:runout/features/match/widgets/sp_buttons.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
+import 'package:runout/features/match/widgets/undo_redo_buttons.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// The match scoring page.
@@ -70,11 +72,26 @@ class _MatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notifier = context.watch<MatchNotifier>();
+    final match = notifier.match;
+    final scoring = SPScoring(notifier);
+
     final width = MediaQuery.sizeOf(context).width;
     final isCompact = width < LayoutBreakpoints.compact;
+    final isWide = width >= LayoutBreakpoints.wide;
     final padding = isCompact ? 16.0 : 24.0;
 
-    final config = context.read<MatchNotifier>().match.config;
+    final isStraightPool = match.config.gameType == GameType.straightPool;
+    final isPlaying = match.status == MatchStatus.playing;
+
+    ValueChanged<int>? onSideTap;
+    if (match.status == MatchStatus.created) {
+      onSideTap = notifier.selectStartingSide;
+    } else if (isPlaying) {
+      onSideTap = isStraightPool
+          ? (_) => scoring.openScoringDialog(context)
+          : notifier.scoreRack;
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -84,52 +101,70 @@ class _MatchView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: isCompact ? 8 : 12,
             children: [
-              MatchHeader(config: config),
-              const Expanded(child: _MatchBody()),
+              MatchHeader(config: match.config),
+              Expanded(
+                child: _MatchBody(
+                  match: match,
+                  isCompact: isCompact,
+                  onSideTap: onSideTap,
+                ),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: ControlsBar(
-        onRestart: () => _backToSetup(context),
-        onExit: () => _exitToHome(context),
+      bottomNavigationBar: _ControlsBar(
+        isCompact: isCompact,
+        children: [
+          UndoRedoButtons(
+            canUndo: notifier.canUndo,
+            canRedo: notifier.canRedo,
+            onUndo: notifier.undo,
+            onRedo: notifier.redo,
+          ),
+          if (isStraightPool && isPlaying && isWide)
+            Flexible(
+              child: SPButtons(
+                ballsRemaining: match.ballsRemaining,
+                onEndInning: () => scoring.endInning(context),
+                onOpenScoring: () => scoring.openScoringDialog(context),
+                onNewRack: () => scoring.newRack(context, remaining: 1),
+              ),
+            ),
+          NavigationButtons(
+            onRestart: () => _backToSetup(context),
+            onExit: () => _exitToHome(context),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _MatchBody extends StatelessWidget {
-  const new();
+  const new({
+    required this.match,
+    required this.isCompact,
+    required this.onSideTap,
+  });
+
+  final Match match;
+  final bool isCompact;
+  final ValueChanged<int>? onSideTap;
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final isCompact = width < LayoutBreakpoints.compact;
-
-    final notifier = context.watch<MatchNotifier>();
-    final match = notifier.match;
-    final scoring = SPScoring(notifier);
-
     final isStraightPool = match.config.gameType == GameType.straightPool;
     final isCreated = match.status == MatchStatus.created;
     final isPlaying = match.status == MatchStatus.playing;
     final isFinished = match.status == MatchStatus.finished;
-
-    VoidCallback? onTapFor(int index) {
-      if (isCreated) return () => notifier.selectStartingSide(index);
-      if (isStraightPool) {
-        if (!isPlaying) return null;
-        return () => scoring.openScoringDialog(context);
-      }
-      if (isFinished) return null;
-      return () => notifier.scoreRack(index);
-    }
+    final onTap = onSideTap;
 
     final cards = <Widget>[
       for (final (int i, MatchSide side) in match.sides.indexed)
         Expanded(
           child: SideCard(
-            onTap: onTapFor(i),
+            onTap: onTap == null ? null : () => onTap(i),
             isWinner: isFinished && match.winnerIndex == i,
             isLoser: isFinished && match.winnerIndex != i,
             isBreaker: isPlaying && match.currentSideIndex == i,
@@ -172,5 +207,37 @@ class _MatchBody extends StatelessWidget {
     return isCompact
         ? Column(spacing: 8, children: cards)
         : Row(spacing: 12, children: cards);
+  }
+}
+
+class _ControlsBar extends StatelessWidget {
+  const new({
+    required this.isCompact,
+    required this.children,
+  });
+
+  final bool isCompact;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: isCompact ? 65 : 77,
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: context.colors.outlineVariant),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: isCompact ? 16 : 24,
+          vertical: isCompact ? 8 : 12,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: children,
+        ),
+      ),
+    );
   }
 }

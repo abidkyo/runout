@@ -3,10 +3,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
-import 'package:runout/features/match/widgets/controls_bar.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
 import 'package:runout/features/match/widgets/side_card.dart';
+import 'package:runout/features/match/widgets/sp_buttons.dart';
 import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
@@ -124,11 +124,10 @@ Iterable<Text> _scores(WidgetTester tester) {
 void main() {
   group('rendering', () {
     group('created', () {
-      testWidgets('renders the match header and controls bar', (tester) async {
+      testWidgets('renders the match header', (tester) async {
         await _pump(tester, makeMatch());
 
         expect(find.byType(MatchHeader), findsOneWidget);
-        expect(find.byType(ControlsBar), findsOneWidget);
       });
 
       testWidgets('renders one side card per side', (tester) async {
@@ -332,6 +331,62 @@ void main() {
       expect(cards.first.onTap, isNull);
       expect(cards.last.onTap, isNull);
     });
+
+    testWidgets('undo restores the created state', (tester) async {
+      await _pump(tester, makeStraightPoolMatch());
+
+      await tester.tap(find.byType(SideCard).first);
+      await tester.pump();
+
+      expect(find.byKey(_scoreKey), findsNWidgets(2));
+
+      await tester.tap(find.byIcon(Icons.undo_rounded));
+      await tester.pump();
+
+      expect(find.byKey(_breakKey), findsNWidgets(2));
+    });
+  });
+
+  group('straight-pool controls', () {
+    testWidgets('shown while playing on wide width', (tester) async {
+      await _pump(
+        tester,
+        _playingSPMatch(),
+        width: LayoutBreakpoints.wide,
+      );
+
+      expect(find.byType(SPButtons), findsOneWidget);
+    });
+
+    testWidgets('hidden below wide width', (tester) async {
+      await _pump(
+        tester,
+        _playingSPMatch(),
+        width: LayoutBreakpoints.wide - 100,
+      );
+
+      expect(find.byType(SPButtons), findsNothing);
+    });
+
+    testWidgets('hidden while created', (tester) async {
+      await _pump(
+        tester,
+        makeStraightPoolMatch(),
+        width: LayoutBreakpoints.wide,
+      );
+
+      expect(find.byType(SPButtons), findsNothing);
+    });
+
+    testWidgets('hidden when finished', (tester) async {
+      await _pump(
+        tester,
+        _finishedSPMatch(),
+        width: LayoutBreakpoints.wide,
+      );
+
+      expect(find.byType(SPButtons), findsNothing);
+    });
   });
 
   group('leaving', () {
@@ -441,6 +496,19 @@ void main() {
           currentSideIndex: 0,
         ),
         width: 375,
+        textScale: 2,
+      );
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('fits straight-pool controls at 2x on wide width', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _playingSPMatch(),
+        width: LayoutBreakpoints.wide,
         textScale: 2,
       );
 

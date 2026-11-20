@@ -51,6 +51,8 @@ test/
 - The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
   sidebar.
 - `MaterialApp` with the light theme; no router or named routes.
+- `MatchPage` owns match actions; the match header, side cards, controls bar,
+  and buttons are presentational.
 - Targets all Flutter platforms. No platform-specific branches, conditional
   imports, or `dart:io`.
 

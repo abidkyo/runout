@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/sp_scoring.dart';
 import 'package:runout/features/match/widgets/sp_buttons.dart';
 import 'package:runout/features/match/widgets/sp_scoring_dialog.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
@@ -20,18 +21,22 @@ Future<void> _pump(WidgetTester tester, MatchNotifier notifier) async {
   await tester.pumpWidget(
     ChangeNotifierProvider<MatchNotifier>.value(
       value: notifier,
-      child: const MaterialApp(
+      child: MaterialApp(
         home: Scaffold(
-          body: SPButtons(),
+          body: Consumer<MatchNotifier>(
+            builder: (context, notifier, _) {
+              final scoring = SPScoring(notifier);
+              return SPButtons(
+                ballsRemaining: notifier.match.ballsRemaining,
+                onEndInning: () => scoring.endInning(context),
+                onOpenScoring: () => scoring.openScoringDialog(context),
+                onNewRack: () => scoring.newRack(context, remaining: 1),
+              );
+            },
+          ),
         ),
       ),
     ),
-  );
-}
-
-Visibility _actionsVisibility(WidgetTester tester) {
-  return tester.widget<Visibility>(
-    find.byKey(const ValueKey('straight-pool-actions-visibility')),
   );
 }
 
@@ -49,37 +54,8 @@ void main() {
     notifier.dispose();
   });
 
-  group('SPButtons — rendering', () {
-    testWidgets('hidden when created', (tester) async {
-      notifier = MatchNotifier(match);
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isFalse);
-    });
-
-    testWidgets('hidden when finished', (tester) async {
-      final match = makeStraightPoolMatch().copyWith(
-        status: MatchStatus.finished,
-      );
-      notifier = MatchNotifier(match);
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isFalse);
-    });
-
-    testWidgets('shown when playing', (tester) async {
-      final match = makeStraightPoolMatch().copyWith(
-        status: MatchStatus.playing,
-      );
-      notifier = MatchNotifier(match);
-      await _pump(tester, notifier);
-
-      expect(_actionsVisibility(tester).visible, isTrue);
-    });
-
-    testWidgets('shows end inning, balls count, and new rack', (
-      tester,
-    ) async {
+  group('rendering', () {
+    testWidgets('shows end inning, balls count, and new rack', (tester) async {
       await _pump(tester, notifier);
 
       expect(find.byIcon(Icons.swap_horiz_rounded), findsOneWidget);
@@ -87,9 +63,7 @@ void main() {
       expect(find.byIcon(Icons.change_history_rounded), findsOneWidget);
     });
 
-    testWidgets('balls count reflects match.ballsRemaining', (
-      tester,
-    ) async {
+    testWidgets('balls count reflects match.ballsRemaining', (tester) async {
       notifier.scoreRemaining(10);
       await _pump(tester, notifier);
 
@@ -97,7 +71,7 @@ void main() {
     });
   });
 
-  group('SPButtons — end inning', () {
+  group('end inning', () {
     testWidgets('tapping end inning advances the breaker', (tester) async {
       final before = notifier.match.currentSideIndex;
       await _pump(tester, notifier);
@@ -121,7 +95,7 @@ void main() {
     });
   });
 
-  group('SPButtons — score dialog', () {
+  group('score dialog', () {
     testWidgets('tapping balls opens the dialog', (tester) async {
       await _pump(tester, notifier);
 
@@ -166,9 +140,7 @@ void main() {
       expect(local.match.currentSideIndex, 0);
     });
 
-    testWidgets('tap next inning applies scoreRemaining', (
-      tester,
-    ) async {
+    testWidgets('tap next inning applies scoreRemaining', (tester) async {
       await _pump(tester, notifier);
 
       await tester.tap(find.text('15'));
@@ -262,8 +234,8 @@ void main() {
     });
   });
 
-  group('SPButtons — new rack', () {
-    testWidgets('short press calls newRack(1)', (tester) async {
+  group('new rack', () {
+    testWidgets('calls newRack(1)', (tester) async {
       await _pump(tester, notifier);
 
       await tester.tap(find.byIcon(Icons.change_history_rounded));
@@ -274,10 +246,8 @@ void main() {
     });
   });
 
-  group('SPButtons — continue after target', () {
-    testWidgets('short press at the target shows the confirm dialog', (
-      tester,
-    ) async {
+  group('continue after target reached', () {
+    testWidgets('shows the confirm dialog', (tester) async {
       notifier.newRack(1);
       await _pump(tester, notifier);
 
