@@ -1,3 +1,4 @@
+import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
@@ -244,6 +245,33 @@ void main() {
         expect(stats.first.innings, match.config.inningsLimit);
         expect(stats.last.innings, 2);
       });
+    });
+  });
+
+  group('celebration', () {
+    testWidgets('celebrates when the winning rack is scored', (tester) async {
+      await _pump(tester, _playingMatch());
+
+      for (var i = 0; i < 10; i++) {
+        await tester.tap(find.byType(SideCard).first);
+        await tester.pump();
+      }
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(Confetti), findsOneWidget);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(Confetti), findsNothing);
+    });
+
+    testWidgets('does not celebrate an already-finished match', (
+      tester,
+    ) async {
+      await _pump(tester, _finishedMatch());
+      await tester.pump();
+
+      expect(find.byType(Confetti), findsNothing);
     });
   });
 

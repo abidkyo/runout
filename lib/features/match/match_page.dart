@@ -16,6 +16,7 @@ import 'package:runout/features/match/widgets/side_card.dart';
 import 'package:runout/features/match/widgets/sp_buttons.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/features/match/widgets/undo_redo_buttons.dart';
+import 'package:runout/features/match/widgets/winner_celebration.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// The match scoring page.
@@ -113,50 +114,54 @@ class _MatchView extends StatelessWidget {
           : notifier.scoreRack;
     }
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: isCompact ? 8 : 12,
-            children: [
-              MatchHeader(config: match.config),
-              Expanded(
-                child: _MatchBody(
-                  match: match,
-                  isCompact: isCompact,
-                  onSideTap: onSideTap,
+    return WinnerCelebration(
+      isWinnerDecided:
+          match.status == MatchStatus.finished && match.winnerIndex != null,
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: isCompact ? 8 : 12,
+              children: [
+                MatchHeader(config: match.config),
+                Expanded(
+                  child: _MatchBody(
+                    match: match,
+                    isCompact: isCompact,
+                    onSideTap: onSideTap,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: _ControlsBar(
-        isCompact: isCompact,
-        children: [
-          UndoRedoButtons(
-            canUndo: notifier.canUndo,
-            canRedo: notifier.canRedo,
-            onUndo: notifier.undo,
-            onRedo: notifier.redo,
-          ),
-          if (isStraightPool && isPlaying && isWide)
-            Flexible(
-              child: SPButtons(
-                ballsRemaining: match.ballsRemaining,
-                onEndInning: () => scoring.endInning(context),
-                onOpenScoring: () => scoring.openScoringDialog(context),
-                onNewRack: () => scoring.newRack(context, remaining: 1),
-              ),
+        bottomNavigationBar: _ControlsBar(
+          isCompact: isCompact,
+          children: [
+            UndoRedoButtons(
+              canUndo: notifier.canUndo,
+              canRedo: notifier.canRedo,
+              onUndo: notifier.undo,
+              onRedo: notifier.redo,
             ),
-          NavigationButtons(
-            onDiscard: () => _discardMatch(context),
-            onEdit: showSetupButton ? () => _editSetup(context) : null,
-            onExit: () => _exitToHome(context),
-          ),
-        ],
+            if (isStraightPool && isPlaying && isWide)
+              Flexible(
+                child: SPButtons(
+                  ballsRemaining: match.ballsRemaining,
+                  onEndInning: () => scoring.endInning(context),
+                  onOpenScoring: () => scoring.openScoringDialog(context),
+                  onNewRack: () => scoring.newRack(context, remaining: 1),
+                ),
+              ),
+            NavigationButtons(
+              onDiscard: () => _discardMatch(context),
+              onEdit: showSetupButton ? () => _editSetup(context) : null,
+              onExit: () => _exitToHome(context),
+            ),
+          ],
+        ),
       ),
     );
   }

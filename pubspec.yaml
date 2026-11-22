@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_auto_size_text: ^5.0.0
+  flutter_confetti: ^0.9.2
   freezed_annotation: ^3.1.0
   material_ui: ^1.7.0
   meta: ^1.19.0

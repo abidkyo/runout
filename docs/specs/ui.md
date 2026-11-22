@@ -51,6 +51,10 @@
 - Cards show the players, a score that scales to fill its card, and
   straight-pool stats. Created matches show “Who breaks?”. The winner card gets
   a trophy.
+- When a winner is decided during play, a one-shot confetti burst plays over the
+  scoreboard. It is decorative: taps pass through, it is excluded from
+  semantics, and it is skipped when the platform requests reduced motion.
+  Opening an already-finished match does not replay it.
 - The whole side card is the tap target. The action depends on status: breaker
   selection, score increment, or the straight-pool scoring dialog; finished
   cards are not tappable.
