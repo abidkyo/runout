@@ -1,0 +1,25 @@
+launcher_icons:
+  image_path: "assets/icons/runout-icon.png"
+
+  web:
+    generate: true
+    image_path_maskable: "assets/icons/runout-maskable.png"
+    image_path_favicon_svg: "assets/icons/runout-favicon.svg"
+
+  linux:
+    generate: true
+
+  windows:
+    generate: false
+
+  android:
+    generate: true
+    adaptive_icon_background: "#1F5F8B"
+    adaptive_icon_foreground: "assets/icons/runout-foreground.png"
+
+  ios:
+    generate: false
+    remove_alpha: true
+
+  macos:
+    generate: false

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=runout
+Comment=runout
+Exec=runout
+Icon=runout
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=com.example.runout
