@@ -17,9 +17,13 @@ class AppTheme {
   static ThemeData get dark => _theme(Brightness.dark);
 
   static ThemeData _theme(Brightness brightness) {
+    final hsl = HSLColor.fromColor(_seed);
+    final tertiary = hsl.withHue((hsl.hue - 30) % 360).toColor();
+
     final colorScheme = ColorScheme.fromSeed(
       seedColor: _seed,
       brightness: brightness,
+      tertiary: tertiary,
     );
 
     return ThemeData(
