@@ -57,6 +57,14 @@ For changes spanning multiple areas, read only the relevant specifications.
 - Avoid unnecessary abstractions and dependencies.
 - No new dependencies without asking.
 
+## Flutter and Dart Command Execution
+
+Run `flutter` and `dart` directly inside the sandbox: no `sandbox_permissions`,
+no approval. Their state outside the workspace (Flutter SDK, pub cache, Dart
+tool directories) is already granted, so never escalate them. If one still hits
+a write denial, report the path — the host profile needs it in
+`sandbox-policy.additionalWritableRoots`.
+
 ## Testing & Quality
 
 - Tests are part of completion. Add or update tests in the corresponding test directory.
