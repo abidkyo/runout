@@ -6,4 +6,4 @@ Icon=runout
 Terminal=false
 Type=Application
 Categories=Utility;
-StartupWMClass=com.example.runout
+StartupWMClass=com.abidkyo.runout
