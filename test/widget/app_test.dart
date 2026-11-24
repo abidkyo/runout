@@ -26,23 +26,29 @@ void main() {
     SharedPreferencesAsyncPlatform.instance = previousPlatform;
   });
 
-  testWidgets('app starts with the saved theme and color', (tester) async {
+  testWidgets('app starts with the saved settings', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
     await tester.pumpWidget(
       RunoutApp(
         settingsRepository: SettingsRepository(SharedPreferencesAsync()),
         initialSettings: const AppSettings(
           themeMode: ThemeMode.dark,
           appColor: AppColor.blue,
+          textScale: 1.5,
         ),
       ),
     );
 
-    final theme = Theme.of(tester.element(find.byType(HomePage)));
+    final context = tester.element(find.byType(HomePage));
+    final theme = Theme.of(context);
     expect(theme.brightness, Brightness.dark);
     expect(
       theme.colorScheme.primary,
       AppTheme.dark(AppColor.blue).colorScheme.primary,
     );
+    expect(MediaQuery.textScalerOf(context).scale(1), 1.5);
   });
 
   testWidgets('settings tab changes the app theme and saves it', (
@@ -69,6 +75,29 @@ void main() {
     expect(_brightness(tester), Brightness.dark);
     expect((await repository.load()).themeMode, ThemeMode.dark);
   });
+
+  testWidgets('settings tab changes the text scale and saves it', (
+    tester,
+  ) async {
+    final repository = SettingsRepository(SharedPreferencesAsync());
+
+    await tester.pumpWidget(
+      RunoutApp(
+        settingsRepository: repository,
+        initialSettings: AppSettings.defaults,
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.settings_outlined).last);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byType(Slider));
+    await tester.drag(find.byType(Slider), const Offset(1000, 0));
+    await tester.pumpAndSettle();
+
+    expect(_textScale(tester), AppSettings.maxTextScale);
+    expect((await repository.load()).textScale, AppSettings.maxTextScale);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -76,4 +105,9 @@ void main() {
 Brightness _brightness(WidgetTester tester) {
   final ctx = tester.element(find.byType(SettingsPage));
   return Theme.of(ctx).brightness;
+}
+
+double _textScale(WidgetTester tester) {
+  final ctx = tester.element(find.byType(SettingsPage));
+  return MediaQuery.textScalerOf(ctx).scale(1);
 }

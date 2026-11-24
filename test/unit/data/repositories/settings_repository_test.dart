@@ -29,6 +29,7 @@ void main() {
 
       expect(settings.themeMode, AppSettings.defaults.themeMode);
       expect(settings.appColor, AppSettings.defaults.appColor);
+      expect(settings.textScale, AppSettings.defaults.textScale);
     });
 
     test('reads stored values', () async {
@@ -36,12 +37,14 @@ void main() {
           InMemorySharedPreferencesAsync.withData({
             'settings.themeMode': 'dark',
             'settings.appColor': 'blue',
+            'settings.textScale': 1.5,
           });
 
       final settings = await createRepository().load();
 
       expect(settings.themeMode, ThemeMode.dark);
       expect(settings.appColor, AppColor.blue);
+      expect(settings.textScale, 1.5);
     });
 
     test('falls back for unknown values', () async {
@@ -49,12 +52,14 @@ void main() {
           InMemorySharedPreferencesAsync.withData({
             'settings.themeMode': 'sepia',
             'settings.appColor': 'red',
+            'settings.textScale': 'large',
           });
 
       final settings = await createRepository().load();
 
       expect(settings.themeMode, AppSettings.defaults.themeMode);
       expect(settings.appColor, AppSettings.defaults.appColor);
+      expect(settings.textScale, AppSettings.defaults.textScale);
     });
 
     test('falls back for values stored with another type', () async {
@@ -65,18 +70,29 @@ void main() {
 
       expect(settings.themeMode, AppSettings.defaults.themeMode);
     });
+
+    test('clamps an out-of-range text scale', () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({'settings.textScale': 3.0});
+
+      final settings = await createRepository().load();
+
+      expect(settings.textScale, AppSettings.maxTextScale);
+    });
   });
 
   group('save', () {
-    test('writes theme mode and app color', () async {
+    test('writes theme mode, app color, and text scale', () async {
       final preferences = SharedPreferencesAsync();
       final repository = SettingsRepository(preferences);
 
       await repository.saveThemeMode(ThemeMode.dark);
       await repository.saveAppColor(AppColor.blue);
+      await repository.saveTextScale(1.5);
 
       expect(await preferences.getString('settings.themeMode'), 'dark');
       expect(await preferences.getString('settings.appColor'), 'blue');
+      expect(await preferences.getDouble('settings.textScale'), 1.5);
     });
 
     test('round-trips saved values', () async {
@@ -84,11 +100,13 @@ void main() {
 
       await repository.saveThemeMode(ThemeMode.light);
       await repository.saveAppColor(AppColor.blue);
+      await repository.saveTextScale(1.5);
 
       final settings = await repository.load();
 
       expect(settings.themeMode, ThemeMode.light);
       expect(settings.appColor, AppColor.blue);
+      expect(settings.textScale, 1.5);
     });
   });
 }

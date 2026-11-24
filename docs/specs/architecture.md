@@ -48,14 +48,15 @@ test/
 
 ## Composition
 
-- `RunoutApp` owns the settings notifier and passes the selected theme and
-  color to `MaterialApp`. Theme changes apply immediately.
+- `RunoutApp` owns the settings notifier and passes the selected theme, color,
+  and text scale to `MaterialApp`. Theme and text scale changes apply
+  immediately.
 - `RunoutApp` provides the in-memory `PlayerRepository` and `MatchRepository`
   once at the root through `AppProviders`.
 - The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
   sidebar. Settings is a shell tab.
-- `MaterialApp` uses light and dark themes selected by settings; no router or
-  named routes.
+- `MaterialApp` uses light and dark themes selected by settings and overrides
+  system text scaling with the saved scale; no router or named routes.
 - `MatchPage` owns match actions; the match header, side cards, controls bar,
   and buttons are presentational.
 - Targets all Flutter platforms. No platform-specific branches, conditional

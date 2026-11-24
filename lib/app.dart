@@ -44,6 +44,14 @@ class _RunoutAppView extends StatelessWidget {
         theme: AppTheme.light(settings.appColor),
         darkTheme: AppTheme.dark(settings.appColor),
         themeMode: settings.themeMode,
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(settings.textScale),
+            ),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
         home: const HomePage(),
       ),
     );

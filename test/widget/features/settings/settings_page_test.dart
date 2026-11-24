@@ -7,6 +7,7 @@ import 'package:runout/core/theme/app_theme.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
 import 'package:runout/features/settings/settings_page.dart';
+import 'package:runout/shared/widgets/match_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -17,11 +18,6 @@ void _setSize(WidgetTester tester, Size size) {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-}
-
-void _setTextScale(WidgetTester tester, double scale) {
-  tester.platformDispatcher.textScaleFactorTestValue = scale;
-  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 }
 
 Widget _host(SettingsNotifier notifier) {
@@ -53,6 +49,14 @@ class _ThemedApp extends StatelessWidget {
       theme: AppTheme.light(settings.appColor),
       darkTheme: AppTheme.dark(settings.appColor),
       themeMode: settings.themeMode,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(settings.textScale),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: const Scaffold(body: SettingsPage()),
     );
   }
@@ -73,12 +77,17 @@ void main() {
     SharedPreferencesAsyncPlatform.instance = previousPlatform;
   });
 
-  testWidgets('shows theme and color choices', (tester) async {
+  testWidgets('shows theme, color, and text size choices', (tester) async {
     await tester.pumpWidget(_host(_createNotifier()));
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Theme'), findsOneWidget);
     expect(find.text('Color'), findsOneWidget);
+    expect(find.text('Text Size'), findsOneWidget);
+    expect(find.text('100%'), findsOneWidget);
+    expect(find.byType(Slider), findsOneWidget);
+    expect(find.text('Preview'), findsOneWidget);
+    expect(find.byType(MatchCard), findsOneWidget);
     for (final label in ['System', 'Light', 'Dark', 'Blue', 'Green']) {
       expect(find.text(label), findsOneWidget);
     }
@@ -91,6 +100,7 @@ void main() {
           settings: const AppSettings(
             themeMode: ThemeMode.dark,
             appColor: AppColor.blue,
+            textScale: 1.5,
           ),
         ),
       ),
@@ -100,6 +110,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Blue'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Light'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Green'), findsOneWidget);
+    expect(find.text('150%'), findsOneWidget);
   });
 
   testWidgets('selecting a theme updates the app theme', (tester) async {
@@ -128,18 +139,42 @@ void main() {
     expect(_primary(tester), isNot(primaryBefore));
   });
 
+  testWidgets('text scale slider updates the app text scale', (tester) async {
+    final notifier = _createNotifier();
+    await tester.pumpWidget(_host(notifier));
+
+    final previewHeight = tester.getSize(find.text('Efren Reyes')).height;
+    expect(_textScale(tester), 1);
+
+    await tester.drag(find.byType(Slider), const Offset(1000, 0));
+    await tester.pumpAndSettle();
+
+    expect(notifier.textScale, AppSettings.maxTextScale);
+    expect(find.text('150%'), findsOneWidget);
+    expect(_textScale(tester), AppSettings.maxTextScale);
+    expect(
+      tester.getSize(find.text('Efren Reyes')).height,
+      greaterThan(previewHeight),
+    );
+  });
+
   testWidgets('does not overflow at compact width and large text', (
     tester,
   ) async {
     _setSize(tester, const Size(375, 800));
 
-    for (final scale in [1.5, 2.0]) {
-      _setTextScale(tester, scale);
-      await tester.pumpWidget(_host(_createNotifier()));
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      _host(
+        _createNotifier(
+          settings: AppSettings.defaults.copyWith(
+            textScale: AppSettings.maxTextScale,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-    }
+    expect(tester.takeException(), isNull);
   });
 }
 
@@ -151,4 +186,9 @@ Brightness _brightness(WidgetTester tester) {
 Color _primary(WidgetTester tester) {
   final ctx = tester.element(find.byType(SettingsPage));
   return Theme.of(ctx).colorScheme.primary;
+}
+
+double _textScale(WidgetTester tester) {
+  final ctx = tester.element(find.byType(SettingsPage));
+  return MediaQuery.textScalerOf(ctx).scale(1);
 }

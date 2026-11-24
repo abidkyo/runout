@@ -25,11 +25,15 @@
 ## Settings
 
 - The Settings tab is an in-page header followed by one appearance card with
-  Theme and Color sections.
+  Theme, Color, and Text Size sections.
 - Theme offers System, Light, and Dark. Color offers Blue and Green seeds.
-- Defaults are the System theme and the Green color.
-- Selecting a choice applies it immediately and persists it; there is no Save
-  action.
+- Text Size is a 100%-150% slider in 5% steps. It overrides the system text
+  scale across the app.
+- Defaults are the System theme, the Blue color, and 100% text size.
+- Selecting a choice or moving the slider applies it immediately and persists
+  it; there is no Save action.
+- The Text Size section shows the current percentage and a match card preview
+  at the selected scale.
 - Page content uses compact 16px padding and 24px otherwise, capped at
   `LayoutBreakpoints.contentMax` (1200), matching Home and Match History.
 - Choice buttons fill the row on wide layouts and stack at compact width. The

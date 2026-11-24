@@ -38,6 +38,7 @@ void main() {
 
       expect(notifier.themeMode, AppSettings.defaults.themeMode);
       expect(notifier.appColor, AppSettings.defaults.appColor);
+      expect(notifier.textScale, AppSettings.defaults.textScale);
     });
   });
 
@@ -68,6 +69,29 @@ void main() {
       expect((await repository.load()).appColor, AppColor.green);
     });
 
+    test('text scale updates, notifies, and persists', () async {
+      final repository = SettingsRepository(SharedPreferencesAsync());
+      final notifier = createNotifier(repository);
+      var notifyCount = 0;
+      notifier.addListener(() => notifyCount++);
+
+      await notifier.setTextScale(1.5);
+
+      expect(notifier.textScale, 1.5);
+      expect(notifyCount, 1);
+      expect((await repository.load()).textScale, 1.5);
+    });
+
+    test('text scale clamps to the allowed range', () async {
+      final notifier = createNotifier(
+        SettingsRepository(SharedPreferencesAsync()),
+      );
+
+      await notifier.setTextScale(3);
+
+      expect(notifier.textScale, AppSettings.maxTextScale);
+    });
+
     test('same value does not notify or write', () async {
       final preferences = SharedPreferencesAsync();
       final notifier = createNotifier(SettingsRepository(preferences));
@@ -76,6 +100,7 @@ void main() {
 
       await notifier.setThemeMode(AppSettings.defaults.themeMode);
       await notifier.setAppColor(AppSettings.defaults.appColor);
+      await notifier.setTextScale(AppSettings.defaults.textScale);
 
       expect(notifyCount, 0);
       expect(await preferences.getAll(), isEmpty);

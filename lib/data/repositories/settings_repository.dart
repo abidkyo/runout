@@ -12,13 +12,14 @@ class SettingsRepository {
 
   static const String _themeModeKey = 'settings.themeMode';
   static const String _appColorKey = 'settings.appColor';
+  static const String _textScaleKey = 'settings.textScale';
 
   final SharedPreferencesAsync _preferences;
 
   /// Loads the saved settings, using defaults for missing or invalid values.
   Future<AppSettings> load() async {
     final values = await _preferences.getAll(
-      allowList: {_themeModeKey, _appColorKey},
+      allowList: {_themeModeKey, _appColorKey, _textScaleKey},
     );
     final themeModeName = _stringOrNull(values[_themeModeKey]);
     final appColorName = _stringOrNull(values[_appColorKey]);
@@ -30,6 +31,7 @@ class SettingsRepository {
       appColor:
           AppColor.values.asNameMap()[appColorName] ??
           AppSettings.defaults.appColor,
+      textScale: _textScaleOrDefault(values[_textScaleKey]),
     );
   }
 
@@ -42,6 +44,22 @@ class SettingsRepository {
   Future<void> saveAppColor(AppColor value) {
     return _preferences.setString(_appColorKey, value.name);
   }
+
+  /// Saves the selected text scale.
+  Future<void> saveTextScale(double value) {
+    return _preferences.setDouble(_textScaleKey, value);
+  }
 }
 
 String? _stringOrNull(Object? value) => value is String ? value : null;
+
+double _textScaleOrDefault(Object? value) {
+  if (value is! num || !value.isFinite) {
+    return AppSettings.defaults.textScale;
+  }
+
+  return value.toDouble().clamp(
+    AppSettings.minTextScale,
+    AppSettings.maxTextScale,
+  );
+}

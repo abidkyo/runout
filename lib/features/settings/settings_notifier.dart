@@ -22,6 +22,9 @@ class SettingsNotifier extends ChangeNotifier {
   /// Seed color used by the app theme.
   AppColor get appColor => _settings.appColor;
 
+  /// Text scale applied across the app.
+  double get textScale => _settings.textScale;
+
   /// Selects the theme mode and persists it.
   Future<void> setThemeMode(ThemeMode value) async {
     if (_settings.themeMode == value) return;
@@ -36,6 +39,20 @@ class SettingsNotifier extends ChangeNotifier {
     _settings = _settings.copyWith(appColor: value);
     notifyListeners();
     await _save(() => _repository.saveAppColor(value));
+  }
+
+  /// Selects the text scale and persists it.
+  Future<void> setTextScale(double value) async {
+    if (!value.isFinite) return;
+
+    final scale = value.clamp(
+      AppSettings.minTextScale,
+      AppSettings.maxTextScale,
+    );
+    if (_settings.textScale == scale) return;
+    _settings = _settings.copyWith(textScale: scale);
+    notifyListeners();
+    await _save(() => _repository.saveTextScale(scale));
   }
 
   Future<void> _save(Future<void> Function() save) async {

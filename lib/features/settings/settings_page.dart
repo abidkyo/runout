@@ -4,11 +4,43 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/app_color.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/core/theme/theme_extension.dart';
+import 'package:runout/domain/enums/break_format.dart';
+import 'package:runout/domain/enums/game_type.dart';
+import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/match.dart';
+import 'package:runout/domain/models/match_config.dart';
+import 'package:runout/domain/models/match_side.dart';
+import 'package:runout/domain/models/player.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
 import 'package:runout/shared/widgets/choice_button.dart';
+import 'package:runout/shared/widgets/match_card.dart';
 
-/// Lets the user choose the app theme and color.
+final Match _previewMatch = Match(
+  id: 'settings-preview',
+  config: const MatchConfig(
+    matchMode: MatchMode.singles,
+    gameType: GameType.eightBall,
+    raceTo: 7,
+    breakFormat: BreakFormat.alternateBreak,
+  ),
+  sides: [
+    MatchSide(
+      players: const [Player(id: 'preview-0', name: 'Efren Reyes')],
+      score: 7,
+    ),
+    MatchSide(
+      players: const [Player(id: 'preview-1', name: "Ronnie O'Sullivan")],
+      score: 4,
+    ),
+  ],
+  status: MatchStatus.finished,
+  endedAt: DateTime(2026),
+  winnerIndex: 0,
+);
+
+/// Lets the user choose the app theme, color, and text size.
 class SettingsPage extends StatelessWidget {
   const new({super.key});
 
@@ -60,6 +92,22 @@ class SettingsPage extends StatelessWidget {
                           onSelected: (color) =>
                               unawaited(settings.setAppColor(color)),
                         ),
+                      ),
+                      _Section(
+                        icon: Icons.format_size_rounded,
+                        title: 'Text Size',
+                        description: 'Scale text across the app.',
+                        child: _TextSizeControl(
+                          value: settings.textScale,
+                          onChanged: (value) =>
+                              unawaited(settings.setTextScale(value)),
+                        ),
+                      ),
+                      const _Section(
+                        icon: Icons.visibility_rounded,
+                        title: 'Preview',
+                        description: "Here's how it looks now!",
+                        child: _MatchCardPreview(),
                       ),
                     ],
                   ),
@@ -203,6 +251,61 @@ class _ColorSelector extends StatelessWidget {
     ];
 
     return _AdaptiveButtonGroup(buttons: buttons);
+  }
+}
+
+class _TextSizeControl extends StatelessWidget {
+  const new({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final double value;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = (value * 100).round();
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          spacing: 8,
+          children: [
+            Slider(
+              value: value,
+              min: AppSettings.minTextScale,
+              max: AppSettings.maxTextScale,
+              divisions: 10,
+              semanticFormatterCallback: (value) =>
+                  '${(value * 100).round()} percent',
+              onChanged: onChanged,
+            ),
+            Text(
+              '$percent%',
+              style: context.textTheme.bodyMedium?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MatchCardPreview extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: MatchCard(match: _previewMatch),
+      ),
+    );
   }
 }
 
