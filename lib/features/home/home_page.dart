@@ -11,6 +11,7 @@ import 'package:runout/features/home/widgets/home_content.dart';
 import 'package:runout/features/home/widgets/home_sidebar.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
+import 'package:runout/features/settings/settings_page.dart';
 import 'package:runout/shared/widgets/empty_state.dart';
 
 /// Entry screen and app shell.
@@ -108,11 +109,7 @@ class _HomeShellState extends State<_HomeShell> {
                       message: 'Player management is coming soon.',
                     ),
                     .matches => const MatchHistoryPage(),
-                    .settings => const EmptyState(
-                      icon: Icons.settings_outlined,
-                      title: 'Settings',
-                      message: 'Settings are coming soon.',
-                    ),
+                    .settings => const SettingsPage(),
                   },
                 ),
               ],

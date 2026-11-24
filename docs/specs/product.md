@@ -26,7 +26,8 @@ Flow: home → setup → match.
 ## Status
 
 Done: client flow, rotation and straight-pool scoring, undo/redo, timer,
-responsive layouts, tests, home shell, in-memory match history.
+responsive layouts, tests, home shell, in-memory match history, theme and color
+settings.
 
 Next:
 

@@ -11,7 +11,7 @@
   tab.
 - Cards show the match date; created matches show “Not started”. Deleting a
   match is deferred to the future `MatchDetailPage`.
-- Players and Settings are placeholder tabs until their features land.
+- Players is a placeholder tab until its feature lands.
 - Home and Match History avoid fixed heights. Layouts stay usable at 1.5× and
   2× text scale; the compact AppBar grows with the text scale and cards avoid
   fixed trailing widths.
@@ -21,6 +21,19 @@
 - The Matches tab lists finished matches only, newest first.
 - History cards are display-only; there is no detail page yet.
 - An empty history shows a single empty state.
+
+## Settings
+
+- The Settings tab is an in-page header followed by one appearance card with
+  Theme and Color sections.
+- Theme offers System, Light, and Dark. Color offers Blue and Green seeds.
+- Defaults are the System theme and the Green color.
+- Selecting a choice applies it immediately and persists it; there is no Save
+  action.
+- Page content uses compact 16px padding and 24px otherwise, capped at
+  `LayoutBreakpoints.contentMax` (1200), matching Home and Match History.
+- Choice buttons fill the row on wide layouts and stack at compact width. The
+  page stays usable at 1.5× and 2× text scale.
 
 ## Match Setup
 

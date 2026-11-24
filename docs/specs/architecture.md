@@ -8,6 +8,7 @@ lib/
 ├── main.dart
 ├── core/
 │   ├── constants/
+│   ├── settings/
 │   └── theme/
 ├── data/
 │   └── repositories/
@@ -20,6 +21,7 @@ lib/
 │   ├── manager_link/
 │   ├── match/
 │   ├── match_setup/
+│   ├── settings/
 │   └── tournament/
 └── shared/
     └── widgets/
@@ -46,11 +48,14 @@ test/
 
 ## Composition
 
+- `RunoutApp` owns the settings notifier and passes the selected theme and
+  color to `MaterialApp`. Theme changes apply immediately.
 - `RunoutApp` provides the in-memory `PlayerRepository` and `MatchRepository`
   once at the root through `AppProviders`.
 - The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
-  sidebar.
-- `MaterialApp` with the light theme; no router or named routes.
+  sidebar. Settings is a shell tab.
+- `MaterialApp` uses light and dark themes selected by settings; no router or
+  named routes.
 - `MatchPage` owns match actions; the match header, side cards, controls bar,
   and buttons are presentational.
 - Targets all Flutter platforms. No platform-specific branches, conditional
@@ -65,8 +70,8 @@ test/
 - Use `context.watch` to rebuild, `context.read` for actions,
   `Consumer`/`Selector` for partial rebuilds.
 - Undo/redo stores immutable `Match` snapshots in two stacks.
-- `PlayerRepository` and `MatchRepository` are in-memory only. No DB, network,
-  or serialization yet.
+- `PlayerRepository` and `MatchRepository` are in-memory only. Settings are
+  persisted with `shared_preferences`. No DB or network yet.
 - Offline-first is the intended direction; the repository layer will hide
   local/remote later. Don't add persistence ad hoc.
 - IDs use UUID v7.
@@ -75,4 +80,5 @@ test/
 
 - No `ScoringRule` abstraction yet; extract only when a third rule set appears.
 - Timer is UI-only; duration is derived, never stored.
-- `shared_preferences` stays absent until there is a real setting.
+- `shared_preferences` is limited to app settings; match and player persistence
+  stays deferred.

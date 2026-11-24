@@ -2,14 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/app_strings.dart';
+import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
+import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/home_page.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
+import 'package:runout/features/settings/settings_notifier.dart';
+import 'package:runout/features/settings/settings_page.dart';
 import 'package:runout/shared/widgets/match_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../unit/helpers/factories.dart';
 
@@ -24,6 +31,12 @@ Widget _host({MatchRepository? repository}) {
         value: repository ?? MatchRepository(),
       ),
       Provider<PlayerRepository>(create: (_) => PlayerRepository()),
+      ChangeNotifierProvider<SettingsNotifier>(
+        create: (_) => SettingsNotifier(
+          SettingsRepository(SharedPreferencesAsync()),
+          initialSettings: AppSettings.defaults,
+        ),
+      ),
     ],
     child: const MaterialApp(home: HomePage()),
   );
@@ -58,6 +71,18 @@ List<Match> _finishedMatches(int count) {
 // ---------------------------------------------------------------------------
 
 void main() {
+  late SharedPreferencesAsyncPlatform? previousPlatform;
+
+  setUp(() {
+    previousPlatform = SharedPreferencesAsyncPlatform.instance;
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+  });
+
+  tearDown(() {
+    SharedPreferencesAsyncPlatform.instance = previousPlatform;
+  });
+
   group('layout', () {
     testWidgets('wide layout uses the sidebar and no app bar', (tester) async {
       _setSize(tester, const Size(1200, 900));
@@ -146,17 +171,25 @@ void main() {
       expect(find.text('Match History'), findsOneWidget);
     });
 
-    testWidgets('players and settings tabs show placeholders', (tester) async {
+    testWidgets('players tab shows a placeholder', (tester) async {
       _setSize(tester, const Size(400, 800));
       await tester.pumpWidget(_host());
 
       await tester.tap(find.byIcon(Icons.people_outlined));
       await tester.pumpAndSettle();
       expect(find.text('Player management is coming soon.'), findsOneWidget);
+    });
+
+    testWidgets('settings tab shows the settings page', (tester) async {
+      _setSize(tester, const Size(400, 800));
+      await tester.pumpWidget(_host());
 
       await tester.tap(find.byIcon(Icons.settings_outlined).last);
       await tester.pumpAndSettle();
-      expect(find.text('Settings are coming soon.'), findsOneWidget);
+
+      expect(find.byType(SettingsPage), findsOneWidget);
+      expect(find.text('Theme'), findsOneWidget);
+      expect(find.text('Color'), findsOneWidget);
     });
 
     testWidgets('sidebar switches tabs on wide layouts', (tester) async {

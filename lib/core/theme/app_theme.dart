@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/app_color.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 
 class AppTheme {
@@ -6,22 +7,20 @@ class AppTheme {
   // AppTheme is a static-only holder for theme definitions.
   new _();
 
-  // Billiard green felt.
-  static const Color _seed = Color(0xFF0E7A5F);
+  static ThemeData light(AppColor appColor) {
+    return _theme(Brightness.light, appColor);
+  }
 
-  // Billiard blue felt.
-  // static const Color _seed = Color(0xFF1F5F8B);
+  static ThemeData dark(AppColor appColor) {
+    return _theme(Brightness.dark, appColor);
+  }
 
-  static ThemeData get light => _theme(Brightness.light);
-
-  static ThemeData get dark => _theme(Brightness.dark);
-
-  static ThemeData _theme(Brightness brightness) {
-    final hsl = HSLColor.fromColor(_seed);
+  static ThemeData _theme(Brightness brightness, AppColor appColor) {
+    final hsl = HSLColor.fromColor(appColor.seed);
     final tertiary = hsl.withHue((hsl.hue - 30) % 360).toColor();
 
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: _seed,
+      seedColor: appColor.seed,
       brightness: brightness,
       tertiary: tertiary,
     );
