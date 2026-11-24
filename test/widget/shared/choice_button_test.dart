@@ -6,7 +6,7 @@ import 'package:runout/shared/widgets/choice_button.dart';
 
 Widget _host({
   bool selected = false,
-  IconData? icon,
+  Widget? leading,
   VoidCallback? onPressed,
 }) {
   return MaterialApp(
@@ -15,7 +15,7 @@ Widget _host({
         child: ChoiceButton(
           label: 'Singles',
           selected: selected,
-          icon: icon,
+          leading: leading,
           onPressed: onPressed ?? () {},
         ),
       ),
@@ -42,17 +42,19 @@ void main() {
     });
   });
 
-  group('ChoiceButton — icon', () {
-    testWidgets('shows the icon when provided', (tester) async {
-      await tester.pumpWidget(_host(icon: Icons.person));
+  group('ChoiceButton — leading', () {
+    testWidgets('shows leading when provided', (tester) async {
+      await tester.pumpWidget(
+        _host(leading: const Icon(Icons.circle)),
+      );
 
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byIcon(Icons.circle), findsOneWidget);
     });
 
-    testWidgets('shows no icon when omitted', (tester) async {
+    testWidgets('shows no leading when omitted', (tester) async {
       await tester.pumpWidget(_host());
 
-      expect(find.byIcon(Icons.person), findsNothing);
+      expect(find.byType(Icon), findsNothing);
     });
   });
 

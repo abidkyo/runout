@@ -17,7 +17,7 @@ class GameTypeSelector extends StatelessWidget {
       for (final game in GameType.values)
         ChoiceButton(
           label: game.displayName,
-          icon: game.icon,
+          leading: Icon(game.icon, size: 18),
           selected: notifier.gameType == game,
           onPressed: () => notifier.gameType = game,
         ),

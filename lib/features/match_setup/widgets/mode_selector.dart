@@ -17,7 +17,7 @@ class ModeSelector extends StatelessWidget {
       for (final mode in MatchMode.values)
         ChoiceButton(
           label: mode.displayName,
-          icon: mode.icon,
+          leading: Icon(mode.icon, size: 18),
           selected: notifier.mode == mode,
           onPressed: () => notifier.mode = mode,
         ),
