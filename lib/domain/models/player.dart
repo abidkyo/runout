@@ -1,8 +1,10 @@
-import 'package:meta/meta.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'player.freezed.dart';
 
 /// A billiard player, uniquely identified and used across matches.
-@immutable
-class Player {
+@freezed
+class Player with _$Player {
   const new({
     required this.id,
     required this.name,
