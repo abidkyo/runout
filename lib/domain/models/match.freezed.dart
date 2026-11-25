@@ -12,6 +12,7 @@ part of 'match.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$Match {
 
@@ -30,7 +31,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Match&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.config, _this.config) || other.config == _this.config)&&const DeepCollectionEquality().equals(other.sides, _this.sides)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.currentSideIndex, _this.currentSideIndex) || other.currentSideIndex == _this.currentSideIndex)&&(identical(other.winnerIndex, _this.winnerIndex) || other.winnerIndex == _this.winnerIndex)&&(identical(other.effectiveInningsLimit, _this.effectiveInningsLimit) || other.effectiveInningsLimit == _this.effectiveInningsLimit)&&(identical(other.currentRun, _this.currentRun) || other.currentRun == _this.currentRun)&&(identical(other.ballsRemaining, _this.ballsRemaining) || other.ballsRemaining == _this.ballsRemaining)&&(identical(other.isOpeningBreak, _this.isOpeningBreak) || other.isOpeningBreak == _this.isOpeningBreak)&&(identical(other.startedAt, _this.startedAt) || other.startedAt == _this.startedAt)&&(identical(other.endedAt, _this.endedAt) || other.endedAt == _this.endedAt));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Match;

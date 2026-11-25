@@ -12,6 +12,7 @@ part of 'match_side.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$MatchSide {
 
@@ -30,7 +31,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MatchSide&&const DeepCollectionEquality().equals(other.players, _this.players)&&(identical(other.score, _this.score) || other.score == _this.score)&&(identical(other.innings, _this.innings) || other.innings == _this.innings)&&(identical(other.highRun, _this.highRun) || other.highRun == _this.highRun)&&(identical(other.consecutiveFouls, _this.consecutiveFouls) || other.consecutiveFouls == _this.consecutiveFouls));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as MatchSide;

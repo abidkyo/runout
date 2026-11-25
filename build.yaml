@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          checked: true
+          create_to_json: true
+          date_time_utc: true
+          explicit_to_json: true

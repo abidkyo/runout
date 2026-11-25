@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:runout/domain/models/player.dart';
 
 part 'match_side.freezed.dart';
+part 'match_side.g.dart';
 
 /// A side in a match — the unit that shares a score.
 ///
@@ -9,6 +10,7 @@ part 'match_side.freezed.dart';
 /// - Doubles: one side per team (two players).
 /// - Three-player: one side per player.
 @freezed
+@JsonSerializable()
 class MatchSide with _$MatchSide {
   const new({
     required this.players,
@@ -17,6 +19,10 @@ class MatchSide with _$MatchSide {
     this.highRun = 0,
     this.consecutiveFouls = 0,
   }) : assert(players.length > 0, 'A side must have at least one player.');
+
+  factory fromJson(Map<String, dynamic> json) => _$MatchSideFromJson(json);
+
+  Map<String, Object?> toJson() => _$MatchSideToJson(this);
 
   /// Players belonging to this side. Length is 1 or 2.
   final List<Player> players;

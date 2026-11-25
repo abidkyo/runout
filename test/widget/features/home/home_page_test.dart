@@ -19,6 +19,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../unit/helpers/factories.dart';
+import '../../../unit/helpers/fake_repositories.dart';
 
 // ---------------------------------------------------------------------------
 
@@ -28,9 +29,9 @@ Widget _host({MatchRepository? repository}) {
   return MultiProvider(
     providers: [
       Provider<MatchRepository>.value(
-        value: repository ?? MatchRepository(),
+        value: repository ?? FakeMatchRepository(),
       ),
-      Provider<PlayerRepository>(create: (_) => PlayerRepository()),
+      Provider<PlayerRepository>.value(value: FakePlayerRepository()),
       ChangeNotifierProvider<SettingsNotifier>(
         create: (_) => SettingsNotifier(
           SettingsRepository(SharedPreferencesAsync()),
@@ -51,6 +52,15 @@ void _setSize(WidgetTester tester, Size size) {
 void _setTextScale(WidgetTester tester, double scale) {
   tester.platformDispatcher.textScaleFactorTestValue = scale;
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+}
+
+Match _playingMatch() {
+  return makeMatch().copyWith(
+    id: 'playing',
+    status: MatchStatus.playing,
+    startedAt: _base,
+    currentSideIndex: 0,
+  );
 }
 
 List<Match> _finishedMatches(int count) {
@@ -86,7 +96,9 @@ void main() {
   group('layout', () {
     testWidgets('wide layout uses the sidebar and no app bar', (tester) async {
       _setSize(tester, const Size(1200, 900));
-      await tester.pumpWidget(_host());
+      await tester.pumpWidget(
+        _host(repository: FakeMatchRepository(matches: [_playingMatch()])),
+      );
 
       expect(find.text(AppStrings.title), findsOneWidget);
       expect(find.text(AppStrings.subtitle), findsOneWidget);
@@ -108,13 +120,21 @@ void main() {
       expect(find.byType(NavigationBar), findsOneWidget);
     });
 
-    testWidgets('renders the three-player mock match', (tester) async {
+    testWidgets('renders a three-player match', (tester) async {
       _setSize(tester, const Size(1200, 1600));
-      await tester.pumpWidget(_host());
+      final match = makeMatch(sideCount: 3).copyWith(
+        id: 'three-player',
+        status: MatchStatus.playing,
+        startedAt: _base,
+        currentSideIndex: 0,
+      );
+      await tester.pumpWidget(
+        _host(repository: FakeMatchRepository(matches: [match])),
+      );
 
-      expect(find.text('Efren Reyes'), findsNWidgets(2));
-      expect(find.text("Ronnie O'Sullivan"), findsNWidgets(2));
-      expect(find.text('Jasmin Ouschan'), findsNWidgets(2));
+      expect(find.text('Player-0'), findsOneWidget);
+      expect(find.text('Player-1'), findsOneWidget);
+      expect(find.text('Player-2'), findsOneWidget);
     });
   });
 
@@ -146,7 +166,9 @@ void main() {
 
     testWidgets('continue opens the match page', (tester) async {
       _setSize(tester, const Size(1200, 1200));
-      await tester.pumpWidget(_host());
+      await tester.pumpWidget(
+        _host(repository: FakeMatchRepository(matches: [_playingMatch()])),
+      );
 
       await tester.ensureVisible(find.text('Continue').first);
       await tester.tap(find.text('Continue').first);
@@ -207,7 +229,7 @@ void main() {
     testWidgets('is hidden when no match is playing', (tester) async {
       _setSize(tester, const Size(1200, 900));
       await tester.pumpWidget(
-        _host(repository: MatchRepository(matches: _finishedMatches(1))),
+        _host(repository: FakeMatchRepository(matches: _finishedMatches(1))),
       );
 
       expect(find.text('Continue Matches'), findsNothing);
@@ -220,7 +242,7 @@ void main() {
     testWidgets('caps the home list at ten', (tester) async {
       _setSize(tester, const Size(1200, 2000));
       await tester.pumpWidget(
-        _host(repository: MatchRepository(matches: _finishedMatches(12))),
+        _host(repository: FakeMatchRepository(matches: _finishedMatches(12))),
       );
 
       expect(find.byType(MatchCard), findsNWidgets(10));

@@ -12,6 +12,7 @@ part of 'match_config.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$MatchConfig {
 
@@ -30,7 +31,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MatchConfig&&(identical(other.matchMode, _this.matchMode) || other.matchMode == _this.matchMode)&&(identical(other.gameType, _this.gameType) || other.gameType == _this.gameType)&&(identical(other.raceTo, _this.raceTo) || other.raceTo == _this.raceTo)&&(identical(other.breakFormat, _this.breakFormat) || other.breakFormat == _this.breakFormat)&&(identical(other.inningsLimit, _this.inningsLimit) || other.inningsLimit == _this.inningsLimit));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as MatchConfig;

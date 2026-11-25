@@ -5,6 +5,7 @@ import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
+import 'package:runout/domain/models/player.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/match_setup/widgets/break_format_selector.dart';
@@ -16,11 +17,9 @@ import 'package:runout/features/match_setup/widgets/player_picker_dialog.dart';
 import 'package:runout/features/match_setup/widgets/setup_actions.dart';
 import 'package:runout/shared/widgets/choice_button.dart';
 
-// ---------------------------------------------------------------------------
+import '../../../unit/helpers/fake_repositories.dart';
 
-// This is verbose. Can't improve for now.
-const p1 = 'Joshua Filler';
-const p2 = 'Shane Van Boening';
+// ---------------------------------------------------------------------------
 
 void _setSize(WidgetTester tester, Size size) {
   tester.view.physicalSize = size;
@@ -39,10 +38,10 @@ Future<void> _pumpSetupPage(
 }) async {
   _setSize(tester, size);
   await tester.pumpWidget(
-    const AppProviders(
-      child: MaterialApp(
-        home: MatchSetupPage(),
-      ),
+    AppProviders(
+      playerRepository: FakePlayerRepository(players: fakePlayers()),
+      matchRepository: FakeMatchRepository(),
+      child: const MaterialApp(home: MatchSetupPage()),
     ),
   );
 }
@@ -51,6 +50,8 @@ Future<void> _pumpStackedSetupPage(WidgetTester tester) async {
   _setSize(tester, const Size(800, 1200));
   await tester.pumpWidget(
     AppProviders(
+      playerRepository: FakePlayerRepository(players: fakePlayers()),
+      matchRepository: FakeMatchRepository(),
       child: MaterialApp(
         home: Builder(
           builder: (context) => ElevatedButton(
@@ -87,7 +88,7 @@ Future<void> _pickPlayer(
   WidgetTester tester,
   int sideIndex,
   int slotIndex,
-  String name,
+  Player player,
 ) async {
   await tester.tap(_slot(sideIndex, slotIndex));
   await tester.pumpAndSettle();
@@ -95,7 +96,7 @@ Future<void> _pickPlayer(
   await tester.tap(
     find.descendant(
       of: find.byType(PlayerPickerDialog),
-      matching: find.text(name),
+      matching: find.text(player.name),
     ),
   );
   await tester.pumpAndSettle();
@@ -279,16 +280,17 @@ void main() {
     testWidgets('tapping a slot opens the picker for that side', (
       tester,
     ) async {
-      await _pumpSetupPage(tester);
+      final player = fakePlayers().first;
 
-      await _pickPlayer(tester, 1, 0, p2);
+      await _pumpSetupPage(tester);
+      await _pickPlayer(tester, 1, 0, player);
 
       expect(
         find.descendant(of: _slot(0, 0), matching: find.text('Select player')),
         findsOneWidget,
       );
       expect(
-        find.descendant(of: _slot(1, 0), matching: find.text(p2)),
+        find.descendant(of: _slot(1, 0), matching: find.text(player.name)),
         findsOneWidget,
       );
     });
@@ -303,11 +305,13 @@ void main() {
     });
 
     testWidgets('picking a player fills the slot', (tester) async {
+      final player = fakePlayers().last;
+
       await _pumpSetupPage(tester);
-      await _pickPlayer(tester, 0, 0, p1);
+      await _pickPlayer(tester, 0, 0, player);
 
       expect(find.byType(PlayerPickerDialog), findsNothing);
-      expect(find.text(p1), findsOneWidget);
+      expect(find.text(player.name), findsOneWidget);
     });
 
     testWidgets('creating a player fills the slot', (tester) async {
@@ -364,8 +368,10 @@ void main() {
     testWidgets('shows a snackbar when only one side is filled', (
       tester,
     ) async {
+      final player = fakePlayers().first;
+
       await _pumpSetupPage(tester);
-      await _pickPlayer(tester, 0, 0, p1);
+      await _pickPlayer(tester, 0, 0, player);
 
       await tester.tap(find.text('Start Match'));
       await tester.pumpAndSettle();
@@ -377,9 +383,11 @@ void main() {
     testWidgets('shows a snackbar when filled with duplicate players', (
       tester,
     ) async {
+      final player = fakePlayers().last;
+
       await _pumpSetupPage(tester);
-      await _pickPlayer(tester, 0, 0, p1);
-      await _pickPlayer(tester, 1, 0, p1);
+      await _pickPlayer(tester, 0, 0, player);
+      await _pickPlayer(tester, 1, 0, player);
 
       await tester.tap(find.text('Start Match'));
       await tester.pumpAndSettle();
@@ -389,9 +397,11 @@ void main() {
     });
 
     testWidgets('navigate to match page when both side filled', (tester) async {
+      final players = fakePlayers();
+
       await _pumpSetupPage(tester);
-      await _pickPlayer(tester, 0, 0, p1);
-      await _pickPlayer(tester, 1, 0, p2);
+      await _pickPlayer(tester, 0, 0, players.first);
+      await _pickPlayer(tester, 1, 0, players.last);
 
       await tester.tap(find.text('Start Match'));
       await tester.pumpAndSettle();

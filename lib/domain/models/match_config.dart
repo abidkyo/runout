@@ -4,6 +4,7 @@ import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/enums/match_mode.dart';
 
 part 'match_config.freezed.dart';
+part 'match_config.g.dart';
 
 /// Configuration for a single match, decided on the setup page.
 ///
@@ -14,6 +15,7 @@ part 'match_config.freezed.dart';
 /// - [raceTo] is the target score for every game type.
 /// - [inningsLimit] applies to straight pool only; use [0] otherwise.
 @freezed
+@JsonSerializable()
 class MatchConfig with _$MatchConfig {
   const new({
     required this.matchMode,
@@ -28,6 +30,10 @@ class MatchConfig with _$MatchConfig {
          'Straight pool requires a positive inningsLimit and alternate break; '
          '8-ball, 9-ball, and 10-ball must use inningsLimit 0.',
        );
+
+  factory fromJson(Map<String, dynamic> json) => _$MatchConfigFromJson(json);
+
+  Map<String, Object?> toJson() => _$MatchConfigToJson(this);
 
   /// How many sides the match has and how players are grouped.
   final MatchMode matchMode;

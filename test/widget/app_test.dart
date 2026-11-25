@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../unit/helpers/fake_repositories.dart';
+
 // ---------------------------------------------------------------------------
 
 void main() {
@@ -38,6 +40,8 @@ void main() {
           appColor: AppColor.blue,
           textScale: 1.5,
         ),
+        playerRepository: FakePlayerRepository(),
+        matchRepository: FakeMatchRepository(),
       ),
     );
 
@@ -55,13 +59,7 @@ void main() {
     tester,
   ) async {
     final repository = SettingsRepository(SharedPreferencesAsync());
-
-    await tester.pumpWidget(
-      RunoutApp(
-        settingsRepository: repository,
-        initialSettings: AppSettings.defaults,
-      ),
-    );
+    await _pump(tester, settingsRepository: repository);
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
     await tester.pumpAndSettle();
@@ -80,13 +78,7 @@ void main() {
     tester,
   ) async {
     final repository = SettingsRepository(SharedPreferencesAsync());
-
-    await tester.pumpWidget(
-      RunoutApp(
-        settingsRepository: repository,
-        initialSettings: AppSettings.defaults,
-      ),
-    );
+    await _pump(tester, settingsRepository: repository);
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
     await tester.pumpAndSettle();
@@ -98,9 +90,37 @@ void main() {
     expect(_textScale(tester), AppSettings.maxTextScale);
     expect((await repository.load()).textScale, AppSettings.maxTextScale);
   });
+
+  testWidgets('warns when storage is unavailable', (tester) async {
+    await _pump(tester, isStorageUnavailable: true);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(
+      find.text('Storage unavailable. Changes will not be saved.'),
+      findsOneWidget,
+    );
+  });
 }
 
 // ---------------------------------------------------------------------------
+
+Future<void> _pump(
+  WidgetTester tester, {
+  SettingsRepository? settingsRepository,
+  bool isStorageUnavailable = false,
+}) {
+  return tester.pumpWidget(
+    RunoutApp(
+      settingsRepository:
+          settingsRepository ?? SettingsRepository(SharedPreferencesAsync()),
+      initialSettings: AppSettings.defaults,
+      playerRepository: FakePlayerRepository(),
+      matchRepository: FakeMatchRepository(),
+      isStorageUnavailable: isStorageUnavailable,
+    ),
+  );
+}
 
 Brightness _brightness(WidgetTester tester) {
   final ctx = tester.element(find.byType(SettingsPage));

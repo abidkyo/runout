@@ -7,6 +7,7 @@ import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/shared/widgets/match_card.dart';
 
 import '../../../unit/helpers/factories.dart';
+import '../../../unit/helpers/fake_repositories.dart';
 
 // ---------------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ void main() {
   testWidgets('lists only finished matches', (tester) async {
     await tester.pumpWidget(
       _host(
-        MatchRepository(
+        FakeMatchRepository(
           matches: [_playingMatch(), _finishedMatch(0), _finishedMatch(1)],
         ),
       ),
@@ -60,7 +61,7 @@ void main() {
 
   testWidgets('cards are display-only', (tester) async {
     await tester.pumpWidget(
-      _host(MatchRepository(matches: [_finishedMatch(0)])),
+      _host(FakeMatchRepository(matches: [_finishedMatch(0)])),
     );
 
     final card = tester.widget<MatchCard>(find.byType(MatchCard));
@@ -71,7 +72,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      _host(MatchRepository(matches: [_playingMatch()])),
+      _host(FakeMatchRepository(matches: [_playingMatch()])),
     );
 
     expect(find.text('No finished matches'), findsOneWidget);

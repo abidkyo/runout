@@ -5,6 +5,7 @@ import 'package:runout/domain/models/match_config.dart';
 import 'package:runout/domain/models/match_side.dart';
 
 part 'match.freezed.dart';
+part 'match.g.dart';
 
 /// The lifecycle state of a match.
 enum MatchStatus {
@@ -23,6 +24,7 @@ enum MatchStatus {
 /// Immutable. New states are produced by copying with updated values,
 /// which is what makes undo/redo snapshots cheap and safe.
 @freezed
+@JsonSerializable()
 class Match with _$Match {
   const new({
     required this.id,
@@ -62,6 +64,10 @@ class Match with _$Match {
       effectiveInningsLimit: isStraightPool ? config.inningsLimit : 0,
     );
   }
+
+  factory fromJson(Map<String, dynamic> json) => _$MatchFromJson(json);
+
+  Map<String, Object?> toJson() => _$MatchToJson(this);
 
   /// Stable unique identifier.
   final String id;
