@@ -6,6 +6,7 @@ import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/features/home/home_page.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
 
 class RunoutApp extends StatelessWidget {
@@ -79,6 +80,9 @@ class AppProviders extends StatelessWidget {
       providers: [
         Provider<PlayerRepository>.value(value: playerRepository),
         Provider<MatchRepository>.value(value: matchRepository),
+        ChangeNotifierProvider<MatchListNotifier>(
+          create: (ctx) => MatchListNotifier(ctx.read<MatchRepository>()),
+        ),
       ],
       child: child,
     );

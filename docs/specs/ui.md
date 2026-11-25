@@ -9,6 +9,8 @@
   hidden entirely when none are playing.
 - Recent finished matches are capped at 10. “See all” switches to the Matches
   tab.
+- Continue and recent sections update when a match is saved, finished, or
+  discarded.
 - Cards show the match date; created matches show “Not started”. Deleting a
   match is deferred to the future `MatchDetailPage`.
 - Players is a placeholder tab until its feature lands.

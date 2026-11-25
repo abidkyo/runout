@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/history/match_history_page.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/shared/widgets/match_card.dart';
 
 import '../../../unit/helpers/factories.dart';
@@ -34,8 +35,13 @@ Match _finishedMatch(int index) {
 }
 
 Widget _host(MatchRepository repository) {
-  return Provider<MatchRepository>.value(
-    value: repository,
+  return MultiProvider(
+    providers: [
+      Provider<MatchRepository>.value(value: repository),
+      ChangeNotifierProvider<MatchListNotifier>(
+        create: (ctx) => MatchListNotifier(ctx.read<MatchRepository>()),
+      ),
+    ],
     child: const MaterialApp(
       home: Scaffold(body: MatchHistoryPage()),
     ),
@@ -66,6 +72,22 @@ void main() {
 
     final card = tester.widget<MatchCard>(find.byType(MatchCard));
     expect(card.onTap, isNull);
+  });
+
+  testWidgets('updates when matches change', (tester) async {
+    final repository = FakeMatchRepository();
+    await tester.pumpWidget(_host(repository));
+
+    expect(find.byType(MatchCard), findsNothing);
+
+    await repository.save(_finishedMatch(0));
+    tester
+        .element(find.byType(MatchHistoryPage))
+        .read<MatchListNotifier>()
+        .refresh();
+    await tester.pump();
+
+    expect(find.byType(MatchCard), findsOneWidget);
   });
 
   testWidgets('shows an empty state without finished matches', (

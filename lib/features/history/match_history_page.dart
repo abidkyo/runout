@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/theme_extension.dart';
-import 'package:runout/data/repositories/match_repository.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/shared/widgets/empty_state.dart';
 import 'package:runout/shared/widgets/match_grid.dart';
 
@@ -15,7 +15,7 @@ class MatchHistoryPage extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     final padding = size.width < LayoutBreakpoints.compact ? 16.0 : 24.0;
 
-    final matches = context.read<MatchRepository>().getFinished();
+    final matches = context.watch<MatchListNotifier>().getFinished();
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(padding),

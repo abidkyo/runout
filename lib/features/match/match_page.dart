@@ -9,6 +9,7 @@ import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_side.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_persistence.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
@@ -47,6 +48,7 @@ class MatchPage extends StatelessWidget {
           create: (ctx) => MatchPersistence(
             notifier: ctx.read<MatchNotifier>(),
             repository: ctx.read<MatchRepository>(),
+            onChanged: ctx.read<MatchListNotifier>().refresh,
             onError: showAppSnackBar,
           ),
           dispose: (_, persistence) => unawaited(persistence.dispose()),

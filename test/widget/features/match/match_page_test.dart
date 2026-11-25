@@ -7,6 +7,7 @@ import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/constants/persistence_defaults.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
 import 'package:runout/features/match/widgets/player_name_display.dart';
@@ -36,8 +37,15 @@ Future<void> _pump(
   if (textScale != 1) _setTextScale(tester, textScale);
 
   return tester.pumpWidget(
-    Provider<MatchRepository>.value(
-      value: repository ?? FakeMatchRepository(),
+    MultiProvider(
+      providers: [
+        Provider<MatchRepository>.value(
+          value: repository ?? FakeMatchRepository(),
+        ),
+        ChangeNotifierProvider<MatchListNotifier>(
+          create: (ctx) => MatchListNotifier(ctx.read<MatchRepository>()),
+        ),
+      ],
       child: MaterialApp(
         scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: MatchPage(
@@ -55,8 +63,15 @@ Future<void> _pumpStackedMatchPage(
   MatchRepository? repository,
 }) async {
   await tester.pumpWidget(
-    Provider<MatchRepository>.value(
-      value: repository ?? FakeMatchRepository(),
+    MultiProvider(
+      providers: [
+        Provider<MatchRepository>.value(
+          value: repository ?? FakeMatchRepository(),
+        ),
+        ChangeNotifierProvider<MatchListNotifier>(
+          create: (ctx) => MatchListNotifier(ctx.read<MatchRepository>()),
+        ),
+      ],
       child: MaterialApp(
         scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: Scaffold(

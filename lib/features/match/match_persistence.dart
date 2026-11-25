@@ -15,6 +15,7 @@ class MatchPersistence {
   new({
     required this.notifier,
     required this.repository,
+    required this.onChanged,
     required this.onError,
     this.retryDelay = PersistenceDefaults.retryDelay,
     this.maxAttempts = PersistenceDefaults.maxAttempts,
@@ -24,6 +25,7 @@ class MatchPersistence {
 
   final MatchNotifier notifier;
   final MatchRepository repository;
+  final VoidCallback onChanged;
   final void Function(String message) onError;
   final Duration retryDelay;
   final int maxAttempts;
@@ -53,7 +55,6 @@ class MatchPersistence {
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         await _reconcile();
-        return;
       } on Object catch (error) {
         debugPrint('Match persistence attempt $attempt failed: $error');
         if (attempt == maxAttempts) {
@@ -61,7 +62,19 @@ class MatchPersistence {
           return;
         }
         await Future<void>.delayed(retryDelay);
+        continue;
       }
+
+      _notifyChanged();
+      return;
+    }
+  }
+
+  void _notifyChanged() {
+    try {
+      onChanged();
+    } on Object catch (error) {
+      debugPrint('Failed to refresh match lists: $error');
     }
   }
 

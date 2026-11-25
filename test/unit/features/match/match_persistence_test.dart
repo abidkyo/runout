@@ -9,16 +9,19 @@ import '../../helpers/fake_repositories.dart';
 void main() {
   late MatchNotifier notifier;
   late FakeMatchRepository repository;
+  late int changes;
   late List<String> errors;
   late MatchPersistence persistence;
 
   void create() {
     notifier = MatchNotifier(makeMatch());
     repository = FakeMatchRepository();
+    changes = 0;
     errors = [];
     persistence = MatchPersistence(
       notifier: notifier,
       repository: repository,
+      onChanged: () => changes++,
       onError: errors.add,
       retryDelay: Duration.zero,
     );
@@ -36,6 +39,7 @@ void main() {
 
     expect(repository.saves, isEmpty);
     expect(repository.deletes, isEmpty);
+    expect(changes, 0);
   });
 
   test('saves when play starts', () async {
@@ -44,6 +48,7 @@ void main() {
 
     expect(repository.saves, hasLength(1));
     expect(repository.saves.single.status, MatchStatus.playing);
+    expect(changes, 1);
   });
 
   test('coalesces rapid changes into the final state', () async {
@@ -55,6 +60,7 @@ void main() {
 
     expect(repository.saves, hasLength(1));
     expect(repository.saves.single.sides.first.score, 2);
+    expect(changes, 1);
   });
 
   test('saves a finished match', () async {
@@ -65,6 +71,7 @@ void main() {
     await persistence.dispose();
 
     expect(repository.saves.last.status, MatchStatus.finished);
+    expect(changes, 1);
   });
 
   test('deletes when the start is undone', () async {
@@ -75,6 +82,7 @@ void main() {
 
     expect(repository.deletes, ['match-1']);
     expect(repository.saves, isEmpty);
+    expect(changes, 1);
   });
 
   test('discard deletes instead of saving queued changes', () async {
@@ -84,6 +92,7 @@ void main() {
 
     expect(repository.deletes, ['match-1']);
     expect(repository.saves, isEmpty);
+    expect(changes, 1);
   });
 
   test('discard blocks later saves', () async {
@@ -95,6 +104,7 @@ void main() {
 
     expect(repository.saves, isEmpty);
     expect(repository.deletes, ['match-1']);
+    expect(changes, 1);
   });
 
   test('retries a failed save before giving up', () async {
@@ -105,6 +115,7 @@ void main() {
 
     expect(repository.saves, hasLength(1));
     expect(errors, isEmpty);
+    expect(changes, 1);
   });
 
   test('reports a save failure after all attempts', () async {
@@ -115,6 +126,7 @@ void main() {
 
     expect(repository.saves, isEmpty);
     expect(errors, ['Could not save match progress.']);
+    expect(changes, 0);
   });
 
   test('reports a discard failure', () async {
@@ -125,5 +137,6 @@ void main() {
 
     expect(repository.deletes, isEmpty);
     expect(errors, ['Could not discard match.']);
+    expect(changes, 0);
   });
 }

@@ -56,6 +56,8 @@ test/
   repositories, and passes them to `RunoutApp` through `AppProviders`. Startup
   waits at most 10 seconds; a load failure continues with defaults or empty
   repositories and a one-time warning.
+- `AppProviders` also owns the app-level `MatchListNotifier`, the read-model
+  change signal for Home and Match History.
 - The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
   sidebar. Settings is a shell tab.
 - `MaterialApp` uses light and dark themes selected by settings and overrides
@@ -70,9 +72,10 @@ test/
 
 - Provider only, no global state. Feature notifiers are `ChangeNotifier`;
   providers are created at page level.
-- Home reads `MatchRepository` directly; `getFinished(limit:)` supplies the
-  recent cap. Match deletion is used by Discard and Setup; history deletion is
-  still deferred to the future `MatchDetailPage`.
+- Home and Match History read `MatchListNotifier`, which delegates to
+  `MatchRepository`; `getFinished(limit:)` supplies the recent cap. Match
+  deletion is used by Discard and Setup; history deletion is still deferred to
+  the future `MatchDetailPage`.
 - Use `context.watch` to rebuild, `context.read` for actions,
   `Consumer`/`Selector` for partial rebuilds.
 - Undo/redo stores immutable `Match` snapshots in two stacks.
@@ -92,8 +95,9 @@ test/
 - Timestamps are stored as UTC; loaded matches use local timestamps so the UI's
   date and elapsed-time logic matches in-session matches.
 - Repositories load once at startup and serve synchronous reads from an
-  in-memory cache. Screens do not observe repository changes while a route is
-  open; data refreshes on reload, tab switch, or revisit.
+  in-memory cache. They stay data-only; `MatchListNotifier` is the change signal
+  for list screens. `MatchPersistence` calls `refresh` after successful writes,
+  so Home and Match History update without route refreshes.
 - Settings are persisted with `shared_preferences`. No network or sync yet.
 - Offline-first is the intended direction; the repository layer will hide
   local/remote later. Don't add persistence ad hoc.

@@ -10,6 +10,7 @@ import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/home_page.dart';
+import 'package:runout/features/match/match_list_notifier.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
@@ -38,6 +39,9 @@ Widget _host({MatchRepository? repository}) {
         create: (_) => SettingsNotifier(
           SettingsRepository(SharedPreferencesAsync()),
         ),
+      ),
+      ChangeNotifierProvider<MatchListNotifier>(
+        create: (ctx) => MatchListNotifier(ctx.read<MatchRepository>()),
       ),
     ],
     child: MaterialApp(
@@ -285,6 +289,37 @@ void main() {
 
       expect(find.byType(MatchPage), findsNothing);
       expect(find.text('Could not discard match.'), findsOneWidget);
+    });
+  });
+
+  group('match list updates', () {
+    testWidgets('removes a discarded match from continue matches', (
+      tester,
+    ) async {
+      _setSize(tester, const Size(1200, 1200));
+      await tester.pumpWidget(
+        _host(repository: FakeMatchRepository(matches: [_playingMatch()])),
+      );
+
+      expect(find.text('Continue Matches'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Continue').first);
+      await tester.tap(find.text('Continue').first);
+      await tester.pumpAndSettle();
+      expect(find.byType(MatchPage), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConfirmDialog),
+          matching: find.text('Discard'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('Continue Matches'), findsNothing);
     });
   });
 
