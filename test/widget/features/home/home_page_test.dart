@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/app_strings.dart';
+import 'package:runout/core/constants/persistence_defaults.dart';
 import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -13,6 +14,7 @@ import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
 import 'package:runout/features/settings/settings_page.dart';
+import 'package:runout/shared/widgets/confirm_dialog.dart';
 import 'package:runout/shared/widgets/match_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -251,6 +253,36 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(MatchCard), findsNWidgets(12));
+    });
+  });
+
+  group('persistence error', () {
+    testWidgets('shows a snackbar when discarding a match fails', (
+      tester,
+    ) async {
+      _setSize(tester, const Size(1200, 1200));
+      final repository = FakeMatchRepository(matches: [_playingMatch()])
+        ..failDeletes = PersistenceDefaults.maxAttempts;
+      await tester.pumpWidget(_host(repository: repository));
+
+      await tester.ensureVisible(find.text('Continue').first);
+      await tester.tap(find.text('Continue').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConfirmDialog),
+          matching: find.text('Discard'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('Could not discard match.'), findsOneWidget);
     });
   });
 

@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
+import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/domain/enums/game_type.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/domain/models/match_side.dart';
 import 'package:runout/features/match/match_notifier.dart';
+import 'package:runout/features/match/match_persistence.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 import 'package:runout/features/match/sp_scoring.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
@@ -17,6 +21,7 @@ import 'package:runout/features/match/widgets/sp_buttons.dart';
 import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/features/match/widgets/undo_redo_buttons.dart';
 import 'package:runout/features/match/widgets/winner_celebration.dart';
+import 'package:runout/shared/widgets/app_snack_bar.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 /// The match scoring page.
@@ -32,10 +37,25 @@ class MatchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Keep a context that survives this route being popped, so discard
+    // failures can still show a snackbar on the next page.
+    final errorContext = Navigator.of(context, rootNavigator: true).context;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<MatchNotifier>(
           create: (_) => MatchNotifier(match),
+        ),
+        Provider<MatchPersistence>(
+          lazy: false,
+          create: (ctx) => MatchPersistence(
+            notifier: ctx.read<MatchNotifier>(),
+            repository: ctx.read<MatchRepository>(),
+            onError: (message) {
+              if (errorContext.mounted) showAppSnackBar(errorContext, message);
+            },
+          ),
+          dispose: (_, persistence) => unawaited(persistence.dispose()),
         ),
         ChangeNotifierProvider<MatchTimerNotifier>(
           create: (ctx) => MatchTimerNotifier(ctx.read<MatchNotifier>()),
@@ -65,6 +85,7 @@ class _MatchView extends StatelessWidget {
       if (!leave || !context.mounted) return;
     }
 
+    unawaited(context.read<MatchPersistence>().discard());
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -84,6 +105,7 @@ class _MatchView extends StatelessWidget {
       if (!leave || !context.mounted) return;
     }
 
+    unawaited(context.read<MatchPersistence>().discard());
     Navigator.of(context).pop();
   }
 

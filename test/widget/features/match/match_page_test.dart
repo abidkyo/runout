@@ -1,7 +1,10 @@
 import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
+import 'package:runout/core/constants/persistence_defaults.dart';
+import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match/widgets/match_header.dart';
@@ -13,6 +16,7 @@ import 'package:runout/features/match/widgets/straight_pool_stats.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 
 import '../../../unit/helpers/factories.dart';
+import '../../../unit/helpers/fake_repositories.dart';
 
 // ---------------------------------------------------------------------------
 
@@ -22,6 +26,7 @@ const ValueKey<String> _scoreKey = ValueKey('score-text');
 Future<void> _pump(
   WidgetTester tester,
   Match match, {
+  MatchRepository? repository,
   double width = 1000,
   double textScale = 1,
   bool isNewMatch = true,
@@ -30,26 +35,38 @@ Future<void> _pump(
   if (textScale != 1) _setTextScale(tester, textScale);
 
   return tester.pumpWidget(
-    MaterialApp(
-      home: MatchPage(
-        match: match,
-        isNewMatch: isNewMatch,
+    Provider<MatchRepository>.value(
+      value: repository ?? FakeMatchRepository(),
+      child: MaterialApp(
+        home: MatchPage(
+          match: match,
+          isNewMatch: isNewMatch,
+        ),
       ),
     ),
   );
 }
 
-Future<void> _pumpStackedMatchPage(WidgetTester tester, Match match) async {
+Future<void> _pumpStackedMatchPage(
+  WidgetTester tester,
+  Match match, {
+  MatchRepository? repository,
+}) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: Builder(
-        builder: (context) => ElevatedButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => _StubPage(match: match),
+    Provider<MatchRepository>.value(
+      value: repository ?? FakeMatchRepository(),
+      child: MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => _StubPage(match: match),
+                ),
+              ),
+              child: const Text('home'),
             ),
           ),
-          child: const Text('home'),
         ),
       ),
     ),
@@ -555,6 +572,42 @@ void main() {
       expect(find.byType(ConfirmDialog), findsNothing);
       expect(find.byType(MatchPage), findsNothing);
       expect(find.text('home'), findsOneWidget);
+    });
+  });
+
+  group('persistence error', () {
+    testWidgets('shows a snackbar when saving fails', (tester) async {
+      await _pump(
+        tester,
+        _playingMatch(),
+        repository: FakeMatchRepository()
+          ..failSaves = PersistenceDefaults.maxAttempts,
+      );
+
+      await tester.tap(find.byType(SideCard).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Could not save match progress.'), findsOneWidget);
+    });
+
+    testWidgets('shows a snackbar when discard fails', (
+      tester,
+    ) async {
+      await _pumpStackedMatchPage(
+        tester,
+        makeMatch(),
+        repository: FakeMatchRepository()
+          ..failDeletes = PersistenceDefaults.maxAttempts,
+      );
+
+      await tester.tap(find.byIcon(Icons.delete_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Could not discard match.'), findsOneWidget);
     });
   });
 
