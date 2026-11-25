@@ -7,21 +7,18 @@ import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/features/home/home_page.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
-import 'package:runout/shared/widgets/app_snack_bar.dart';
 
 class RunoutApp extends StatelessWidget {
   const new({
     required this.settingsRepository,
     required this.playerRepository,
     required this.matchRepository,
-    this.isStorageUnavailable = false,
     super.key,
   });
 
   final SettingsRepository settingsRepository;
   final PlayerRepository playerRepository;
   final MatchRepository matchRepository;
-  final bool isStorageUnavailable;
 
   @override
   Widget build(BuildContext context) {
@@ -30,20 +27,14 @@ class RunoutApp extends StatelessWidget {
       matchRepository: matchRepository,
       child: ChangeNotifierProvider(
         create: (_) => SettingsNotifier(settingsRepository),
-        child: _RunoutAppView(
-          isStorageUnavailable: isStorageUnavailable,
-        ),
+        child: const _RunoutAppView(),
       ),
     );
   }
 }
 
 class _RunoutAppView extends StatelessWidget {
-  const new({
-    required this.isStorageUnavailable,
-  });
-
-  final bool isStorageUnavailable;
+  const new();
 
   @override
   Widget build(BuildContext context) {
@@ -61,44 +52,12 @@ class _RunoutAppView extends StatelessWidget {
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(settings.textScale),
           ),
-          child: _StorageWarning(
-            isStorageUnavailable: isStorageUnavailable,
-            child: child ?? const SizedBox.shrink(),
-          ),
+          child: child ?? const SizedBox.shrink(),
         );
       },
       home: const HomePage(),
     );
   }
-}
-
-/// Warns once when the local storage could not be loaded.
-class _StorageWarning extends StatefulWidget {
-  const new({
-    required this.isStorageUnavailable,
-    required this.child,
-  });
-
-  final bool isStorageUnavailable;
-  final Widget child;
-
-  @override
-  State<_StorageWarning> createState() => _StorageWarningState();
-}
-
-class _StorageWarningState extends State<_StorageWarning> {
-  @override
-  void initState() {
-    super.initState();
-    if (!widget.isStorageUnavailable) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showAppSnackBar('Storage unavailable. Changes will not be saved.');
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.child;
 }
 
 /// Provides the repositories shared by the whole app.

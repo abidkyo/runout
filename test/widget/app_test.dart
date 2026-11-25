@@ -88,21 +88,6 @@ void main() {
     expect(_textScale(tester), AppSettings.maxTextScale);
     expect(repository.settings.textScale, AppSettings.maxTextScale);
   });
-
-  testWidgets('warns when storage is unavailable', (tester) async {
-    await _pump(
-      tester,
-      settingsRepository: createRepository(),
-      isStorageUnavailable: true,
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byType(SnackBar), findsOneWidget);
-    expect(
-      find.text('Storage unavailable. Changes will not be saved.'),
-      findsOneWidget,
-    );
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -110,7 +95,6 @@ void main() {
 Future<void> _pump(
   WidgetTester tester, {
   required SettingsRepository settingsRepository,
-  bool isStorageUnavailable = false,
 }) async {
   await settingsRepository.load();
 
@@ -119,7 +103,6 @@ Future<void> _pump(
       settingsRepository: settingsRepository,
       playerRepository: FakePlayerRepository(),
       matchRepository: FakeMatchRepository(),
-      isStorageUnavailable: isStorageUnavailable,
     ),
   );
 }

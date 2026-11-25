@@ -5,6 +5,7 @@ import 'package:runout/data/local/app_database.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
+import 'package:runout/shared/widgets/app_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -33,7 +34,12 @@ Future<void> main() async {
       settingsRepository: settingsRepository,
       playerRepository: playerRepository,
       matchRepository: matchRepository,
-      isStorageUnavailable: isStorageUnavailable,
     ),
   );
+
+  if (isStorageUnavailable) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showAppSnackBar('Storage unavailable. Changes will not be saved.');
+    });
+  }
 }
