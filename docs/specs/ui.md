@@ -12,6 +12,9 @@
 - Cards show the match date; created matches show “Not started”. Deleting a
   match is deferred to the future `MatchDetailPage`.
 - Players is a placeholder tab until its feature lands.
+- A fresh install shows empty Home states; there is no sample data.
+- If the local database cannot be loaded, one snackbar says storage is
+  unavailable and changes will not be saved.
 - Home and Match History avoid fixed heights. Layouts stay usable at 1.5× and
   2× text scale; the compact AppBar grows with the text scale and cards avoid
   fixed trailing widths.
@@ -49,6 +52,8 @@
 - Player slots have player/team labels on top and open the picker on tap.
 - Duplicate players are allowed in the picker and rejected by validation at
   start: keep the picker simple, block the real mistake at the last gate.
+- Known players come from the local database, sorted by name; new players are
+  saved when created.
 - Switching game type resets straight-pool defaults (`raceTo`, break format)
   and does not restore previous values.
 - Break format is hidden, not disabled, for straight pool; innings is shown
@@ -81,13 +86,14 @@
   Discard/Setup/Home. The compact bar uses icon buttons without straight-pool
   action tiles; compact straight-pool scoring uses the side cards.
 - Finished matches show no straight-pool actions.
-- Exit to home does not confirm; the current match is preserved for saving.
+- Exit to home does not confirm; the current match is saved.
 - The Setup action is hidden when a match is opened from Home (Continue), because
   there is no setup route to return to.
 - Setup confirms while playing, returns to setup, and discards the current
   match. Created matches skip the confirmation.
 - Discard confirms while playing, returns home, and discards the current match.
-  Created matches skip the confirmation.
+  Created matches skip the confirmation. Discard and Setup delete the stored
+  match; a failed delete does not block navigation and shows a snackbar.
 - The target-reached prompt ignores barrier taps so an outside tap cannot
   choose `End`.
 - A target reached on a kept turn asks whether to continue. Ending re-applies the

@@ -21,9 +21,13 @@ Order inside a file:
 
 - Domain models use Freezed classic classes: a normal `const` constructor
   with `assert(...)`, plus `part '<file>.freezed.dart'`.
-- Generated `*.freezed.dart` files are committed and excluded from analysis.
-  Never edit them by hand.
-- Run `dart run build_runner build` after changing a Freezed model.
+- Classic Freezed classes need `@JsonSerializable()` plus their own
+  `fromJson`/`toJson` for JSON code generation. Factory-based Freezed classes
+  do not.
+- Generated `*.freezed.dart` and `*.g.dart` (json_serializable and Drift) files
+  are committed and excluded from analysis. Never edit them by hand.
+- Run `dart run build_runner build --delete-conflicting-outputs` after changing
+  a Freezed model, a JSON model, or a Drift table.
 
 ## Theme
 

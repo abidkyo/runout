@@ -26,21 +26,19 @@ Flow: home → setup → match.
 ## Status
 
 Done: client flow, rotation and straight-pool scoring, undo/redo, timer,
-responsive layouts, tests, home shell, in-memory match history, theme, color,
-and text scale settings.
+responsive layouts, tests, home shell, local Drift persistence for players and
+matches, theme, color, and text scale settings.
 
 Next:
 
-1. Persistence (local DB).
-2. Manager app, then sync (WebSocket likely).
-3. Player page.
-4. Tournament page.
+1. Manager app, then sync (WebSocket likely).
+2. Player page.
+3. Tournament page.
 
 ## Open questions
 
 - Deliberate/serious fouls in straight pool (15-point penalty, referee
   discretion).
-- Persistence choice (Drift, Isar, or similar).
 - History detail, delete, and export.
 - Player profile editing (rename, delete, country/club).
 - Language and localization scope.
