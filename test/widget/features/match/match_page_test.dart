@@ -2,6 +2,7 @@ import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/constants/persistence_defaults.dart';
 import 'package:runout/data/repositories/match_repository.dart';
@@ -38,6 +39,7 @@ Future<void> _pump(
     Provider<MatchRepository>.value(
       value: repository ?? FakeMatchRepository(),
       child: MaterialApp(
+        scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: MatchPage(
           match: match,
           isNewMatch: isNewMatch,
@@ -56,6 +58,7 @@ Future<void> _pumpStackedMatchPage(
     Provider<MatchRepository>.value(
       value: repository ?? FakeMatchRepository(),
       child: MaterialApp(
+        scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: Scaffold(
           body: Builder(
             builder: (context) => ElevatedButton(

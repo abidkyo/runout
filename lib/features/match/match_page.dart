@@ -37,10 +37,6 @@ class MatchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Keep a context that survives this route being popped, so discard
-    // failures can still show a snackbar on the next page.
-    final errorContext = Navigator.of(context, rootNavigator: true).context;
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<MatchNotifier>(
@@ -51,9 +47,7 @@ class MatchPage extends StatelessWidget {
           create: (ctx) => MatchPersistence(
             notifier: ctx.read<MatchNotifier>(),
             repository: ctx.read<MatchRepository>(),
-            onError: (message) {
-              if (errorContext.mounted) showAppSnackBar(errorContext, message);
-            },
+            onError: showAppSnackBar,
           ),
           dispose: (_, persistence) => unawaited(persistence.dispose()),
         ),
@@ -172,7 +166,7 @@ class _MatchView extends StatelessWidget {
               Flexible(
                 child: SPButtons(
                   ballsRemaining: match.ballsRemaining,
-                  onEndInning: () => scoring.endInning(context),
+                  onEndInning: scoring.endInning,
                   onOpenScoring: () => scoring.openScoringDialog(context),
                   onNewRack: () => scoring.newRack(context, remaining: 1),
                 ),

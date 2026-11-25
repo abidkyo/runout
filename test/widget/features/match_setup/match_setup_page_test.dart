@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/app.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/domain/enums/game_type.dart';
@@ -41,7 +42,10 @@ Future<void> _pumpSetupPage(
     AppProviders(
       playerRepository: FakePlayerRepository(players: fakePlayers()),
       matchRepository: FakeMatchRepository(),
-      child: const MaterialApp(home: MatchSetupPage()),
+      child: MaterialApp(
+        scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
+        home: const MatchSetupPage(),
+      ),
     ),
   );
 }
@@ -53,6 +57,7 @@ Future<void> _pumpStackedSetupPage(WidgetTester tester) async {
       playerRepository: FakePlayerRepository(players: fakePlayers()),
       matchRepository: FakeMatchRepository(),
       child: MaterialApp(
+        scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () => Navigator.of(context).push(

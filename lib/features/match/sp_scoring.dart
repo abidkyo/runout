@@ -45,8 +45,7 @@ class SPScoring {
       foul: result.foul,
     );
 
-    if (!context.mounted) return;
-    _maybeNotify(context);
+    _maybeNotify();
   }
 
   /// Ends the visit or starts a new rack, then handles the target prompt.
@@ -59,8 +58,6 @@ class SPScoring {
 
     if (!_notifier.askToContinue) return;
     _notifier.askToContinue = false;
-
-    if (!context.mounted) return;
 
     final shouldContinue = await showConfirmDialog(
       context,
@@ -84,17 +81,16 @@ class SPScoring {
   }
 
   /// Ends the current inning without scoring.
-  void endInning(BuildContext context) {
+  void endInning() {
     _notifier.endVisit();
-    _maybeNotify(context);
+    _maybeNotify();
   }
 
-  void _maybeNotify(BuildContext context) {
+  void _maybeNotify() {
     if (_notifier.notifyExtension) {
       _notifier.notifyExtension = false;
       final limit = _notifier.match.effectiveInningsLimit;
       showAppSnackBar(
-        context,
         'Tied — ${MatchDefaults.inningsExtension} more innings '
         '(total $limit innings)',
       );
@@ -104,7 +100,6 @@ class SPScoring {
     if (_notifier.notifyThreeFouls) {
       _notifier.notifyThreeFouls = false;
       showAppSnackBar(
-        context,
         'Third fouls — ${MatchDefaults.threeFoulsPenalty} point '
         'penalty, re-rack',
       );

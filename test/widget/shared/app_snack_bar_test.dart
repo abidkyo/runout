@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/shared/widgets/app_snack_bar.dart';
 
 // ---------------------------------------------------------------------------
@@ -41,18 +42,16 @@ void main() {
 
 Widget _host({VoidCallback? onPressed}) {
   return MaterialApp(
+    scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
     home: Scaffold(
-      body: Builder(
-        builder: (context) => ElevatedButton(
-          onPressed: () => showAppSnackBar(
-            context,
-            onPressed == null ? 'Saved' : 'Deleted',
-            action: onPressed == null
-                ? null
-                : SnackBarAction(label: 'UNDO', onPressed: onPressed),
-          ),
-          child: const Text('show'),
+      body: ElevatedButton(
+        onPressed: () => showAppSnackBar(
+          onPressed == null ? 'Saved' : 'Deleted',
+          action: onPressed == null
+              ? null
+              : SnackBarAction(label: 'UNDO', onPressed: onPressed),
         ),
+        child: const Text('show'),
       ),
     ),
   );

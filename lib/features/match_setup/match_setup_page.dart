@@ -44,8 +44,7 @@ class _MatchSetupView extends StatelessWidget {
       players = await repo.getAll();
     } on Object catch (error) {
       debugPrint('Failed to load players: $error');
-      if (!context.mounted) return;
-      showAppSnackBar(context, 'Could not load players.');
+      showAppSnackBar('Could not load players.');
       return;
     }
     if (!context.mounted) return;
@@ -71,7 +70,7 @@ class _MatchSetupView extends StatelessWidget {
     final error = notifier.validatePlayers();
 
     if (error != null) {
-      showAppSnackBar(context, error);
+      showAppSnackBar(error);
       return;
     }
 

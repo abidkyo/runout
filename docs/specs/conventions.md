@@ -69,8 +69,11 @@ Never throw in release paths; tests verify asserts, not release returns.
 
 ## Feedback
 
-- Use `showAppSnackBar` for one-off messages.
+- Use `showAppSnackBar` for one-off messages; it uses the app-level
+  `scaffoldMessengerKey`, so it does not need a context.
 - `showAppSnackBar` shows the close icon only when no action is supplied.
+- Tests that assert a snackbar must attach `AppConstants.scaffoldMessengerKey`
+  to their `MaterialApp`.
 - Dialog-local failures stay inline. A snackbar behind a modal barrier is
   invisible.
 

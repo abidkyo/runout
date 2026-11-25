@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/core/constants/app_strings.dart';
 import 'package:runout/core/constants/persistence_defaults.dart';
 import 'package:runout/data/repositories/match_repository.dart';
@@ -39,7 +40,10 @@ Widget _host({MatchRepository? repository}) {
         ),
       ),
     ],
-    child: const MaterialApp(home: HomePage()),
+    child: MaterialApp(
+      scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
+      home: const HomePage(),
+    ),
   );
 }
 

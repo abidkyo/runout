@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/core/theme/app_theme.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -49,6 +50,7 @@ class _RunoutAppView extends StatelessWidget {
     final settings = context.watch<SettingsNotifier>();
 
     return MaterialApp(
+      scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
       title: 'Runout',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(settings.appColor),
@@ -91,11 +93,7 @@ class _StorageWarningState extends State<_StorageWarning> {
     if (!widget.isStorageUnavailable) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      showAppSnackBar(
-        context,
-        'Storage unavailable. Changes will not be saved.',
-      );
+      showAppSnackBar('Storage unavailable. Changes will not be saved.');
     });
   }
 

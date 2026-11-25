@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/domain/enums/foul.dart';
 import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
@@ -22,13 +23,14 @@ Future<void> _pump(WidgetTester tester, MatchNotifier notifier) async {
     ChangeNotifierProvider<MatchNotifier>.value(
       value: notifier,
       child: MaterialApp(
+        scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
         home: Scaffold(
           body: Consumer<MatchNotifier>(
             builder: (context, notifier, _) {
               final scoring = SPScoring(notifier);
               return SPButtons(
                 ballsRemaining: notifier.match.ballsRemaining,
-                onEndInning: () => scoring.endInning(context),
+                onEndInning: scoring.endInning,
                 onOpenScoring: () => scoring.openScoringDialog(context),
                 onNewRack: () => scoring.newRack(context, remaining: 1),
               );
