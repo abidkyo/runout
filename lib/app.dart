@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/core/theme/app_theme.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -12,7 +11,6 @@ import 'package:runout/shared/widgets/app_snack_bar.dart';
 class RunoutApp extends StatelessWidget {
   const new({
     required this.settingsRepository,
-    required this.initialSettings,
     required this.playerRepository,
     required this.matchRepository,
     this.isStorageUnavailable = false,
@@ -20,7 +18,6 @@ class RunoutApp extends StatelessWidget {
   });
 
   final SettingsRepository settingsRepository;
-  final AppSettings initialSettings;
   final PlayerRepository playerRepository;
   final MatchRepository matchRepository;
   final bool isStorageUnavailable;
@@ -31,10 +28,7 @@ class RunoutApp extends StatelessWidget {
       playerRepository: playerRepository,
       matchRepository: matchRepository,
       child: ChangeNotifierProvider(
-        create: (_) => SettingsNotifier(
-          settingsRepository,
-          initialSettings: initialSettings,
-        ),
+        create: (_) => SettingsNotifier(settingsRepository),
         child: _RunoutAppView(
           isStorageUnavailable: isStorageUnavailable,
         ),

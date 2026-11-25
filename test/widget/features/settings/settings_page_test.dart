@@ -20,22 +20,21 @@ void _setSize(WidgetTester tester, Size size) {
   addTearDown(tester.view.reset);
 }
 
-Widget _host(SettingsNotifier notifier) {
-  return ChangeNotifierProvider<SettingsNotifier>.value(
-    value: notifier,
-    child: const _ThemedApp(),
-  );
-}
-
-SettingsNotifier _createNotifier({
+Future<void> _pump(
+  WidgetTester tester,
+  SettingsNotifier notifier, {
   AppSettings settings = AppSettings.defaults,
-}) {
-  final notifier = SettingsNotifier(
-    SettingsRepository(SharedPreferencesAsync()),
-    initialSettings: settings,
+}) async {
+  await notifier.setThemeMode(settings.themeMode);
+  await notifier.setAppColor(settings.appColor);
+  await notifier.setTextScale(settings.textScale);
+
+  await tester.pumpWidget(
+    ChangeNotifierProvider<SettingsNotifier>.value(
+      value: notifier,
+      child: const _ThemedApp(),
+    ),
   );
-  addTearDown(notifier.dispose);
-  return notifier;
 }
 
 class _ThemedApp extends StatelessWidget {
@@ -66,19 +65,25 @@ class _ThemedApp extends StatelessWidget {
 
 void main() {
   late SharedPreferencesAsyncPlatform? previousPlatform;
+  late SettingsRepository repository;
+  late SettingsNotifier notifier;
 
   setUp(() {
     previousPlatform = SharedPreferencesAsyncPlatform.instance;
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
+
+    repository = SettingsRepository(SharedPreferencesAsync());
+    notifier = SettingsNotifier(repository);
   });
 
   tearDown(() {
     SharedPreferencesAsyncPlatform.instance = previousPlatform;
+    notifier.dispose();
   });
 
   testWidgets('shows theme, color, and text size choices', (tester) async {
-    await tester.pumpWidget(_host(_createNotifier()));
+    await _pump(tester, notifier);
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Theme'), findsOneWidget);
@@ -94,15 +99,13 @@ void main() {
   });
 
   testWidgets('shows the current choices as selected', (tester) async {
-    await tester.pumpWidget(
-      _host(
-        _createNotifier(
-          settings: const AppSettings(
-            themeMode: ThemeMode.dark,
-            appColor: AppColor.blue,
-            textScale: 1.5,
-          ),
-        ),
+    await _pump(
+      tester,
+      notifier,
+      settings: const AppSettings(
+        themeMode: ThemeMode.dark,
+        appColor: AppColor.blue,
+        textScale: 1.5,
       ),
     );
 
@@ -114,8 +117,7 @@ void main() {
   });
 
   testWidgets('selecting a theme updates the app theme', (tester) async {
-    final notifier = _createNotifier();
-    await tester.pumpWidget(_host(notifier));
+    await _pump(tester, notifier);
 
     expect(_brightness(tester), Brightness.light);
 
@@ -127,8 +129,7 @@ void main() {
   });
 
   testWidgets('selecting a color updates the app theme', (tester) async {
-    final notifier = _createNotifier();
-    await tester.pumpWidget(_host(notifier));
+    await _pump(tester, notifier);
 
     final primaryBefore = _primary(tester);
 
@@ -140,8 +141,7 @@ void main() {
   });
 
   testWidgets('text scale slider updates the app text scale', (tester) async {
-    final notifier = _createNotifier();
-    await tester.pumpWidget(_host(notifier));
+    await _pump(tester, notifier);
 
     final previewHeight = tester.getSize(find.text('Efren Reyes')).height;
     expect(_textScale(tester), 1);
@@ -163,13 +163,11 @@ void main() {
   ) async {
     _setSize(tester, const Size(375, 800));
 
-    await tester.pumpWidget(
-      _host(
-        _createNotifier(
-          settings: AppSettings.defaults.copyWith(
-            textScale: AppSettings.maxTextScale,
-          ),
-        ),
+    await _pump(
+      tester,
+      notifier,
+      settings: AppSettings.defaults.copyWith(
+        textScale: AppSettings.maxTextScale,
       ),
     );
     await tester.pumpAndSettle();

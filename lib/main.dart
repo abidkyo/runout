@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:runout/app.dart';
 import 'package:runout/core/constants/persistence_defaults.dart';
-import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/data/local/app_database.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -12,13 +11,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final settingsRepository = SettingsRepository(SharedPreferencesAsync());
-  var initialSettings = AppSettings.defaults;
-
-  try {
-    initialSettings = await settingsRepository.load();
-  } on Object catch (error) {
-    debugPrint('Failed to load settings: $error');
-  }
 
   final database = AppDatabase();
   final playerRepository = PlayerRepository(database);
@@ -27,6 +19,7 @@ Future<void> main() async {
 
   try {
     await Future.wait([
+      settingsRepository.load(),
       playerRepository.load(),
       matchRepository.load(),
     ]).timeout(PersistenceDefaults.loadTimeout);
@@ -38,7 +31,6 @@ Future<void> main() async {
   runApp(
     RunoutApp(
       settingsRepository: settingsRepository,
-      initialSettings: initialSettings,
       playerRepository: playerRepository,
       matchRepository: matchRepository,
       isStorageUnavailable: isStorageUnavailable,

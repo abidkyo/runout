@@ -4,11 +4,10 @@ import 'package:runout/core/settings/app_settings.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
 
 /// Holds the app settings and persists changes.
+///
+/// Reads the initial values from [SettingsRepository].
 class SettingsNotifier extends ChangeNotifier {
-  new(
-    this._repository, {
-    required AppSettings initialSettings,
-  }) : _settings = initialSettings;
+  new(this._repository) : _settings = _repository.settings;
 
   final SettingsRepository _repository;
   AppSettings _settings;

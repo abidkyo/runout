@@ -28,22 +28,20 @@ void main() {
     SharedPreferencesAsyncPlatform.instance = previousPlatform;
   });
 
+  SettingsRepository createRepository() =>
+      SettingsRepository(SharedPreferencesAsync());
+
   testWidgets('app starts with the saved settings', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2.0;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-    await tester.pumpWidget(
-      RunoutApp(
-        settingsRepository: SettingsRepository(SharedPreferencesAsync()),
-        initialSettings: const AppSettings(
-          themeMode: ThemeMode.dark,
-          appColor: AppColor.blue,
-          textScale: 1.5,
-        ),
-        playerRepository: FakePlayerRepository(),
-        matchRepository: FakeMatchRepository(),
-      ),
-    );
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.withData({
+          'settings.themeMode': 'dark',
+          'settings.appColor': 'blue',
+          'settings.textScale': 1.5,
+        });
+    await _pump(tester, settingsRepository: createRepository());
 
     final context = tester.element(find.byType(HomePage));
     final theme = Theme.of(context);
@@ -58,7 +56,7 @@ void main() {
   testWidgets('settings tab changes the app theme and saves it', (
     tester,
   ) async {
-    final repository = SettingsRepository(SharedPreferencesAsync());
+    final repository = createRepository();
     await _pump(tester, settingsRepository: repository);
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
@@ -71,13 +69,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_brightness(tester), Brightness.dark);
-    expect((await repository.load()).themeMode, ThemeMode.dark);
+    expect(repository.settings.themeMode, ThemeMode.dark);
   });
 
   testWidgets('settings tab changes the text scale and saves it', (
     tester,
   ) async {
-    final repository = SettingsRepository(SharedPreferencesAsync());
+    final repository = createRepository();
     await _pump(tester, settingsRepository: repository);
 
     await tester.tap(find.byIcon(Icons.settings_outlined).last);
@@ -88,11 +86,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_textScale(tester), AppSettings.maxTextScale);
-    expect((await repository.load()).textScale, AppSettings.maxTextScale);
+    expect(repository.settings.textScale, AppSettings.maxTextScale);
   });
 
   testWidgets('warns when storage is unavailable', (tester) async {
-    await _pump(tester, isStorageUnavailable: true);
+    await _pump(
+      tester,
+      settingsRepository: createRepository(),
+      isStorageUnavailable: true,
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -107,14 +109,14 @@ void main() {
 
 Future<void> _pump(
   WidgetTester tester, {
-  SettingsRepository? settingsRepository,
+  required SettingsRepository settingsRepository,
   bool isStorageUnavailable = false,
-}) {
-  return tester.pumpWidget(
+}) async {
+  await settingsRepository.load();
+
+  await tester.pumpWidget(
     RunoutApp(
-      settingsRepository:
-          settingsRepository ?? SettingsRepository(SharedPreferencesAsync()),
-      initialSettings: AppSettings.defaults,
+      settingsRepository: settingsRepository,
       playerRepository: FakePlayerRepository(),
       matchRepository: FakeMatchRepository(),
       isStorageUnavailable: isStorageUnavailable,

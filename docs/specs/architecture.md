@@ -52,9 +52,9 @@ test/
 - `RunoutApp` owns the settings notifier and passes the selected theme, color,
   and text scale to `MaterialApp`. Theme and text scale changes apply
   immediately.
-- `main` opens the local `AppDatabase`, loads `PlayerRepository` and
-  `MatchRepository`, and passes them to `RunoutApp` through `AppProviders`.
-  Startup waits at most 10 seconds; a load failure continues with empty
+- `main` opens the local `AppDatabase`, loads the settings, player, and match
+  repositories, and passes them to `RunoutApp` through `AppProviders`. Startup
+  waits at most 10 seconds; a load failure continues with defaults or empty
   repositories and a one-time warning.
 - The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
   sidebar. Settings is a shell tab.
