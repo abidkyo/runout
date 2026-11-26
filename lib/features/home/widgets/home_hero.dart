@@ -28,7 +28,7 @@ class HomeHero extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome back!',
+                'Ready to play?',
                 style: context.textTheme.headlineSmall?.copyWith(
                   color: colors.onPrimaryContainer,
                   fontWeight: FontWeight.w600,
@@ -36,7 +36,7 @@ class HomeHero extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Ready for another game?',
+                'Set up a match and keep score.',
                 style: context.textTheme.bodyLarge?.copyWith(
                   color: colors.onPrimaryContainer.withValues(alpha: 0.8),
                 ),
