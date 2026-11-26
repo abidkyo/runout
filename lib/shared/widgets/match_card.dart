@@ -86,6 +86,9 @@ class MatchCard extends StatelessWidget {
                   onPressed: onTap,
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Continue'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
+                  ),
                 ),
               ],
             ],

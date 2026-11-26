@@ -46,6 +46,9 @@ class HomeHero extends StatelessWidget {
                 onPressed: onNewMatch,
                 icon: const Icon(Icons.add),
                 label: const Text('New Match'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                ),
               ),
             ],
           ),
