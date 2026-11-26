@@ -1,3 +1,4 @@
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:runout/core/constants/match_defaults.dart';
 import 'package:runout/domain/enums/break_format.dart';
@@ -1019,6 +1020,86 @@ void main() {
         ..scoreVisit(points: 10, keepsTurn: true);
 
       expect(n.askToContinue, isTrue);
+    });
+  });
+
+  group('pause and resume', () {
+    test('pause records the pause', () {
+      fakeAsync((async) {
+        final notifier = MatchNotifier(makeMatch())..selectStartingSide(0);
+        async.elapse(const Duration(seconds: 5));
+
+        notifier.pause();
+
+        expect(notifier.match.pausedAt, isNotNull);
+      });
+    });
+
+    test('resume accumulates paused seconds and clears the pause', () {
+      fakeAsync((async) {
+        final notifier = MatchNotifier(makeMatch())..selectStartingSide(0);
+        async.elapse(const Duration(seconds: 10));
+        notifier.pause();
+        async.elapse(const Duration(minutes: 1));
+
+        notifier.resume();
+
+        expect(notifier.match.pausedAt, isNull);
+        expect(notifier.match.totalPausedSeconds, 60);
+      });
+    });
+
+    test('accumulates multiple pauses', () {
+      fakeAsync((async) {
+        final notifier = MatchNotifier(makeMatch())
+          ..selectStartingSide(0)
+          ..pause();
+        async.elapse(const Duration(seconds: 20));
+
+        notifier
+          ..resume()
+          ..pause();
+        async.elapse(const Duration(seconds: 30));
+        notifier.resume();
+
+        expect(notifier.match.pausedAt, isNull);
+        expect(notifier.match.totalPausedSeconds, 50);
+      });
+    });
+
+    test('pause is a no-op outside a playing match', () {
+      final created = MatchNotifier(makeMatch())..pause();
+      expect(created.match.pausedAt, isNull);
+
+      final finished = MatchNotifier(makeMatch(config: makeConfig(raceTo: 1)))
+        ..selectStartingSide(0)
+        ..scoreRack(0)
+        ..pause();
+      expect(finished.match.pausedAt, isNull);
+    });
+
+    test('resume is a no-op when not paused', () {
+      final notifier = MatchNotifier(makeMatch())
+        ..selectStartingSide(0)
+        ..resume();
+
+      expect(notifier.match.pausedAt, isNull);
+      expect(notifier.match.totalPausedSeconds, 0);
+    });
+
+    test('pausing twice keeps the first pause time', () {
+      fakeAsync((async) {
+        final notifier = MatchNotifier(makeMatch())
+          ..selectStartingSide(0)
+          ..pause();
+
+        final pausedAt = notifier.match.pausedAt;
+
+        async.elapse(const Duration(seconds: 5));
+        notifier.pause();
+
+        expect(notifier.match.pausedAt, pausedAt);
+      });
     });
   });
 }

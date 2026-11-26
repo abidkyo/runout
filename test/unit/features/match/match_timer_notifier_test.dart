@@ -78,6 +78,22 @@ void main() {
       });
     });
 
+    test('resumes from the same duration after a pause', () {
+      fakeAsync((async) {
+        match.selectStartingSide(0);
+        async.elapse(const Duration(seconds: 5));
+        match.pause();
+        async.elapse(const Duration(seconds: 10));
+
+        expect(timer.elapsed, const Duration(seconds: 5));
+
+        match.resume();
+        async.elapse(const Duration(seconds: 3));
+
+        expect(timer.elapsed, const Duration(seconds: 8));
+      });
+    });
+
     test('is endedAt minus startedAt when finished', () {
       fakeAsync((async) {
         match.selectStartingSide(0);

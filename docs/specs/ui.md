@@ -88,7 +88,9 @@
   Discard/Setup/Home. The compact bar uses icon buttons without straight-pool
   action tiles; compact straight-pool scoring uses the side cards.
 - Finished matches show no straight-pool actions.
-- Exit to home does not confirm; the current match is saved.
+- Exit to home does not confirm; the current match is saved and paused.
+  Opening it again from Home resumes it, and the elapsed timer excludes the
+  paused time.
 - The Setup action is hidden when a match is opened from Home (Continue), because
   there is no setup route to return to.
 - Setup confirms while playing, returns to setup, and discards the current

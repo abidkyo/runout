@@ -17,6 +17,8 @@
   never negative.
 - `Match.elapsedAt(now)` derives actual play time from `startedAt`, `endedAt`,
   and the pause fields. It is computed on demand and never stored.
+- Pausing and resuming update only the timing fields. They are not scoring
+  actions, so they do not add undo/redo snapshots. Finishing clears `pausedAt`.
 - `MatchConfig.inningsLimit` is non-null. Straight pool requires a positive
   value and alternate break; rotation games require `0`.
 - `MatchStatus` lives in `match.dart`; it is not reused elsewhere.

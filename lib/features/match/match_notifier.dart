@@ -178,6 +178,7 @@ class MatchNotifier extends ChangeNotifier {
         currentSideIndex: nextSideIndex,
         status: finished ? MatchStatus.finished : _match.status,
         endedAt: finished ? clock.now() : null,
+        pausedAt: finished ? null : _match.pausedAt,
         winnerIndex: finished ? sideIndex : null,
       ),
     );
@@ -319,6 +320,7 @@ class MatchNotifier extends ChangeNotifier {
         isOpeningBreak: isOpeningBreak,
         status: finished ? MatchStatus.finished : _match.status,
         endedAt: finished ? clock.now() : null,
+        pausedAt: finished ? null : _match.pausedAt,
         winnerIndex: winnerIndex,
       ),
     );
@@ -393,6 +395,26 @@ class MatchNotifier extends ChangeNotifier {
     if (_redoStack.isEmpty) return;
     _undoStack.add(_match);
     _match = _redoStack.removeLast();
+    notifyListeners();
+  }
+
+  /// Marks a playing match as paused at the current time.
+  ///
+  /// This is time bookkeeping only; it does not add an undo step.
+  void pause() {
+    if (_match.status != MatchStatus.playing || _match.pausedAt != null) return;
+
+    _match = _match.copyWith(pausedAt: clock.now());
+    notifyListeners();
+  }
+
+  /// Resumes a paused match, adding the pause duration to the total.
+  ///
+  /// This is time bookkeeping only; it does not add an undo step.
+  void resume() {
+    if (_match.status != MatchStatus.playing || _match.pausedAt == null) return;
+
+    _match = _match.resumeAt(clock.now());
     notifyListeners();
   }
 }

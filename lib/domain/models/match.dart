@@ -126,6 +126,23 @@ class Match with _$Match {
   /// Accumulated duration of completed pauses, in seconds.
   final int totalPausedSeconds;
 
+  /// Returns this match with the current pause folded into the total.
+  ///
+  /// Returns the same match when it is not paused. Used when a stored match is
+  /// reopened so its paused time is counted before play continues.
+  Match resumeAt(DateTime now) {
+    final pausedAt = this.pausedAt;
+    if (pausedAt == null) return this;
+
+    final paused = now.difference(pausedAt);
+    final seconds = paused.isNegative ? 0 : paused.inSeconds;
+
+    return copyWith(
+      pausedAt: null,
+      totalPausedSeconds: totalPausedSeconds + seconds,
+    );
+  }
+
   /// Actual play time at [now], excluding completed and current pauses.
   ///
   /// Returns zero before the match starts and never returns a negative value.

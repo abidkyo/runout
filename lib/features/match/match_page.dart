@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
@@ -38,10 +39,14 @@ class MatchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isResuming =
+        match.status == MatchStatus.playing && match.pausedAt != null;
+    final currentMatch = isResuming ? match.resumeAt(clock.now()) : match;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<MatchNotifier>(
-          create: (_) => MatchNotifier(match),
+          create: (_) => MatchNotifier(currentMatch),
         ),
         Provider<MatchPersistence>(
           lazy: false,
@@ -50,6 +55,7 @@ class MatchPage extends StatelessWidget {
             repository: ctx.read<MatchRepository>(),
             onChanged: ctx.read<MatchListNotifier>().refresh,
             onError: showAppSnackBar,
+            saveInitial: isResuming,
           ),
           dispose: (_, persistence) => unawaited(persistence.dispose()),
         ),
@@ -105,7 +111,8 @@ class _MatchView extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  Future<void> _exitToHome(BuildContext context) async {
+  void _exitToHome(BuildContext context) {
+    context.read<MatchNotifier>().pause();
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 

@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -120,11 +121,13 @@ class _StubPage extends StatelessWidget {
 
 Match _playingMatch() => makeMatch().copyWith(
   status: MatchStatus.playing,
+  startedAt: DateTime(2026),
   currentSideIndex: 0,
 );
 
 Match _playingSPMatch() => makeStraightPoolMatch().copyWith(
   status: MatchStatus.playing,
+  startedAt: DateTime(2026),
   currentSideIndex: 0,
 );
 
@@ -470,6 +473,23 @@ void main() {
     });
   });
 
+  group('pause and resume', () {
+    testWidgets('resumes and persists a paused match', (tester) async {
+      final repository = FakeMatchRepository();
+      final match = _playingMatch().copyWith(
+        pausedAt: clock.now().subtract(const Duration(minutes: 5)),
+        totalPausedSeconds: 10,
+      );
+
+      await _pump(tester, match, repository: repository);
+      await tester.pumpAndSettle();
+
+      final saved = repository.saves.last;
+      expect(saved.pausedAt, isNull);
+      expect(saved.totalPausedSeconds, greaterThanOrEqualTo(310));
+    });
+  });
+
   group('leaving', () {
     testWidgets('edit setup from created pops without a dialog', (
       tester,
@@ -579,10 +599,15 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
-    testWidgets('exit while playing does not confirm and pops home', (
+    testWidgets('exit while playing does not confirm and pauses', (
       tester,
     ) async {
-      await _pumpStackedMatchPage(tester, _playingMatch());
+      final repository = FakeMatchRepository();
+      await _pumpStackedMatchPage(
+        tester,
+        _playingMatch(),
+        repository: repository,
+      );
 
       await tester.tap(find.byIcon(Icons.home_rounded));
       await tester.pumpAndSettle();
@@ -590,6 +615,7 @@ void main() {
       expect(find.byType(ConfirmDialog), findsNothing);
       expect(find.byType(MatchPage), findsNothing);
       expect(find.text('home'), findsOneWidget);
+      expect(repository.getPlaying().single.pausedAt, isNotNull);
     });
   });
 

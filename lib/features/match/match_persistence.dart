@@ -17,16 +17,23 @@ class MatchPersistence {
     required this.repository,
     required this.onChanged,
     required this.onError,
+    this.saveInitial = false,
     this.retryDelay = PersistenceDefaults.retryDelay,
     this.maxAttempts = PersistenceDefaults.maxAttempts,
   }) {
     notifier.addListener(_onMatchChanged);
+    if (saveInitial) _enqueueReconcile();
   }
 
   final MatchNotifier notifier;
   final MatchRepository repository;
   final VoidCallback onChanged;
   final void Function(String message) onError;
+
+  /// Whether to enqueue a write for the current state when created.
+  ///
+  /// Used when a paused match is resumed before this session is constructed.
+  final bool saveInitial;
   final Duration retryDelay;
   final int maxAttempts;
 

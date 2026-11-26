@@ -65,6 +65,8 @@ test/
 - `MatchPage` owns match actions; the match header, side cards, controls bar,
   and buttons are presentational. A page-level `MatchPersistence` provider
   mirrors notifier changes into the repository and is disposed with the page.
+  Opening a paused match resumes it; exiting via Home pauses it. Both updates
+  are persisted.
 - Targets all Flutter platforms. No platform-specific branches, conditional
   imports, or `dart:io`.
 
