@@ -45,21 +45,21 @@ class PlayerRepository {
 
   /// Adds a player, or returns the existing one with the same name.
   ///
-  /// Matching is case-insensitive after trimming.
-  /// Throws an [ArgumentError] for a blank name.
+  /// Matching is case-insensitive after normalizing.
+  /// Throws an [ArgumentError] for an invalid name.
   Future<Player> add(String name) async {
-    final trimmed = name.trim();
-    if (trimmed.isEmpty) {
-      throw ArgumentError.value(name, 'name', 'Player name must not be empty');
+    final normalized = _normalizePlayerName(name);
+    if (normalized.isEmpty && normalized.length <= 80) {
+      throw ArgumentError.value(name, 'name', 'Invalid player name.');
     }
 
     for (final player in _players) {
-      if (player.name.toLowerCase() == trimmed.toLowerCase()) {
+      if (player.name.toLowerCase() == normalized.toLowerCase()) {
         return player;
       }
     }
 
-    final newPlayer = Player(id: const Uuid().v7(), name: trimmed);
+    final newPlayer = Player(id: const Uuid().v7(), name: normalized);
 
     await _database
         .into(_database.players)
@@ -85,5 +85,12 @@ class PlayerRepository {
         .go();
 
     _players.removeWhere((player) => player.id == id);
+  }
+
+  String _normalizePlayerName(String name) {
+    return name
+        .replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '') // control characters
+        .trim()
+        .replaceAll(RegExp(r'\s+'), ' '); // extra space
   }
 }
