@@ -12,10 +12,6 @@ extension AppTextTheme on TextTheme {
   /// Family registered in `pubspec.yaml`.
   static const String fontFamily = 'Inter';
 
-  /// Large title at medium weight.
-  TextStyle get titleLargeSolid =>
-      titleLarge!.copyWith(fontWeight: FontWeight.w500);
-
   TextStyle get appTitle => titleLarge!.copyWith(
     fontWeight: FontWeight.bold,
     letterSpacing: 1.5,
@@ -26,10 +22,6 @@ extension AppTextTheme on TextTheme {
     fontWeight: FontWeight.w600,
   );
   TextStyle get dialogBody => bodyLarge!;
-
-  TextStyle get ballLabel => labelLarge!.copyWith(
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
 
   TextStyle get score => titleMedium!.copyWith(
     fontSize: scoreMaxFontSize,
