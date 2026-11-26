@@ -137,53 +137,60 @@ class _MatchView extends StatelessWidget {
           : notifier.scoreRack;
     }
 
-    return WinnerCelebration(
-      isWinnerDecided:
-          match.status == MatchStatus.finished && match.winnerIndex != null,
-      child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: isCompact ? 8 : 12,
-              children: [
-                MatchHeader(config: match.config),
-                Expanded(
-                  child: _MatchBody(
-                    match: match,
-                    isCompact: isCompact,
-                    onSideTap: onSideTap,
+    return PopScope(
+      canPop: !isPlaying,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _exitToHome(context);
+      },
+      child: WinnerCelebration(
+        isWinnerDecided:
+            match.status == MatchStatus.finished && match.winnerIndex != null,
+        child: Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(padding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: isCompact ? 8 : 12,
+                children: [
+                  MatchHeader(config: match.config),
+                  Expanded(
+                    child: _MatchBody(
+                      match: match,
+                      isCompact: isCompact,
+                      onSideTap: onSideTap,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        bottomNavigationBar: _ControlsBar(
-          isCompact: isCompact,
-          children: [
-            UndoRedoButtons(
-              canUndo: notifier.canUndo,
-              canRedo: notifier.canRedo,
-              onUndo: notifier.undo,
-              onRedo: notifier.redo,
-            ),
-            if (isStraightPool && isPlaying && isWide)
-              Flexible(
-                child: SPButtons(
-                  ballsRemaining: match.ballsRemaining,
-                  onEndInning: scoring.endInning,
-                  onOpenScoring: () => scoring.openScoringDialog(context),
-                  onNewRack: () => scoring.newRack(context, remaining: 1),
-                ),
+          bottomNavigationBar: _ControlsBar(
+            isCompact: isCompact,
+            children: [
+              UndoRedoButtons(
+                canUndo: notifier.canUndo,
+                canRedo: notifier.canRedo,
+                onUndo: notifier.undo,
+                onRedo: notifier.redo,
               ),
-            NavigationButtons(
-              onDiscard: () => _discardMatch(context),
-              onEdit: showSetupButton ? () => _editSetup(context) : null,
-              onExit: () => _exitToHome(context),
-            ),
-          ],
+              if (isStraightPool && isPlaying && isWide)
+                Flexible(
+                  child: SPButtons(
+                    ballsRemaining: match.ballsRemaining,
+                    onEndInning: scoring.endInning,
+                    onOpenScoring: () => scoring.openScoringDialog(context),
+                    onNewRack: () => scoring.newRack(context, remaining: 1),
+                  ),
+                ),
+              NavigationButtons(
+                onDiscard: () => _discardMatch(context),
+                onEdit: showSetupButton ? () => _editSetup(context) : null,
+                onExit: () => _exitToHome(context),
+              ),
+            ],
+          ),
         ),
       ),
     );

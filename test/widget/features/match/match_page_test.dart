@@ -600,6 +600,34 @@ void main() {
       expect(find.text('home'), findsOneWidget);
     });
 
+    testWidgets('system back pops normally when not playing', (tester) async {
+      await _pumpStackedMatchPage(tester, makeMatch());
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('open match'), findsOneWidget);
+      expect(find.text('home'), findsNothing);
+    });
+
+    testWidgets('system back pauses and pops to home', (tester) async {
+      final repository = FakeMatchRepository();
+      await _pumpStackedMatchPage(
+        tester,
+        _playingMatch(),
+        repository: repository,
+      );
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MatchPage), findsNothing);
+      expect(find.text('open match'), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+      expect(repository.getPlaying().single.pausedAt, isNotNull);
+    });
+
     testWidgets('exit while playing does not confirm and pauses', (
       tester,
     ) async {
