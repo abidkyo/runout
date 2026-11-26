@@ -12,20 +12,25 @@
   the starting side is selected. `selectStartingSide` starts the match.
 - `Match.ballsRemaining` is the balls-left count for straight pool.
 - `Match.effectiveInningsLimit` is non-null; it is zero outside straight pool.
+- `Match.pausedAt` is set only while a playing match is paused; it is null
+  otherwise. `Match.totalPausedSeconds` accumulates completed pauses and is
+  never negative.
+- `Match.elapsedAt(now)` derives actual play time from `startedAt`, `endedAt`,
+  and the pause fields. It is computed on demand and never stored.
 - `MatchConfig.inningsLimit` is non-null. Straight pool requires a positive
   value and alternate break; rotation games require `0`.
 - `MatchStatus` lives in `match.dart`; it is not reused elsewhere.
 - Models are Freezed classic classes with normal `const` constructors. This
   keeps native `assert(...)` instead of `@Assert`; Freezed generates
   `copyWith`, equality, `hashCode`, and `toString`.
-- Freezed `copyWith` clears nullable fields when passed `null`. `endedAt` and
-  `winnerIndex` are null until the match finishes, so transitions pass `null`
-  for them while playing.
+- Freezed `copyWith` clears nullable fields when passed `null`. `endedAt`,
+  `pausedAt`, and `winnerIndex` are nullable; transitions pass `null` to clear
+  them.
 - Lifecycle invariants are convention-only, not asserted:
   - `created`: timestamps, current side, winner null.
   - `playing`: `startedAt` and `currentSideIndex` set; `endedAt` and
-    `winnerIndex` null.
-  - `finished`: `endedAt` and `winnerIndex` set.
+    `winnerIndex` null; `pausedAt` set while paused.
+  - `finished`: `endedAt` and `winnerIndex` set; `pausedAt` null.
 
 ## Scoring decisions
 

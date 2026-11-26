@@ -27,6 +27,7 @@ class MatchRepository {
           match.copyWith(
             startedAt: match.startedAt?.toLocal(),
             endedAt: match.endedAt?.toLocal(),
+            pausedAt: match.pausedAt?.toLocal(),
           ),
         );
       } on Object catch (error) {

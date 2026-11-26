@@ -28,20 +28,20 @@ $MatchCopyWith<Match> get copyWith => _$MatchCopyWithImpl<Match>(this as Match, 
 @override
 bool operator ==(Object other) {
   final _this = this as Match;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Match&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.config, _this.config) || other.config == _this.config)&&const DeepCollectionEquality().equals(other.sides, _this.sides)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.currentSideIndex, _this.currentSideIndex) || other.currentSideIndex == _this.currentSideIndex)&&(identical(other.winnerIndex, _this.winnerIndex) || other.winnerIndex == _this.winnerIndex)&&(identical(other.effectiveInningsLimit, _this.effectiveInningsLimit) || other.effectiveInningsLimit == _this.effectiveInningsLimit)&&(identical(other.currentRun, _this.currentRun) || other.currentRun == _this.currentRun)&&(identical(other.ballsRemaining, _this.ballsRemaining) || other.ballsRemaining == _this.ballsRemaining)&&(identical(other.isOpeningBreak, _this.isOpeningBreak) || other.isOpeningBreak == _this.isOpeningBreak)&&(identical(other.startedAt, _this.startedAt) || other.startedAt == _this.startedAt)&&(identical(other.endedAt, _this.endedAt) || other.endedAt == _this.endedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Match&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.config, _this.config) || other.config == _this.config)&&const DeepCollectionEquality().equals(other.sides, _this.sides)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.currentSideIndex, _this.currentSideIndex) || other.currentSideIndex == _this.currentSideIndex)&&(identical(other.winnerIndex, _this.winnerIndex) || other.winnerIndex == _this.winnerIndex)&&(identical(other.effectiveInningsLimit, _this.effectiveInningsLimit) || other.effectiveInningsLimit == _this.effectiveInningsLimit)&&(identical(other.currentRun, _this.currentRun) || other.currentRun == _this.currentRun)&&(identical(other.ballsRemaining, _this.ballsRemaining) || other.ballsRemaining == _this.ballsRemaining)&&(identical(other.isOpeningBreak, _this.isOpeningBreak) || other.isOpeningBreak == _this.isOpeningBreak)&&(identical(other.startedAt, _this.startedAt) || other.startedAt == _this.startedAt)&&(identical(other.endedAt, _this.endedAt) || other.endedAt == _this.endedAt)&&(identical(other.pausedAt, _this.pausedAt) || other.pausedAt == _this.pausedAt)&&(identical(other.totalPausedSeconds, _this.totalPausedSeconds) || other.totalPausedSeconds == _this.totalPausedSeconds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Match;
-  return Object.hash(runtimeType,_this.id,_this.config,const DeepCollectionEquality().hash(_this.sides),_this.status,_this.currentSideIndex,_this.winnerIndex,_this.effectiveInningsLimit,_this.currentRun,_this.ballsRemaining,_this.isOpeningBreak,_this.startedAt,_this.endedAt);
+  return Object.hash(runtimeType,_this.id,_this.config,const DeepCollectionEquality().hash(_this.sides),_this.status,_this.currentSideIndex,_this.winnerIndex,_this.effectiveInningsLimit,_this.currentRun,_this.ballsRemaining,_this.isOpeningBreak,_this.startedAt,_this.endedAt,_this.pausedAt,_this.totalPausedSeconds);
 }
 
 @override
 String toString() {
   final _this = this as Match;
-  return 'Match(id: ${_this.id}, config: ${_this.config}, sides: ${_this.sides}, status: ${_this.status}, currentSideIndex: ${_this.currentSideIndex}, winnerIndex: ${_this.winnerIndex}, effectiveInningsLimit: ${_this.effectiveInningsLimit}, currentRun: ${_this.currentRun}, ballsRemaining: ${_this.ballsRemaining}, isOpeningBreak: ${_this.isOpeningBreak}, startedAt: ${_this.startedAt}, endedAt: ${_this.endedAt})';
+  return 'Match(id: ${_this.id}, config: ${_this.config}, sides: ${_this.sides}, status: ${_this.status}, currentSideIndex: ${_this.currentSideIndex}, winnerIndex: ${_this.winnerIndex}, effectiveInningsLimit: ${_this.effectiveInningsLimit}, currentRun: ${_this.currentRun}, ballsRemaining: ${_this.ballsRemaining}, isOpeningBreak: ${_this.isOpeningBreak}, startedAt: ${_this.startedAt}, endedAt: ${_this.endedAt}, pausedAt: ${_this.pausedAt}, totalPausedSeconds: ${_this.totalPausedSeconds})';
 }
 
 
@@ -52,7 +52,7 @@ abstract mixin class $MatchCopyWith<$Res>  {
   factory $MatchCopyWith(Match value, $Res Function(Match) _then) = _$MatchCopyWithImpl;
 @useResult
 $Res call({
- String id, MatchConfig config, List<MatchSide> sides, MatchStatus status, int? currentSideIndex, int? winnerIndex, int effectiveInningsLimit, int currentRun, int ballsRemaining, bool isOpeningBreak, DateTime? startedAt, DateTime? endedAt
+ String id, MatchConfig config, List<MatchSide> sides, MatchStatus status, int? currentSideIndex, int? winnerIndex, int effectiveInningsLimit, int currentRun, int ballsRemaining, bool isOpeningBreak, DateTime? startedAt, DateTime? endedAt, DateTime? pausedAt, int totalPausedSeconds
 });
 
 
@@ -69,7 +69,7 @@ class _$MatchCopyWithImpl<$Res>
 
 /// Create a copy of Match
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? config = null,Object? sides = null,Object? status = null,Object? currentSideIndex = freezed,Object? winnerIndex = freezed,Object? effectiveInningsLimit = null,Object? currentRun = null,Object? ballsRemaining = null,Object? isOpeningBreak = null,Object? startedAt = freezed,Object? endedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? config = null,Object? sides = null,Object? status = null,Object? currentSideIndex = freezed,Object? winnerIndex = freezed,Object? effectiveInningsLimit = null,Object? currentRun = null,Object? ballsRemaining = null,Object? isOpeningBreak = null,Object? startedAt = freezed,Object? endedAt = freezed,Object? pausedAt = freezed,Object? totalPausedSeconds = null,}) {
   return _then(Match(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,config: null == config ? _self.config : config // ignore: cast_nullable_to_non_nullable
@@ -83,7 +83,9 @@ as int,ballsRemaining: null == ballsRemaining ? _self.ballsRemaining : ballsRema
 as int,isOpeningBreak: null == isOpeningBreak ? _self.isOpeningBreak : isOpeningBreak // ignore: cast_nullable_to_non_nullable
 as bool,startedAt: freezed == startedAt ? _self.startedAt : startedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,endedAt: freezed == endedAt ? _self.endedAt : endedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,pausedAt: freezed == pausedAt ? _self.pausedAt : pausedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,totalPausedSeconds: null == totalPausedSeconds ? _self.totalPausedSeconds : totalPausedSeconds // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 /// Create a copy of Match

@@ -106,6 +106,7 @@ test/
 ## Scope guards
 
 - No `ScoringRule` abstraction yet; extract only when a third rule set appears.
-- Timer is UI-only; duration is derived, never stored.
+- Elapsed play time is derived from the match timestamps minus stored pause
+  totals; no duration is stored.
 - `shared_preferences` is limited to app settings.
 - No migrations beyond schema version 1 yet; the local database is pre-release.

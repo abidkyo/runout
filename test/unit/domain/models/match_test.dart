@@ -103,6 +103,8 @@ void main() {
       expect(match.winnerIndex, isNull);
       expect(match.startedAt, isNull);
       expect(match.endedAt, isNull);
+      expect(match.pausedAt, isNull);
+      expect(match.totalPausedSeconds, 0);
     });
 
     test('seeds the effective innings limit for straight pool', () {
@@ -147,6 +149,112 @@ void main() {
       expect(match.sides.first.highRun, 3);
       expect(match.sides.first.consecutiveFouls, 1);
       expect(match.sides.last.score, 2);
+    });
+  });
+
+  group('elapsedAt', () {
+    final start = DateTime(2026, 5, 4, 12);
+
+    Match playing({
+      DateTime? endedAt,
+      DateTime? pausedAt,
+      int totalPausedSeconds = 0,
+    }) {
+      return Match.create(
+        id: 'match-1',
+        config: _poolConfig(),
+        sides: _sides(),
+      ).copyWith(
+        status: MatchStatus.playing,
+        startedAt: start,
+        endedAt: endedAt,
+        pausedAt: pausedAt,
+        totalPausedSeconds: totalPausedSeconds,
+      );
+    }
+
+    test('is zero before the match starts', () {
+      final match = Match.create(
+        id: 'match-1',
+        config: _poolConfig(),
+        sides: _sides(),
+      );
+
+      expect(match.elapsedAt(start), Duration.zero);
+    });
+
+    test('measures active time while playing', () {
+      final match = playing();
+
+      expect(
+        match.elapsedAt(start.add(const Duration(minutes: 10))),
+        const Duration(minutes: 10),
+      );
+    });
+
+    test('subtracts completed pauses', () {
+      final match = playing(totalPausedSeconds: 120);
+
+      expect(
+        match.elapsedAt(start.add(const Duration(minutes: 10))),
+        const Duration(minutes: 8),
+      );
+    });
+
+    test('subtracts the current pause', () {
+      final match = playing(
+        pausedAt: start.add(const Duration(minutes: 5)),
+      );
+
+      expect(
+        match.elapsedAt(start.add(const Duration(minutes: 10))),
+        const Duration(minutes: 5),
+      );
+    });
+
+    test('subtracts completed and current pauses', () {
+      final match = playing(
+        pausedAt: start.add(const Duration(minutes: 5)),
+        totalPausedSeconds: 60,
+      );
+
+      expect(
+        match.elapsedAt(start.add(const Duration(minutes: 10))),
+        const Duration(minutes: 4),
+      );
+    });
+
+    test('uses endedAt for a finished match', () {
+      final match = playing(
+        endedAt: start.add(const Duration(minutes: 10)),
+        totalPausedSeconds: 120,
+      );
+
+      expect(
+        match.elapsedAt(start.add(const Duration(hours: 5))),
+        const Duration(minutes: 8),
+      );
+    });
+
+    test('never returns a negative duration', () {
+      final match = playing(totalPausedSeconds: 600);
+
+      expect(
+        match.elapsedAt(start.add(const Duration(seconds: 1))),
+        Duration.zero,
+      );
+    });
+
+    test('ignores a current pause after the match finished', () {
+      final match = playing(
+        endedAt: start.add(const Duration(minutes: 10)),
+        pausedAt: start.add(const Duration(minutes: 5)),
+      );
+
+      expect(
+        match.elapsedAt(start.add(const Duration(minutes: 20))),
+        const Duration(minutes: 10),
+      );
     });
   });
 

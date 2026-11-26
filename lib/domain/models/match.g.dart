@@ -51,6 +51,14 @@ Match _$MatchFromJson(
       'endedAt',
       (v) => v == null ? null : DateTime.parse(v as String),
     ),
+    pausedAt: $checkedConvert(
+      'pausedAt',
+      (v) => v == null ? null : DateTime.parse(v as String),
+    ),
+    totalPausedSeconds: $checkedConvert(
+      'totalPausedSeconds',
+      (v) => (v as num?)?.toInt() ?? 0,
+    ),
   );
   return val;
 });
@@ -68,6 +76,8 @@ Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
   'isOpeningBreak': instance.isOpeningBreak,
   'startedAt': instance.startedAt?.toUtc().toIso8601String(),
   'endedAt': instance.endedAt?.toUtc().toIso8601String(),
+  'pausedAt': instance.pausedAt?.toUtc().toIso8601String(),
+  'totalPausedSeconds': instance.totalPausedSeconds,
 };
 
 const _$MatchStatusEnumMap = {

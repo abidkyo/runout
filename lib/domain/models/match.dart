@@ -39,7 +39,16 @@ class Match with _$Match {
     this.isOpeningBreak = true,
     this.startedAt,
     this.endedAt,
-  }) : assert(sides.length >= 2, 'A match needs at least two sides.');
+    this.pausedAt,
+    this.totalPausedSeconds = 0,
+  }) : assert(
+         sides.length >= 2,
+         'A match needs at least two sides.',
+       ),
+       assert(
+         totalPausedSeconds >= 0,
+         'totalPausedSeconds must not be negative.',
+       );
 
   /// Creates a new match from its [sides], preserving their stats.
   ///
@@ -110,4 +119,31 @@ class Match with _$Match {
 
   /// When the match ended. Null until [status] is [MatchStatus.finished].
   final DateTime? endedAt;
+
+  /// When the current pause started. Null when the match is not paused.
+  final DateTime? pausedAt;
+
+  /// Accumulated duration of completed pauses, in seconds.
+  final int totalPausedSeconds;
+
+  /// Actual play time at [now], excluding completed and current pauses.
+  ///
+  /// Returns zero before the match starts and never returns a negative value.
+  Duration elapsedAt(DateTime now) {
+    final start = startedAt;
+    if (start == null) return Duration.zero;
+
+    final end = endedAt ?? now;
+    final pausedAt = this.pausedAt;
+
+    var paused = Duration(seconds: totalPausedSeconds);
+
+    if (endedAt == null && pausedAt != null) {
+      final currentPause = now.difference(pausedAt);
+      if (!currentPause.isNegative) paused += currentPause;
+    }
+
+    final elapsed = end.difference(start) - paused;
+    return elapsed.isNegative ? Duration.zero : elapsed;
+  }
 }

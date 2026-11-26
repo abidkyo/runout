@@ -1,5 +1,7 @@
+import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:runout/domain/models/match.dart';
 import 'package:runout/features/match/match_notifier.dart';
 import 'package:runout/features/match/match_timer_notifier.dart';
 
@@ -21,6 +23,13 @@ void main() {
     match.dispose();
   });
 
+  void useMatch(Match value) {
+    timer.dispose();
+    match.dispose();
+    match = MatchNotifier(value);
+    timer = MatchTimerNotifier(match);
+  }
+
   group('elapsed', () {
     test('returns zero when created', () {
       expect(timer.elapsed, Duration.zero);
@@ -32,6 +41,40 @@ void main() {
         async.elapse(const Duration(seconds: 5));
 
         expect(timer.elapsed, const Duration(seconds: 5));
+      });
+    });
+
+    test('subtracts completed paused time', () {
+      fakeAsync((async) {
+        final now = clock.now();
+        useMatch(
+          makeMatch().copyWith(
+            status: MatchStatus.playing,
+            startedAt: now.subtract(const Duration(minutes: 10)),
+            totalPausedSeconds: 120,
+            currentSideIndex: 0,
+          ),
+        );
+
+        expect(timer.elapsed, const Duration(minutes: 8));
+      });
+    });
+
+    test('freezes while paused', () {
+      fakeAsync((async) {
+        final now = clock.now();
+        useMatch(
+          makeMatch().copyWith(
+            status: MatchStatus.playing,
+            startedAt: now.subtract(const Duration(minutes: 10)),
+            pausedAt: now.subtract(const Duration(minutes: 2)),
+            currentSideIndex: 0,
+          ),
+        );
+
+        expect(timer.elapsed, const Duration(minutes: 8));
+        async.elapse(const Duration(minutes: 5));
+        expect(timer.elapsed, const Duration(minutes: 8));
       });
     });
 
@@ -129,6 +172,26 @@ void main() {
         async.elapse(const Duration(seconds: 5));
 
         expect(notifications, 5);
+      });
+    });
+
+    test('does not tick while paused', () {
+      fakeAsync((async) {
+        final now = clock.now();
+        useMatch(
+          makeMatch().copyWith(
+            status: MatchStatus.playing,
+            startedAt: now.subtract(const Duration(minutes: 10)),
+            pausedAt: now,
+            currentSideIndex: 0,
+          ),
+        );
+        var notifications = 0;
+
+        timer.addListener(() => notifications++);
+        async.elapse(const Duration(seconds: 5));
+
+        expect(notifications, 0);
       });
     });
 

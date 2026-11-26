@@ -14,6 +14,8 @@ void main() {
         ).copyWith(
           status: MatchStatus.playing,
           startedAt: DateTime(2026, 5, 4, 12, 30),
+          pausedAt: DateTime(2026, 5, 4, 12, 45),
+          totalPausedSeconds: 120,
           currentSideIndex: 0,
         );
 
@@ -23,6 +25,7 @@ void main() {
       decoded,
       match.copyWith(
         startedAt: match.startedAt!.toUtc(),
+        pausedAt: match.pausedAt!.toUtc(),
       ),
     );
   });

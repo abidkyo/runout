@@ -16,6 +16,8 @@ void main() {
       expect(m.status, MatchStatus.created);
       expect(m.startedAt, isNull);
       expect(m.endedAt, isNull);
+      expect(m.pausedAt, isNull);
+      expect(m.totalPausedSeconds, 0);
       expect(m.currentSideIndex, isNull);
       expect(m.winnerIndex, isNull);
       expect(notifier.canUndo, isFalse);

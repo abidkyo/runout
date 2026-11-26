@@ -17,6 +17,8 @@ Match _playingMatch(
   String id, {
   DateTime? startedAt,
   int score = 0,
+  DateTime? pausedAt,
+  int totalPausedSeconds = 0,
 }) {
   return makeMatch(
     sides: [
@@ -27,6 +29,8 @@ Match _playingMatch(
     id: id,
     status: MatchStatus.playing,
     startedAt: startedAt ?? _base,
+    pausedAt: pausedAt,
+    totalPausedSeconds: totalPausedSeconds,
     currentSideIndex: 0,
   );
 }
@@ -157,6 +161,23 @@ void main() {
       expect(decoded.endedAt!.isUtc, isTrue);
       expect(row.startedAt.isAtSameMomentAs(match.startedAt!), isTrue);
       expect(row.endedAt!.isAtSameMomentAs(match.endedAt!), isTrue);
+    });
+
+    test('loads pause fields with local timestamps', () async {
+      final match = _playingMatch(
+        'paused',
+        pausedAt: _base.add(const Duration(minutes: 5)),
+        totalPausedSeconds: 60,
+      );
+
+      await repository.save(match);
+      final reloaded = MatchRepository(database);
+      await reloaded.load();
+
+      final loaded = reloaded.getPlaying().single;
+      expect(loaded.totalPausedSeconds, 60);
+      expect(loaded.pausedAt!.isUtc, isFalse);
+      expect(loaded.pausedAt!.isAtSameMomentAs(match.pausedAt!), isTrue);
     });
 
     test('loads timestamps as local', () async {

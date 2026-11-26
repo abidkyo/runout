@@ -70,7 +70,7 @@
   fill the available height, and a bottom action bar. It does not scroll and
   does not cap its content width.
 - The header shows the game, the race target (plus the innings limit for
-  straight pool), and the elapsed time.
+  straight pool), and the actual elapsed play time, excluding pauses.
 - At compact width every side stacks; at wide width sides sit side by side.
 - Cards show the players, a score that scales to fill its card, and
   straight-pool stats. Created matches show “Who breaks?”. The winner card gets
