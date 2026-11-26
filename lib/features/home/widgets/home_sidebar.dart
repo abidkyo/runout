@@ -4,6 +4,7 @@ import 'package:runout/core/constants/app_strings.dart';
 import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
+import 'package:runout/shared/widgets/app_logo.dart';
 
 /// Navigation shown beside page content on wide layouts.
 class HomeSidebar extends StatelessWidget {
@@ -56,6 +57,7 @@ class _Header extends StatelessWidget {
     return Column(
       spacing: 8,
       children: [
+        const AppLogo(size: 80),
         Text(
           AppStrings.title,
           style: context.textTheme.appTitle.copyWith(

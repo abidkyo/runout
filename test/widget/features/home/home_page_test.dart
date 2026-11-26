@@ -15,6 +15,7 @@ import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/settings/settings_notifier.dart';
 import 'package:runout/features/settings/settings_page.dart';
+import 'package:runout/shared/widgets/app_logo.dart';
 import 'package:runout/shared/widgets/confirm_dialog.dart';
 import 'package:runout/shared/widgets/match_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,6 +110,7 @@ void main() {
         _host(repository: FakeMatchRepository(matches: [_playingMatch()])),
       );
 
+      expect(find.byType(AppLogo), findsOneWidget);
       expect(find.text(AppStrings.title), findsOneWidget);
       expect(find.text(AppStrings.subtitle), findsOneWidget);
       expect(find.byType(AppBar), findsNothing);
@@ -124,6 +126,7 @@ void main() {
       await tester.pumpWidget(_host());
 
       expect(find.byType(AppBar), findsOneWidget);
+      expect(find.byType(AppLogo), findsOneWidget);
       expect(find.text(AppStrings.title), findsOneWidget);
       expect(find.text(AppStrings.subtitle), findsOneWidget);
       expect(find.byType(NavigationBar), findsOneWidget);

@@ -12,6 +12,7 @@ import 'package:runout/features/home/widgets/home_sidebar.dart';
 import 'package:runout/features/match/match_page.dart';
 import 'package:runout/features/match_setup/match_setup_page.dart';
 import 'package:runout/features/settings/settings_page.dart';
+import 'package:runout/shared/widgets/app_logo.dart';
 import 'package:runout/shared/widgets/empty_state.dart';
 
 /// Entry screen and app shell.
@@ -58,6 +59,7 @@ class _HomeShellState extends State<_HomeShell> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= LayoutBreakpoints.wide;
+        final textScaler = MediaQuery.textScalerOf(context);
 
         return Scaffold(
           appBar: isWide
@@ -65,21 +67,30 @@ class _HomeShellState extends State<_HomeShell> {
               : AppBar(
                   automaticallyImplyLeading: false,
                   centerTitle: false,
-                  toolbarHeight: MediaQuery.textScalerOf(context).scale(64),
-                  title: Column(
+                  toolbarHeight: textScaler.scale(64),
+                  title: Row(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
                     children: [
-                      Text(
-                        AppStrings.title,
-                        style: context.textTheme.appTitle.copyWith(
-                          color: context.colors.appTitle,
-                        ),
-                      ),
-                      Text(
-                        AppStrings.subtitle,
-                        style: context.textTheme.appSubtitle.copyWith(
-                          color: context.colors.appSubtitle,
+                      const AppLogo(size: 40),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppStrings.title,
+                              style: context.textTheme.appTitle.copyWith(
+                                color: context.colors.appTitle,
+                              ),
+                            ),
+                            Text(
+                              AppStrings.subtitle,
+                              style: context.textTheme.appSubtitle.copyWith(
+                                color: context.colors.appSubtitle,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
