@@ -67,6 +67,7 @@ Match _playingMatch() {
     id: 'playing',
     status: MatchStatus.playing,
     startedAt: _base,
+    pausedAt: _base.add(const Duration(minutes: 10)),
     currentSideIndex: 0,
   );
 }

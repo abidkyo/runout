@@ -30,12 +30,10 @@ import 'package:runout/shared/widgets/confirm_dialog.dart';
 class MatchPage extends StatelessWidget {
   const new({
     required this.match,
-    this.isNewMatch = true,
     super.key,
   });
 
   final Match match;
-  final bool isNewMatch;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +61,7 @@ class MatchPage extends StatelessWidget {
           create: (ctx) => MatchTimerNotifier(ctx.read<MatchNotifier>()),
         ),
       ],
-      child: _MatchView(showSetupButton: isNewMatch),
+      child: _MatchView(showSetupButton: !isResuming),
     );
   }
 }
