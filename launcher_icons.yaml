@@ -5,6 +5,9 @@ launcher_icons:
     generate: true
     image_path_maskable: "assets/icons/runout-maskable.png"
     image_path_favicon_svg: "assets/icons/runout-favicon.svg"
+    background_color: "#1F5F8B"
+    theme_color_light: "#1F5F8B"
+    theme_color_dark: "#1F5F8B"
 
   linux:
     generate: true
