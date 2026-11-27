@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runout/core/constants/app_constants.dart';
-import 'package:runout/core/constants/app_strings.dart';
 import 'package:runout/core/constants/persistence_defaults.dart';
 import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
@@ -111,8 +110,8 @@ void main() {
       );
 
       expect(find.byType(AppLogo), findsOneWidget);
-      expect(find.text(AppStrings.title), findsOneWidget);
-      expect(find.text(AppStrings.subtitle), findsOneWidget);
+      expect(find.text(AppConstants.appTitle), findsOneWidget);
+      expect(find.text(AppConstants.appSubtitle), findsOneWidget);
       expect(find.byType(AppBar), findsNothing);
       expect(find.byType(NavigationBar), findsNothing);
       expect(find.text('Continue Matches'), findsOneWidget);
@@ -127,8 +126,8 @@ void main() {
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.byType(AppLogo), findsOneWidget);
-      expect(find.text(AppStrings.title), findsOneWidget);
-      expect(find.text(AppStrings.subtitle), findsOneWidget);
+      expect(find.text(AppConstants.appTitle), findsOneWidget);
+      expect(find.text(AppConstants.appSubtitle), findsOneWidget);
       expect(find.byType(NavigationBar), findsOneWidget);
     });
 

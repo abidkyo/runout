@@ -43,7 +43,7 @@ class _RunoutAppView extends StatelessWidget {
 
     return MaterialApp(
       scaffoldMessengerKey: AppConstants.scaffoldMessengerKey,
-      title: 'Runout',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(settings.appColor),
       darkTheme: AppTheme.dark(settings.appColor),

@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:runout/core/constants/app_constants.dart';
 import 'package:runout/core/constants/app_destinations.dart';
-import 'package:runout/core/constants/app_strings.dart';
 import 'package:runout/core/constants/layout_breakpoints.dart';
 import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
@@ -79,13 +79,13 @@ class _HomeShellState extends State<_HomeShell> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppStrings.title,
+                              AppConstants.appTitle,
                               style: context.textTheme.appTitle.copyWith(
                                 color: context.colors.appTitle,
                               ),
                             ),
                             Text(
-                              AppStrings.subtitle,
+                              AppConstants.appSubtitle,
                               style: context.textTheme.appSubtitle.copyWith(
                                 color: context.colors.appSubtitle,
                               ),
