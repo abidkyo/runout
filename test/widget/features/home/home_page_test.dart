@@ -7,6 +7,7 @@ import 'package:runout/data/repositories/match_repository.dart';
 import 'package:runout/data/repositories/player_repository.dart';
 import 'package:runout/data/repositories/settings_repository.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/features/about/about_page.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/home_page.dart';
 import 'package:runout/features/match/match_list_notifier.dart';
@@ -233,6 +234,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Player management is coming soon.'), findsOneWidget);
+    });
+
+    testWidgets('about action opens the about page', (tester) async {
+      _setSize(tester, const Size(400, 800));
+      await tester.pumpWidget(_host());
+
+      await tester.tap(find.byTooltip('About Runout'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AboutPage), findsOneWidget);
+    });
+
+    testWidgets('sidebar about opens the about page', (tester) async {
+      _setSize(tester, const Size(1200, 900));
+      await tester.pumpWidget(_host());
+
+      await tester.tap(find.text('About'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AboutPage), findsOneWidget);
     });
   });
 

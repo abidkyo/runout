@@ -29,7 +29,6 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       fontFamily: AppTextTheme.fontFamily,
-      appBarTheme: const AppBarTheme(centerTitle: true),
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,

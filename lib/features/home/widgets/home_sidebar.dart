@@ -11,11 +11,13 @@ class HomeSidebar extends StatelessWidget {
   const new({
     required this.selectedIndex,
     required this.onDestinationSelected,
+    required this.onAbout,
     super.key,
   });
 
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
+  final VoidCallback onAbout;
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +33,43 @@ class HomeSidebar extends StatelessWidget {
       ),
       child: Material(
         type: MaterialType.transparency,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-          child: Column(
-            spacing: 32,
-            children: [
-              const _Header(),
-              _Body(
-                selectedIndex: selectedIndex,
-                onDestinationSelected: onDestinationSelected,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 32,
+                ),
+                child: Column(
+                  spacing: 32,
+                  children: [
+                    const _Header(),
+                    _Body(
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: onDestinationSelected,
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                titleTextStyle: context.textTheme.labelLarge,
+                textColor: colors.onSurfaceVariant,
+                iconColor: colors.onSurfaceVariant,
+                leading: const Icon(Icons.info_outline_rounded),
+                title: const Text('About'),
+                onTap: onAbout,
+              ),
+            ),
+          ],
         ),
       ),
     );

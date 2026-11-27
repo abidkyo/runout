@@ -44,6 +44,16 @@
 - Choice buttons fill the row on wide layouts and stack at compact width. The
   page stays usable at 1.5× and 2× text scale.
 
+## About
+
+- Opens from the home app bar on compact layouts and from the sidebar footer on
+  wide layouts.
+- Shows the Runout logo, name, slogan, description, version, third-party
+  licenses, data/privacy policy, and the portfolio address.
+- Licenses opens Flutter's built-in license page; the privacy policy stays
+  inline.
+- The portfolio address is selectable text.
+
 ## Match Setup
 
 - Setup is a single scrolling panel: an in-page “New Match” header, one setup

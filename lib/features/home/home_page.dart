@@ -6,6 +6,7 @@ import 'package:runout/core/theme/app_color_scheme.dart';
 import 'package:runout/core/theme/app_text_theme.dart';
 import 'package:runout/core/theme/theme_extension.dart';
 import 'package:runout/domain/models/match.dart';
+import 'package:runout/features/about/about_page.dart';
 import 'package:runout/features/history/match_history_page.dart';
 import 'package:runout/features/home/widgets/home_content.dart';
 import 'package:runout/features/home/widgets/home_sidebar.dart';
@@ -54,6 +55,14 @@ class _HomeShellState extends State<_HomeShell> {
     );
   }
 
+  void _openAbout(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const AboutPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -66,8 +75,15 @@ class _HomeShellState extends State<_HomeShell> {
               ? null
               : AppBar(
                   automaticallyImplyLeading: false,
-                  centerTitle: false,
                   toolbarHeight: textScaler.scale(64),
+                  actions: [
+                    IconButton(
+                      onPressed: () => _openAbout(context),
+                      icon: const Icon(Icons.info_outline_rounded),
+                      tooltip: 'About Runout',
+                    ),
+                  ],
+                  actionsPadding: const EdgeInsets.only(right: 8),
                   title: Row(
                     mainAxisSize: MainAxisSize.min,
                     spacing: 8,
@@ -104,6 +120,7 @@ class _HomeShellState extends State<_HomeShell> {
                   HomeSidebar(
                     selectedIndex: _selectedIndex,
                     onDestinationSelected: _selectTab,
+                    onAbout: () => _openAbout(context),
                   ),
                 Expanded(
                   child: switch (AppDestinations.values[_selectedIndex]) {
