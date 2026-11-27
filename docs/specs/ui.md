@@ -1,48 +1,41 @@
 # UI/UX
 
+## Layout
+
+All screens stay usable at 375px width and up to 2× text scale. Content is
+capped at the same maximum width across screens. Text-bearing surfaces avoid
+fixed heights.
+
 ## Home
 
-- The home shell uses a compact AppBar with the app name and slogan, plus a
-  bottom `NavigationBar`; wide layouts use a sidebar.
-- The hero is the primary action. New Match opens setup in Singles mode.
-- In-progress matches are listed under “Continue Matches”; the section is
-  hidden entirely when none are playing.
-- Recent finished matches are capped at 10. “See all” switches to the Matches
-  tab.
-- Continue and recent sections update when a match is saved, finished, or
-  discarded.
-- Cards show the match date; created matches show “Not started”. Deleting a
-  match is deferred to the future `MatchDetailPage`.
+- A short header with the app name and slogan sits above a bottom navigation bar
+  when compact or a sidebar when wide. Settings is a tab.
+- The hero “New Match” action opens setup in Singles mode.
+- “Continue Matches” lists in-progress matches and hides when empty.
+- “Recent Matches” shows the latest 10 finished matches; “See all” opens Match
+  History.
+- Both lists refresh when a match is saved, finished, or discarded.
+- Cards show the match date; unstarted matches show “Not started”.
 - Players is a placeholder tab until its feature lands.
-- A fresh install shows empty Home states; there is no sample data.
-- If the local database cannot be loaded, one snackbar says storage is
-  unavailable and changes will not be saved.
-- Home and Match History avoid fixed heights. Layouts stay usable at 1.5× and
-  2× text scale; the compact AppBar grows with the text scale and cards avoid
-  fixed trailing widths.
+- A fresh install shows empty states; there is no sample data.
+- If storage fails to load, one snackbar says changes will not be saved.
 
 ## Match History
 
-- The Matches tab lists finished matches only, newest first.
-- History cards are display-only; there is no detail page yet.
-- An empty history shows a single empty state.
+- Lists finished matches, newest first.
+- Cards are display-only; there is no detail page yet.
+- An empty history shows one empty state.
 
 ## Settings
 
-- The Settings tab is an in-page header followed by one appearance card with
-  Theme, Color, and Text Size sections.
-- Theme offers System, Light, and Dark. Color offers Blue and Green seeds.
-- Text Size is a 100%-150% slider in 5% steps. It overrides the system text
-  scale across the app.
-- Defaults are the System theme, the Blue color, and 100% text size.
-- Selecting a choice or moving the slider applies it immediately and persists
-  it; there is no Save action.
-- The Text Size section shows the current percentage and a match card preview
-  at the selected scale.
-- Page content uses compact 16px padding and 24px otherwise, capped at
-  `LayoutBreakpoints.contentMax` (1200), matching Home and Match History.
-- Choice buttons fill the row on wide layouts and stack at compact width. The
-  page stays usable at 1.5× and 2× text scale.
+- One appearance card with Theme, Color, and Text Size.
+- Theme: System, Light, or Dark. Color: Blue or Green.
+- Text Size: 100–150% in 5% steps. It applies across the app and overrides the
+  system scale.
+- Defaults: System, Blue, 100%.
+- Changes apply and persist immediately; there is no Save action.
+- Text Size shows the current percentage and a match-card preview.
+- Choices fill the row when wide and stack when compact.
 
 ## About
 
@@ -56,66 +49,56 @@
 
 ## Match Setup
 
-- Setup is a single scrolling panel: an in-page “New Match” header, one setup
-  card, and pinned bottom actions. Page content is capped at
-  `LayoutBreakpoints.contentMax` (1200).
-- Home opens setup in Singles mode; mode is selectable in-page. Changing mode keeps
-  players in slots that still exist and drops removed slots.
-- Player slots have player/team labels on top and open the picker on tap.
-- Duplicate players are allowed in the picker and rejected by validation at
-  start: keep the picker simple, block the real mistake at the last gate.
-- Known players come from the local database, sorted by name; new players are
-  saved when created.
-- Switching game type resets straight-pool defaults (`raceTo`, break format)
-  and does not restore previous values.
-- Break format is hidden, not disabled, for straight pool; innings is shown
-  only for straight pool. Hidden sections collapse.
-- There is no doubles special case; sides follow the compact breakpoint.
-- Setup stays usable at 375px and at 1.5×/2× text scale; the stepper
-  and bottom actions wrap instead of clipping.
+- A single scrolling panel with an in-page header, one setup card, and pinned
+  bottom actions.
+- Setup opens in Singles; mode is selectable. Changing mode keeps players in
+  slots that still exist.
+- Player slots show player or team labels and open the player picker on tap.
+- Duplicate players are allowed in the picker and rejected at start.
+- Known players come from the database, sorted by name; new players are saved on
+  creation.
+- Switching game type resets straight-pool defaults (race target and break
+  format).
+- Break format is hidden for straight pool; innings is shown only for straight
+  pool.
+- Sides follow the compact breakpoint; there is no doubles special case.
+- The stepper and bottom actions wrap instead of clipping.
 
 ## Match
 
-- The match page is a full-screen scoreboard: an in-page header, side cards that
-  fill the available height, and a bottom action bar. It does not scroll and
-  does not cap its content width.
-- The header shows the game, the race target (plus the innings limit for
-  straight pool), and the actual elapsed play time, excluding pauses.
-- At compact width every side stacks; at wide width sides sit side by side.
-- Cards show the players, a score that scales to fill its card, and
-  straight-pool stats. Created matches show “Who breaks?”. The winner card gets
-  a trophy.
-- When a winner is decided during play, a one-shot confetti burst plays over the
-  scoreboard. It is decorative: taps pass through, it is excluded from
-  semantics, and it is skipped when the platform requests reduced motion.
-  Opening an already-finished match does not replay it.
-- The whole side card is the tap target. The action depends on status: breaker
-  selection, score increment, or the straight-pool scoring dialog; finished
-  cards are not tappable.
-- In straight pool, every side card opens the scoring dialog while playing. The
-  dialog always scores the current side and shows that side's player names.
-- The bottom bar has undo/redo, straight-pool tiles on wide layouts, and
-  Discard/Setup/Home. The compact bar uses icon buttons without straight-pool
-  action tiles; compact straight-pool scoring uses the side cards.
+- A full-screen scoreboard: header, side cards that fill the height, and a
+  bottom action bar. It does not scroll or cap its content width.
+- The header shows the game, race target (and innings limit for straight pool),
+  and elapsed play time excluding pauses.
+- Sides stack when compact and sit side by side when wide.
+- Cards show players and score; straight pool adds stats. Created matches ask
+  “Who breaks?”. The winner card gets a trophy.
+- When a winner is decided during play, a one-shot confetti burst plays. It is
+  decorative and skipped when reduced motion is requested. Opening a finished
+  match does not replay it.
+- The whole side card is tappable: breaker selection, score increment, or the
+  straight-pool scoring dialog. Finished cards are not tappable.
+- In straight pool, side cards open the scoring dialog, which scores the current
+  side and shows that side's players.
+- The bottom bar has undo/redo, straight-pool tiles when wide, and
+  Discard/Setup/Home. Compact layouts use icon buttons and score straight pool
+  through the side cards.
 - Finished matches show no straight-pool actions.
-- Exit to home does not confirm; the current match is saved and paused.
-  Opening it again from Home resumes it, and the elapsed timer excludes the
-  paused time.
-- System back pops normally while the match is created or finished. While
-  playing, it behaves like the Home action: it pauses the match and returns to
-  the home screen.
-- The Setup action is hidden when a match is opened from Home (Continue), because
-  there is no setup route to return to.
-- Setup confirms while playing, returns to setup, and discards the current
-  match. Created matches skip the confirmation.
-- Discard confirms while playing, returns home, and discards the current match.
-  Created matches skip the confirmation. Discard and Setup delete the stored
-  match; a failed delete does not block navigation and shows a snackbar.
-- The target-reached prompt ignores barrier taps so an outside tap cannot
-  choose `End`.
-- A target reached on a kept turn asks whether to continue. Ending re-applies the
+- Home does not confirm: it saves and pauses the match, and opening it again
+  resumes it. Elapsed time excludes the pause.
+- System back pops normally when the match is created or finished. While
+  playing, it acts like Home: pause and return home.
+- Setup is hidden when a match was opened from Home (Continue), since there is
+  no setup route to return to.
+- Setup confirms while playing, returns to setup, and discards the match.
+  Created matches skip the confirmation.
+- Discard confirms while playing, returns home, and deletes the match. Created
+  matches skip the confirmation. A failed delete does not block navigation and
+  shows a snackbar.
+- The target-reached prompt ignores barrier taps so an outside tap cannot choose
+  End.
+- A target reached on a kept turn asks whether to continue; ending applies the
   score as a visit-ending score.
-- The page stays usable at 375px and at 1.5×/2× text scale; labels ellipsize or
-  scale down instead of overflowing.
-- Custom state surfaces need explicit semantics; labels describe state
-  (`Winner`/`Breaking`/`Loser`) only, never content.
+- Labels ellipsize or scale instead of overflowing.
+- Custom state labels describe state only (`Winner`, `Breaking`, `Loser`), never
+  content a child already shows.

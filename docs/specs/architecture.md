@@ -1,114 +1,49 @@
 # Architecture
 
-## Layout
+## Structure
 
-```text
-lib/
-├── app.dart
-├── main.dart
-├── core/
-│   ├── constants/
-│   ├── settings/
-│   └── theme/
-├── data/
-│   ├── local/
-│   └── repositories/
-├── domain/
-│   ├── enums/
-│   └── models/
-├── features/
-│   ├── history/
-│   ├── home/
-│   ├── manager_link/
-│   ├── match/
-│   ├── match_setup/
-│   ├── settings/
-│   └── tournament/
-└── shared/
-    └── widgets/
-test/
-├── unit/
-└── widget/
-```
+- `core/`: constants, settings, and theme.
+- `data/`: local database and repositories.
+- `domain/`: enums and models.
+- `features/`: one folder per feature. Pages and notifiers live at the feature
+  root; public widgets live under `widgets/`.
+- `shared/`: reusable widgets.
 
-## Layers
+Dependencies point inward: features may use data, domain, shared, and core; data
+and shared never import features; domain is pure Dart.
 
-- `features/` → `domain/`, `data/`, `shared/`, `core/`.
-- `data/` → `domain/`, `core/`. Never `features/`.
-- `domain/` → no app imports, no Flutter. Pure Dart.
-- `shared/` → `core/`, `domain/`. Never `features/`.
-- No import linter; enforce by review.
+## App shell
 
-## Feature folders
-
-- Public widgets live in `features/<feature>/widgets/`; pages and notifiers
-  stay at the feature root.
-- Pages are thin: create page-level notifiers when needed, route, and delegate
-  layout.
-- One-off subwidgets stay private in the using file.
-
-## Composition
-
-- `RunoutApp` owns the settings notifier and passes the selected theme, color,
-  and text scale to `MaterialApp`. Theme and text scale changes apply
+- `main` opens the local database, loads settings, players, and matches, then
+  passes repositories to `RunoutApp` through `AppProviders`. A load failure
+  continues with default settings, empty repositories, and one warning.
+- `RunoutApp` owns settings and applies theme, color, and text scale
   immediately.
-- `main` opens the local `AppDatabase`, loads the settings, player, and match
-  repositories, and passes them to `RunoutApp` through `AppProviders`. Startup
-  waits at most 10 seconds; a load failure continues with defaults or empty
-  repositories and a one-time warning.
-- `AppProviders` also owns the app-level `MatchListNotifier`, the read-model
-  change signal for Home and Match History.
-- The Home shell uses a compact AppBar and `NavigationBar`; wide layouts use a
-  sidebar. Settings is a shell tab.
-- `MaterialApp` uses light and dark themes selected by settings and overrides
-  system text scaling with the saved scale; no router or named routes.
-- `MatchPage` owns match actions; the match header, side cards, controls bar,
-  and buttons are presentational. A page-level `MatchPersistence` provider
-  mirrors notifier changes into the repository and is disposed with the page.
-  Opening a paused match resumes it; exiting via Home pauses it. Both updates
-  are persisted.
-- Targets all Flutter platforms. No platform-specific branches, conditional
-  imports, or `dart:io`.
+- Home uses a bottom navigation bar when compact and a sidebar when wide.
+  Settings is a tab.
+- No router or named routes.
+- All platforms are supported without platform-specific code.
 
 ## State and data
 
-- Provider only, no global state. Feature notifiers are `ChangeNotifier`;
-  providers are created at page level.
-- Home and Match History read `MatchListNotifier`, which delegates to
-  `MatchRepository`; `getFinished(limit:)` supplies the recent cap. Match
-  deletion is used by Discard and Setup; history deletion is still deferred to
-  the future `MatchDetailPage`.
-- Use `context.watch` to rebuild, `context.read` for actions,
-  `Consumer`/`Selector` for partial rebuilds.
-- Undo/redo stores immutable `Match` snapshots in two stacks.
-- Drift is the only local database. `players` and `matches` store a versioned
-  JSON snapshot (`playerJson`, `matchJson`) plus scalar columns used for ordered
-  reads. JSON snapshots are `{"version": 1, "player"|"match": {...}}`.
-- `PlayerCodec` and `MatchCodec` own encode/decode. A malformed or unsupported
-  row is skipped and logged instead of failing the whole load.
-- Player and match writes always go through the repositories. Match writes
-  happen after every `MatchNotifier` change through `MatchPersistence`; created
-  matches are never stored, and undo back to `created` deletes the row.
-  `MatchPersistence` serializes writes, retries three times at 200 ms, and
-  reports the final failure once.
-- Discard and Setup delete the stored match without waiting for the delete before
-  navigating; a failure leaves the row and shows a snackbar. Exiting to Home
-  keeps the row.
-- Timestamps are stored as UTC; loaded matches use local timestamps so the UI's
-  date and elapsed-time logic matches in-session matches.
-- Repositories load once at startup and serve synchronous reads from an
-  in-memory cache. They stay data-only; `MatchListNotifier` is the change signal
-  for list screens. `MatchPersistence` calls `refresh` after successful writes,
-  so Home and Match History update without route refreshes.
-- Settings are persisted with `shared_preferences`. No network or sync yet.
-- Offline-first is the intended direction; the repository layer will hide
-  local/remote later. Don't add persistence ad hoc.
+- Provider only. Feature notifiers are `ChangeNotifier` at page level;
+  `AppProviders` owns app-level repositories and `MatchListNotifier`.
+- `MatchListNotifier` is the change signal for Home and Match History.
+  Repositories stay data-only.
+- Undo/redo stores immutable `Match` snapshots.
+- Drift is the only local database. Players and matches are stored as versioned
+  JSON snapshots plus columns for ordered reads. Malformed rows are skipped and
+  logged.
+- All writes go through repositories. `MatchPersistence` saves match changes
+  after every notifier update. A match that is still created is not stored;
+  undoing back to created deletes the row. Failed saves retry, then report once.
+- Repositories load once at startup and serve synchronous reads from memory.
+- Settings use `shared_preferences`; no other data does.
 - IDs use UUID v7.
+- The app is offline-first. The repository layer will hide local/remote later;
+  don't add persistence ad hoc.
 
-## Scope guards
+## Guardrails
 
-- No `ScoringRule` abstraction yet; extract only when a third rule set appears.
-- Elapsed play time is derived from the match timestamps minus stored pause
-  totals; no duration is stored.
-- `shared_preferences` is limited to app settings.
-- No migrations beyond schema version 1 yet; the local database is pre-release.
+- No `ScoringRule` abstraction until a third rule set exists.
+- The database is pre-release; no migrations beyond schema version 1.

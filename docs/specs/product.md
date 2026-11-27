@@ -1,45 +1,27 @@
 # Product
 
-A cross-platform billiard scoring app designed to make tracking match scores simple and intuitive.
+A cross-platform billiard scoring app for tracking match scores simply and
+intuitively.
 
-## Supported Game Modes
+## Scope
 
-- Singles (1 vs 1)
-- Doubles (2 vs 2)
-- Three-player matches (1 vs 1 vs 1)
-
-## Supported Games
-
-- 8-ball
-- 9-ball
-- 10-ball
-- Straight Pool
-
-## Platform Strategy
-
-- Built with Flutter.
-- Target platforms: Android, iOS, Web, Linux, macOS, and Windows.
-- Primary development and testing focus: Web.
+- Modes: singles (1 vs 1), doubles (2 vs 2), and three-player (1 vs 1 vs 1).
+- Games: 8-ball, 9-ball, 10-ball, and straight pool.
+- Platforms: Android, iOS, Web, Linux, macOS, and Windows. Web is the primary
+  development target.
 
 Flow: home → setup → match.
 
 ## Status
 
-Done: client flow, rotation and straight-pool scoring, undo/redo, timer,
-responsive layouts, tests, home shell, local Drift persistence for players and
-matches, theme, color, and text scale settings.
+The core flow is complete: setup, live scoring, undo/redo, timer, responsive
+layouts, theming, and local persistence for players and matches.
 
-Next:
-
-1. Manager app, then sync (WebSocket likely).
-2. Player page.
-3. Tournament page.
+Next: player page, match detail page, and tournament page.
 
 ## Open questions
 
-- Deliberate/serious fouls in straight pool (15-point penalty, referee
-  discretion).
+- Deliberate fouls in straight pool (15-point penalty, referee discretion).
 - History detail, delete, and export.
 - Player profile editing (rename, delete, country/club).
 - Language and localization scope.
-- No per-platform smoke test; widget tests cover compact/wide widths.

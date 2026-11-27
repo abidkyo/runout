@@ -2,108 +2,68 @@
 
 ## Files
 
-- Separate code sections with
-  `// ---------------------------------------------------------------------------`.
-- App configuration enums live with their config in `core/constants/`.
-- Test files mirror `lib/` by feature; the `widgets/` subfolder is not mirrored.
-
-## File layout
-
-Order inside a file:
-
-1. types (enums, small file-local models),
-2. static content (constants),
-3. exported widget/class,
-4. private subwidgets,
-5. helpers (extensions, top-level functions).
-
-## Code generation
-
-- Domain models use Freezed classic classes: a normal `const` constructor
-  with `assert(...)`, plus `part '<file>.freezed.dart'`.
-- Classic Freezed classes need `@JsonSerializable()` plus their own
-  `fromJson`/`toJson` for JSON code generation. Factory-based Freezed classes
-  do not.
-- Generated `*.freezed.dart` and `*.g.dart` (json_serializable and Drift) files
-  are committed and excluded from analysis. Never edit them by hand.
-- Run `dart run build_runner build --delete-conflicting-outputs` after changing
-  a Freezed model, a JSON model, or a Drift table.
-
-## Theme
-
-- `context.textTheme` / `context.colors` come from `theme_extension.dart`.
-- Custom text styles are defined in `AppTextTheme`.
-- Colors used are defined in `AppColorScheme`.
-- Use Material text roles; avoid hardcoded font sizes. Score digits use
-  tabular figures.
+- File order: types, constants, public widget or class, private widgets, then
+  helpers.
+- Test files mirror `lib/` by feature; the `widgets/` folder is not mirrored.
 
 ## Naming
 
-| Thing                 | Form                                                 |
-| --------------------- | ---------------------------------------------------- |
-| Notifier              | `XNotifier`                                          |
-| Private widget        | `_WidgetName` in the same file                       |
-| Public widget         | own file in `widgets/`                               |
-| Dialog                | `XDialog` in `widgets/` (shared → `shared/widgets/`) |
-| Constant / enum value | `lowerCamelCase`                                     |
-| Boolean               | `isX`, `hasX`, `canX`                                |
-| Test file             | `<subject>_test.dart`                                |
+| Thing                  | Form                                                 |
+| ---------------------- | ---------------------------------------------------- |
+| Notifier               | `XNotifier`                                          |
+| Private widget         | `_WidgetName` in the same file                       |
+| Public widget          | own file in `widgets/`                               |
+| Dialog                 | `XDialog` in `widgets/` (shared → `shared/widgets/`) |
+| Constant or enum value | `lowerCamelCase`                                     |
+| Boolean                | `isX`, `hasX`, `canX`                                |
+| Test file              | `<subject>_test.dart`                                |
 
-## Widgets and layout
+## Widgets
 
 - Never return a widget from a method; extract a widget class.
-- Avoid fixed heights for text-bearing surfaces. Layouts must survive 1.5×
-  and 2× text scale without overflow; let content size itself or scroll.
+- Custom state-bearing surfaces need an explicit `Semantics` wrapper. Labels
+  describe state only, never content a child already shows.
+- Text-bearing surfaces avoid fixed heights; content sizes itself or scrolls.
+- Use Material text roles instead of hardcoded font sizes. Scores use tabular
+  figures.
 
 ## Errors
 
 Choose by reachability:
 
-| Mechanism               | Use for                            | Example                            |
-| ----------------------- | ---------------------------------- | ---------------------------------- |
-| `StateError`            | reachable by a correct program     | `buildMatch()` with empty players  |
-| `assert` + early return | only incorrect code can produce it | bad index, negative points         |
-| silent early return     | normal precondition not met        | `scoreRack` while not playing |
+| Mechanism               | Use for                            | Example                           |
+| ----------------------- | ---------------------------------- | --------------------------------- |
+| `StateError`            | reachable by a correct program     | `buildMatch()` with empty players |
+| `assert` + early return | only incorrect code can produce it | bad index, negative points        |
+| silent early return     | normal precondition not met        | `scoreRack` while not playing     |
 
-Never throw in release paths; tests verify asserts, not release returns.
+Never throw in release paths. Tests verify asserts, not release returns.
 
 ## Feedback
 
-- Use `showAppSnackBar` for one-off messages; it uses the app-level
-  `scaffoldMessengerKey`, so it does not need a context.
-- `showAppSnackBar` shows the close icon only when no action is supplied.
-- Tests that assert a snackbar must attach `AppConstants.scaffoldMessengerKey`
-  to their `MaterialApp`.
-- Dialog-local failures stay inline. A snackbar behind a modal barrier is
-  invisible.
-
-## Semantics
-
-- Custom state-bearing surfaces need an explicit `Semantics` wrapper.
-- Labels describe state only, never content a child already shows.
+- Use `showAppSnackBar` for one-off messages; it needs no context.
+- It shows the close icon only when no action is supplied.
+- Dialog failures stay inline; a snackbar behind a modal barrier is invisible.
+- Tests that assert a snackbar must attach the app-level messenger key to their
+  `MaterialApp`.
 
 ## Comments
 
-Explain why or a non-obvious contract, not what the code does. Update or delete
-stale comments in the same change; no commented-out code or changelogs.
+Explain why or a non-obvious contract, not what the code does. No stale
+comments, changelogs, or commented-out code.
 
 ## Testing
 
-- Unit tests cover domain and notifiers. Use `fake_async` for timers; dispose
-  notifiers that own timers or listeners.
-- `test/unit/helpers/factories.dart` provides builders. Use a factory when its
-  defaults are the point; otherwise construct the object directly.
-- Widget tests pump the smallest widget owning the contract. For width
-  contracts, wrap in `Center(SizedBox(width: X))` and test at the threshold and
-  threshold + 1.
-- Stateful widgets use a `_Host` that owns the value and rebuilds on change.
+- Unit tests cover domain and notifiers. Use `fake_async` for timers and dispose
+  notifiers that own timers.
+- Prefer factories when their defaults are the point; otherwise construct the
+  object directly.
+- Widget tests pump the smallest widget owning the contract. Test width
+  contracts at the threshold and the threshold plus one.
+- Stateful test hosts own the value and rebuild on change.
 - Assert behavior and user-visible outcomes. Add keys only when a finder is
   otherwise ambiguous.
-- `DropdownMenu`: tap the menu itself; use
-  `find.widgetWithText(MenuItemButton, '<label>')` for entries.
-- Avoid `find.text('')`; empty `EditableText` internals also render text.
-- Semantics: use `tester.ensureSemantics()` and assert state labels.
-- Responsive tests set `physicalSize` with `devicePixelRatio = 1` and reset in
-  `addTearDown`. Dialogs tapping below the fold need a taller viewport or
-  `ensureVisible`.
+- Use `ensureSemantics()` to assert state labels.
+- Responsive tests set `physicalSize` with `devicePixelRatio = 1` and reset it
+  in `addTearDown`.
 - No mocking package; prefer real objects, factories, and hosts.
