@@ -1,5 +1,5 @@
 name: runout
-description: "A billiard scoring app."
+description: "A billiard scoring app for 8-ball, 9-ball, 10-ball, and straight pool."
 publish_to: "none"
 version: 0.1.0+1
 

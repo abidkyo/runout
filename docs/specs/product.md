@@ -14,10 +14,8 @@ Flow: home → setup → match.
 
 ## Status
 
-The core flow is complete: setup, live scoring, undo/redo, timer, responsive
-layouts, theming, and local persistence for players and matches.
-
-Next: player page, match detail page, and tournament page.
+0.1.0 is the first public release, shipping the core match flow on the web.
+Player management, match details, and tournaments are next.
 
 ## Open questions
 
